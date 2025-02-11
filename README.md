@@ -1,66 +1,55 @@
-## Foundry
+# DN404 Liquidity Generator
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+A next-generation dual-nature token implementation combining NFT and ERC20 functionality with automated liquidity management and cross-token interactions.
 
-Foundry consists of:
+## Overview
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+This project extends the DN404 standard (NFT + ERC20 dual-nature token) with advanced DeFi mechanics:
 
-## Documentation
+- 🔄 Automated bonding curve for initial token distribution
+- 🌊 Self-deploying liquidity pools
+- 💫 Cross-token liquidity generation for $CULT
+- 🔒 Non-extractable contract-owned liquidity
+- 💰 Smart transfer tax system
 
-https://book.getfoundry.sh/
+## Core Mechanics
 
-## Usage
+### Bonding Curve Presale
+- Dynamic pricing mechanism
+- Automatic LP deployment trigger at threshold
+- Fair distribution model
 
-### Build
+### Liquidity Management
+- Auto-deployment of primary token LP
+- Cross-token LP generation with $CULT
+- Contract-owned, non-extractable liquidity
+- Fee collection system for contract owner
 
-```shell
-$ forge build
-```
+### Technical Architecture
+- Built on DN404 standard
+- Foundry development framework
+- Comprehensive testing suite
 
-### Test
-
-```shell
-$ forge test
-```
-
-### Format
-
-```shell
-$ forge fmt
-```
-
-### Gas Snapshots
+## Development
 
 ```shell
-$ forge snapshot
+# Install dependencies
+forge install
+
+# Build
+forge build
+
+# Test
+forge test
+
+# Deploy
+forge script script/Deploy.s.sol:DeployScript --rpc-url <your_rpc_url> --private-key <your_private_key>
 ```
 
-### Anvil
+## Security
 
-```shell
-$ anvil
-```
+[Security details and audit information will go here]
 
-### Deploy
+## License
 
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
+[License information]

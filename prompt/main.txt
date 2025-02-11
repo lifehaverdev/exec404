@@ -1,0 +1,17 @@
+main intro:
+
+
+I'm working on implementing a new component for our DN404 project. Following our granular development approach:
+
+Current focus: [component_name]
+Purpose: [brief_description]
+Test requirements:
+- [key_test_1]
+- [key_test_2]
+
+Please help create the initial boilerplate for:
+1. The main contract
+2. The deployment script
+3. The test file
+
+Starting with the most basic implementation that proves the core concept works.
