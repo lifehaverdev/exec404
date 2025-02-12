@@ -9,9 +9,9 @@ Test requirements:
 - [key_test_1]
 - [key_test_2]
 
-Please help create the initial boilerplate for:
-1. The main contract
-2. The deployment script
-3. The test file
+Please help create the initial foundry boilerplate for:
+1. The component demonstration contract
+2. The component deployment script
+3. The component test file
 
 Starting with the most basic implementation that proves the core concept works.
