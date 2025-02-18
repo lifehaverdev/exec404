@@ -1,34 +1,45 @@
 # DN404 Liquidity Generator
 
-A next-generation dual-nature token implementation combining NFT and ERC20 functionality with automated liquidity management and cross-token interactions.
+A next-generation dual-nature token implementation combining NFT and ERC20 functionality with automated liquidity management, cross-token interactions, and innovative tokenomics.
 
 ## Overview
 
 This project extends the DN404 standard (NFT + ERC20 dual-nature token) with advanced DeFi mechanics:
 
 - 🔄 Automated bonding curve for initial token distribution
-- 🌊 Self-deploying liquidity pools
+- 🌊 Self-deploying liquidity pools (V2 & V3)
 - 💫 Cross-token liquidity generation for $CULT
 - 🔒 Non-extractable contract-owned liquidity
 - 💰 Smart transfer tax system
+- 🎯 Tiered whitelist system
 
 ## Core Mechanics
 
-### Bonding Curve Presale
-- Dynamic pricing mechanism
-- Automatic LP deployment trigger at threshold
-- Fair distribution model
+### Bonding Curve Presale (Days 1-12)
+- Dynamic pricing mechanism starting at 0.025 ETH per 10M tokens
+- Cubic price growth formula for fair distribution
+- Daily tiered whitelist system
+- Automatic LP deployment trigger after 12 days
+
+### Tokenomics
+- Maximum supply: 4.44B tokens
+- 4% tax on LP buys/sells:
+- 4% tax on bonding curve sells
+  - 3% to owner of miladystation #598
+  - 1% reflected back to LP fund
+- Tax proceeds auto-convert to $CULT V3 liquidity
 
 ### Liquidity Management
-- Auto-deployment of primary token LP
-- Cross-token LP generation with $CULT
-- Contract-owned, non-extractable liquidity
-- Fee collection system for contract owner
+- Automated V2 liquidity deployment post-presale
+- Contract-owned, non-extractable V3 concentrated liquidity for $CULT pairing
+- Contract-owned, non-extractable V2 liquidity
+- Smart rebalancing system for optimal liquidity depth
+- Fee collection system for owner of miladystation #598
 
-### Technical Architecture
-- Built on DN404 standard
-- Foundry development framework
-- Comprehensive testing suite
+### NFT Features
+- 1 NFT per 1M tokens
+- Default skip-NFT setting for gas optimization
+- Manual NFT minting via balanceMint function
 
 ## Development
 
@@ -48,8 +59,12 @@ forge script script/Deploy.s.sol:DeployScript --rpc-url <your_rpc_url> --private
 
 ## Security
 
-[Security details and audit information will go here]
+- All smart contract functions are internally tested
+- Bonding curve calculations use fixed-point math library
+- Reentrancy protection on critical functions
+- Automated liquidity deployment safeguards
+- [Audit information pending]
 
 ## License
 
-[License information]
+VPL

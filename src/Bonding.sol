@@ -58,21 +58,41 @@ contract Bonding is Test {
     }
 
     function _calculateIntegralFromZero(uint256 supply) internal pure returns (uint256) {
-        // Scale down supply by 1e18
-        uint256 scaledSupply = supply / 1e18;
+        // Scale down supply by 1e25 to match getPrice scaling
+        uint256 scaledSupply = supply / 1e25;
+        uint256 scaledSupplyWad = scaledSupply * 1e18;
         
-        // First part: 0.025s
-        uint256 linearPart = (INITIAL_PRICE * supply) / 1e18;
+        // Integrate base price: 0.025x
+        uint256 basePart = (INITIAL_PRICE * supply) / 1e25;
         
-        // Second part: (1.0106*10^-17)*s^7.3/7.3
-        uint256 exponent = 7.3e18;  // 7.3 in fixed point
-        uint256 powered = FixedPointMathLib.rpow(scaledSupply, exponent, 1e18);
+        // Integrate 4e-9x^3 -> (4e-9/4)x^4
+        uint256 quarticTerm = FixedPointMathLib.mulWad(
+            1 gwei, // 4e9/4 = 1e9
+            FixedPointMathLib.mulWad(
+                FixedPointMathLib.mulWad(
+                    FixedPointMathLib.mulWad(scaledSupplyWad, scaledSupplyWad),
+                    scaledSupplyWad
+                ),
+                scaledSupplyWad
+            )
+        );
         
-        // Adjust coefficient for the scaling
-        uint256 numerator = 10106 * 1e15;  // 1.0106 * 1e19
-        uint256 nonLinearPart = (powered * numerator) / (73e17);  // divide by 7.3
+        // Integrate 4e-9x^2 -> (4e-9/3)x^3
+        uint256 cubicTerm = FixedPointMathLib.mulWad(
+            FixedPointMathLib.mulDiv(4 gwei, 3, 1e18),  // 4e9/3
+            FixedPointMathLib.mulWad(
+                FixedPointMathLib.mulWad(scaledSupplyWad, scaledSupplyWad),
+                scaledSupplyWad
+            )
+        );
         
-        return linearPart + nonLinearPart;
+        // Integrate 4e-9x -> (4e-9/2)x^2
+        uint256 quadraticTerm = FixedPointMathLib.mulWad(
+            2 gwei,  // 4e9/2 = 2e9
+            FixedPointMathLib.mulWad(scaledSupplyWad, scaledSupplyWad)
+        );
+        
+        return basePart + quarticTerm + cubicTerm + quadraticTerm;
     }
 
     function calculateCost(uint256 amount) public view returns (uint256) {

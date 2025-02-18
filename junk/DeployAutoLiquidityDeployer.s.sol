@@ -2,7 +2,7 @@
 pragma solidity ^0.8.19;
 
 import {Script} from "forge-std/Script.sol";
-import {AutoLiquidityDeployer} from "../src/AutoLiquidityDeployer.sol";
+import {AutoLiquidityDeployer} from "../src/LPDeployer.sol";
 
 contract DeployAutoLiquidityDeployer is Script {
     function run() public returns (AutoLiquidityDeployer) {
@@ -10,7 +10,8 @@ contract DeployAutoLiquidityDeployer is Script {
         
         // We'll need to pass in the token address
         AutoLiquidityDeployer deployer = new AutoLiquidityDeployer(
-            address(0) // Placeholder token address
+            "Test",
+            "TEST"
         );
         
         vm.stopBroadcast();

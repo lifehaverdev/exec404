@@ -1,0 +1,7 @@
+MS2 factory has create2 deployer. contract deployer is technically create2 factory, and because it only deploys one or limited templates, there is no need to guard salts (but you still should to prevent frontrunning).
+
+so basically you have a view function that can calculate the initcodehash `keccak256(abi.encodePacked(type(ContractName).creationCode, abi.encode(constructor args))` for the contract being deployed. note that constructor args change the init code hash. create3 is what you'll use if this is a problem.
+
+once they have the initcodehash, they just need to load up create2crunch (not createXcrunch unless you replicate its salt guarding exactly, it does let you specify alternative deployer addresses), put in the init code hash, your factory as deployer, and mine the salt. the browser or web backend can do this.
+
+once the salt is known, provide it to the deploy function with the inputs that the initcodehash was derived from and you've got your vanity deployment

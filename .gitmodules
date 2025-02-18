@@ -10,3 +10,21 @@
 [submodule "lib/v4-periphery"]
 	path = lib/v4-periphery
 	url = https://github.com/uniswap/v4-periphery
+[submodule "lib/uniswap-v2-core"]
+	path = lib/uniswap-v2-core
+	url = https://github.com/Uniswap/uniswap-v2-core
+[submodule "lib/uniswap-v2-periphery"]
+	path = lib/uniswap-v2-periphery
+	url = https://github.com/Uniswap/uniswap-v2-periphery
+[submodule "lib/dn404"]
+	path = lib/dn404
+	url = https://github.com/vectorized/dn404
+[submodule "lib/v3-core"]
+	path = lib/v3-core
+	url = https://github.com/uniswap/v3-core
+[submodule "lib/v3-periphery"]
+	path = lib/v3-periphery
+	url = https://github.com/uniswap/v3-periphery
+[submodule "lib/openzeppelin-contracts"]
+	path = lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts

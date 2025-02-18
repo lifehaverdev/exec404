@@ -15,3 +15,35 @@ Please help create the initial foundry boilerplate for:
 3. The component test file
 
 Starting with the most basic implementation that proves the core concept works.
+
+
+
+alright, we are working with a very high level solidity smart contract that utilizes advanced storage techniques and some assembly to achieve its purpose, which is a dual nature erc20 token and nft.
+
+
+
+Chat, we have our fully functional contract.
+
+Now we need to ensure that it works.
+
+We need to make a robust testing suite, intended to fork mainnet and test how it truly behaves.
+
+Things we are looking to ensure:
+
+1. no funny business with token balances and nft balances
+
+2. no funny business with presale / bonding curve action
+
+3. no funny business with liquidity pool deployment
+
+4. no funny business with the sequential merkle tree list
+
+5. no funny business with the taxes
+
+that's where we will start.
+
+Not only that we want to get benchmarks for gas, as well as an understanding of the flow of funds for different scenarios, like if the bonding curve is completely filled, or if its only partially filled. what sort of taxes is possible to collect with different volumes and so on.
+
+It will be a robust test suite that proves our concept.
+
+Let's get started with a boilerplate testing contract using foundry, and lets create some methods that will be useful for us along with some constants for users and so on.
