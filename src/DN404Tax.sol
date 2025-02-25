@@ -53,7 +53,7 @@ interface IUniswapV2Router02 {
 //TEST
 import "forge-std/Test.sol";
 
-contract TEST404 is DN404MS2, Ownable, Test {
+contract DEPTEST404 is DN404MS2, Ownable, Test {
 
     //
     // CONSTANTS

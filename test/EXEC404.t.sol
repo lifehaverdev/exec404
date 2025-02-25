@@ -5,6 +5,13 @@ import "forge-std/Test.sol";
 import "../src/DN404EXEC.sol";
 import { DN404Mirror } from "dn404/src/DN404Mirror.sol";
 
+interface IERC20 {
+    function balanceOf(address account) external view returns (uint256);
+    function transfer(address to, uint256 amount) external returns (bool);
+    function approve(address spender, uint256 amount) external returns (bool);
+    function allowance(address owner, address spender) external view returns (uint256);
+}
+
 interface IUniswapV2Pair {
     function token0() external view returns (address);
     function token1() external view returns (address);
@@ -14,7 +21,7 @@ interface IUniswapV2Pair {
 
 
 
-contract TEST404Test is Test {
+contract EXEC404Test is Test {
     // Constants for common addresses
     address constant ROUTER = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D; // Uniswap V2 Router
     address constant V3ROUTER = 0xE592427A0AEce92De3Edee1F18E0157C05861564;	//0x68B34Df539345556C21BF984377daab139449559; //Uniswap v3 router
@@ -40,7 +47,7 @@ contract TEST404Test is Test {
     address[] internal testUsers = [alice, bob, carol, dave, emma, frank, grace, henry, ivy, jack, kelly, larry];
     
     // Contract instances
-    TEST404 public token;
+    EXEC404 public token;
     DN404Mirror public mirror;
     
     // Merkle tree roots for 12 days
@@ -74,7 +81,7 @@ contract TEST404Test is Test {
         
         // Deploy contracts with generated merkle roots
         vm.startPrank(alice);
-        token = new TEST404(merkleRoots, ROUTER, V3ROUTER);
+        token = new EXEC404(merkleRoots);
         
         vm.stopPrank();
         
@@ -374,13 +381,13 @@ contract TEST404Test is Test {
                         console.logBytes32(proof[j]);
                     }
                     console.logBytes32(merkleRoots[day]); // Log the expected root
-                    token.buyBonding{value: maxCost}(amount, maxCost, false, proof);
+                    token.buyBonding{value: maxCost}(amount, maxCost, false, proof, '');
                     assertTrue(token.balanceOf(user) > 0, "Whitelisted user should be able to buy");
                 } else {
                     // Should fail for non-whitelisted users
                     bytes32[] memory emptyProof;
                     vm.expectRevert("Not whitelisted");  // Updated error message
-                    token.buyBonding{value: maxCost}(amount, maxCost, false, emptyProof);
+                    token.buyBonding{value: maxCost}(amount, maxCost, false, emptyProof, '');
                 }
                 
                 vm.stopPrank();
@@ -399,7 +406,7 @@ contract TEST404Test is Test {
         vm.deal(alice, maxCost);
         uint256 tooMuch = token.MAX_SUPPLY() + 1;
         vm.expectRevert("Exceeds bonding supply");
-        token.buyBonding{value: maxCost}(tooMuch, maxCost, false, proof);
+        token.buyBonding{value: maxCost}(tooMuch, maxCost, false, proof, '');
         vm.stopPrank();
 
         // Test: Can't send insufficient ETH
@@ -407,7 +414,7 @@ contract TEST404Test is Test {
         vm.deal(alice, maxCost);
         uint256 cost = token.calculateCost(amount);
         vm.expectRevert("Insufficient ETH sent");
-        token.buyBonding{value: cost - 1}(amount, maxCost, false, proof);
+        token.buyBonding{value: cost - 1}(amount, maxCost, false, proof, '');
         vm.stopPrank();
 
         // Test: Can't exceed slippage
@@ -416,7 +423,7 @@ contract TEST404Test is Test {
         vm.deal(alice, actualCost);
         uint256 lowMaxCost = actualCost - 1;
         vm.expectRevert("Slippage exceeded");
-        token.buyBonding{value: actualCost}(amount, lowMaxCost, false, proof);
+        token.buyBonding{value: actualCost}(amount, lowMaxCost, false, proof, '');
         vm.stopPrank();
 
         // Test: NFT minting flag works
@@ -424,11 +431,11 @@ contract TEST404Test is Test {
         vm.deal(alice, actualCost * 3);
         actualCost = token.calculateCost(amount);  // Use the contract's calculation
         // First buy with NFT minting off
-        token.buyBonding{value: actualCost}(amount, actualCost, false, proof);
+        token.buyBonding{value: actualCost}(amount, actualCost, false, proof, '');
         uint256 nftBalanceBefore = token.balanceOf(alice);
         
         // Then buy with NFT minting on
-        token.buyBonding{value: actualCost}(amount, actualCost, true, proof);
+        token.buyBonding{value: actualCost}(amount, actualCost, true, proof, '');
         uint256 nftBalanceAfter = token.balanceOf(alice);
         
         assertTrue(nftBalanceAfter > nftBalanceBefore, "NFT minting flag should work");
@@ -454,7 +461,8 @@ contract TEST404Test is Test {
                 dailyPurchaseAmount,
                 cost,
                 false,
-                proof
+                proof,
+                ''
             );
             vm.stopPrank();
         }
@@ -512,7 +520,8 @@ contract TEST404Test is Test {
                 dailyPurchaseAmount,
                 cost,  // Max cost same as calculated cost
                 false,  // Mint NFTs
-                proof
+                proof,
+                ''
             );
             vm.stopPrank();
             
@@ -633,11 +642,10 @@ contract TEST404Test is Test {
         vm.startPrank(user);
         
         // Prepare ETH amounts
-        uint256 halfEth = 0.005 ether;
         
         // Buy CULT tokens
-        IWETH(token.weth()).deposit{value: halfEth}();
-        IERC20(token.weth()).approve(address(token.router3()), halfEth);
+        IWETH(token.weth()).deposit{value: 0.005 ether}();
+        IERC20(token.weth()).approve(address(token.router3()), 0.005 ether);
         
         bytes memory path = abi.encodePacked(
             token.weth(),
@@ -649,36 +657,44 @@ contract TEST404Test is Test {
             path: path,
             recipient: user,
             deadline: block.timestamp,
-            amountIn: halfEth,
+            amountIn: 0.005 ether,
             amountOutMinimum: 0
         });
         
         uint256 cultBought = ISwapRouter(token.router3()).exactInput(params);
         
         // Prepare for position
-        IWETH(token.weth()).deposit{value: halfEth}();
+        IWETH(token.weth()).deposit{value: 0.005 ether}();
         
         // Calculate position range
-        address cultPool = token.factory3().getPool(token.CULT(), token.weth(), 10000);
-        (, int24 currentTick,,,,, ) = IUniswapV3Pool(cultPool).slot0();
-        int24 tickSpacing = IUniswapV3Pool(cultPool).tickSpacing();
-        int24 tickRange = tickSpacing * 16;
-        int24 tickLower = ((currentTick - tickRange) / tickSpacing) * tickSpacing;
-        int24 tickUpper = ((currentTick + tickRange) / tickSpacing) * tickSpacing;
+        //address cultPool = token.factory3().getPool(token.CULT(), token.weth(), 10000);
+        (,bytes memory d) = token.factory3().staticcall(abi.encodeWithSelector(0x1698ee82, token.CULT(), token.weth(), 10000));
+        address cultPool = abi.decode(d, (address));
+        //(, int24 currentTick,,,,, ) = IUniswapV3Pool(cultPool).slot0();
+        (,bytes memory d2) = cultPool.staticcall(abi.encodeWithSelector(0x3850c7bd));
+        (uint160 sqrtPriceX96, int24 currentTick,,,,,) = abi.decode(d2, (uint160,int24,uint16,uint16,uint16,uint8,bool));
+
+        
+        //int24 tickSpacing = IUniswapV3Pool(cultPool).tickSpacing();
+        (,bytes memory d3) = cultPool.staticcall(abi.encodeWithSelector(0xd0c93a7c));
+        int24 tickSpacing = abi.decode(d3, (int24));
+        //int24 tickRange = tickSpacing * 16;
+        //int24 tickLower = ((currentTick - tickRange) / tickSpacing) * tickSpacing;
+        //int24 tickUpper = ((currentTick + tickRange) / tickSpacing) * tickSpacing;
         
         // Approve tokens
         IERC20(token.CULT()).approve(address(token.positionManager()), cultBought);
-        IERC20(token.weth()).approve(address(token.positionManager()), halfEth);
+        IERC20(token.weth()).approve(address(token.positionManager()), 0.005 ether);
         
         // Create position
         INonfungiblePositionManager.MintParams memory mintParams = INonfungiblePositionManager.MintParams({
             token0: token.CULT(),
             token1: token.weth(),
             fee: 10000,
-            tickLower: tickLower,
-            tickUpper: tickUpper,
+            tickLower: ((currentTick - (tickSpacing * 16)) / tickSpacing) * tickSpacing,
+            tickUpper: ((currentTick + (tickSpacing * 16)) / tickSpacing) * tickSpacing,
             amount0Desired: cultBought,
-            amount1Desired: halfEth,
+            amount1Desired: 0.005 ether,
             amount0Min: 0,
             amount1Min: 0,
             recipient: user,
@@ -962,8 +978,8 @@ contract TEST404Test is Test {
         console.log("\nBefore Collection:");
         console.log("Tokens Owed 0:", initialTokensOwed0);
         console.log("Tokens Owed 1:", initialTokensOwed1);
-// Prank as the NFT owner
-    vm.startPrank(0x1821BD18CBdD267CE4e389f893dDFe7BEB333aB6);
+        // Prank as the NFT owner
+        vm.startPrank(0x1821BD18CBdD267CE4e389f893dDFe7BEB333aB6);
 
         // Collect the fees
         (uint256 collected0, uint256 collected1) = token.collectV3Fees(

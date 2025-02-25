@@ -3,25 +3,28 @@ pragma solidity ^0.8.24;
 
 import { DN404 } from "dn404/src/DN404.sol";
 import { DN404Mirror } from "dn404/src/DN404Mirror.sol";
+import { Ownable } from "solady/auth/Ownable.sol";
+import { LibString } from "solady/utils/LibString.sol";
 import { FixedPointMathLib } from "solady/utils/FixedPointMathLib.sol";
 import { SafeTransferLib } from "solady/utils/SafeTransferLib.sol";
 import { MerkleProofLib } from "solady/utils/MerkleProofLib.sol";
 import {ISwapRouter} from "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 import {IMulticall} from "@uniswap/v3-periphery/contracts/interfaces/IMulticall.sol";
-
-//import "forge-std/Test.sol";
+//TEST
+import "forge-std/Test.sol";
+import "solady/utils/FixedPointMathLib.sol";
 
 // Add these interface and state variables after the existing interfaces
-// interface IERC20 {
-//     function balanceOf(address account) external view returns (uint256);
-//     function transfer(address to, uint256 amount) external returns (bool);
-//     function approve(address spender, uint256 amount) external returns (bool);
-//     function allowance(address owner, address spender) external view returns (uint256);
-// }
-// interface IUniswapV2Factory {
-//     function getPair(address tokenA, address tokenB) external view returns (address pair);
-//     function createPair(address tokenA, address tokenB) external returns (address pair);
-// }
+interface IERC20 {
+    function balanceOf(address account) external view returns (uint256);
+    function transfer(address to, uint256 amount) external returns (bool);
+    function approve(address spender, uint256 amount) external returns (bool);
+    function allowance(address owner, address spender) external view returns (uint256);
+}
+interface IUniswapV2Factory {
+    function getPair(address tokenA, address tokenB) external view returns (address pair);
+    function createPair(address tokenA, address tokenB) external returns (address pair);
+}
 interface IUniswapV2Router02 {
     function factory() external pure returns (address);
     function WETH() external pure returns (address);
@@ -92,15 +95,15 @@ interface IUniswapV3Pool {
     function token0() external view returns (address);
     function token1() external view returns (address);
     function fee() external view returns (uint24);
-    //function slot0() external view returns (uint160 sqrtPriceX96, int24 tick, uint16 observationIndex, uint16 observationCardinality, uint16 observationCardinalityNext, uint8 feeProtocol, bool unlocked);
+    function slot0() external view returns (uint160 sqrtPriceX96, int24 tick, uint16 observationIndex, uint16 observationCardinality, uint16 observationCardinalityNext, uint8 feeProtocol, bool unlocked);
     function positions(uint256 tokenId) external view returns (uint128 liquidity, uint256 feeGrowthInside0X128, uint256 feeGrowthInside1X128, uint128 tokensOwed0, uint128 tokensOwed1);
-    //function tickSpacing() external view returns (int24);
+    function tickSpacing() external view returns (int24);
 }
 
-// interface IUniswapV3Factory {
-//     function getPool(address tokenA, address tokenB, uint24 fee) external view returns (address pool);
-//     function createPool(address tokenA, address tokenB, uint24 fee) external returns (address pool);
-// }
+interface IUniswapV3Factory {
+    function getPool(address tokenA, address tokenB, uint24 fee) external view returns (address pool);
+    function createPool(address tokenA, address tokenB, uint24 fee) external returns (address pool);
+}
 
 interface IWETH {
     function deposit() external payable;
@@ -176,7 +179,7 @@ interface INonfungiblePositionManager {
         returns (uint256 amount0, uint256 amount1);
 }
 
-contract EXEC404 is DN404 {
+contract TEST404 is DN404, Ownable, Test {
     using FixedPointMathLib for uint256;
 
     address public constant CULT = 0x0000000000c5dc95539589fbD24BE07c6C14eCa4;
@@ -186,10 +189,8 @@ contract EXEC404 is DN404 {
     IUniswapV2Router02 public immutable router = IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
     ISwapRouter public immutable router3 = ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
     INonfungiblePositionManager public immutable positionManager = INonfungiblePositionManager(0xC36442b4a4522E871399CD717aBDD847Ab11FE88);
-    //IUniswapV2Factory public immutable factory;
-    address public immutable factory;
-    //IUniswapV3Factory public immutable factory3 = IUniswapV3Factory(0x1F98431c8aD98523631AE4a59f267346ea31F984);
-    address public constant factory3 = 0x1F98431c8aD98523631AE4a59f267346ea31F984;
+    IUniswapV2Factory public immutable factory;
+    IUniswapV3Factory public immutable factory3 = IUniswapV3Factory(0x1F98431c8aD98523631AE4a59f267346ea31F984);
 
     address public liquidityPair;
     address public immutable weth;
@@ -220,6 +221,7 @@ contract EXEC404 is DN404 {
     bool private swapping;
     mapping(uint256 => uint256) public blockSwaps;
 
+    // Packed struct - much more gas efficient
     struct BondingMessage {
         address sender;      // 20 bytes
         uint96 packedData;  // 12 bytes (contains timestamp:32 | amount:63 | isBuy:1)
@@ -249,14 +251,11 @@ contract EXEC404 is DN404 {
         require(_tierRoots.length == 12, "Invalid roots length");
         tierRoots = _tierRoots;
         LAUNCH_TIME = block.timestamp;
-        //factory = IUniswapV2Factory(router.factory());
-        factory = router.factory();
+        factory = IUniswapV2Factory(router.factory());
         weth = router.WETH();
 
         // Set CULT V3 pool directly
-        //cultPool = factory3.getPool(CULT, weth, POOL_FEE);
-        (,bytes memory d) = factory3.staticcall(abi.encodeWithSelector(0x1698ee82, CULT, weth, POOL_FEE));
-        cultPool = abi.decode(d, (address));
+        cultPool = factory3.getPool(CULT, weth, POOL_FEE);
         require(cultPool != address(0), "CULT pool doesn't exist");
         
         emit WhitelistInitialized(_tierRoots);
@@ -278,8 +277,7 @@ contract EXEC404 is DN404 {
         return MerkleProofLib.verify(
             proof,
             currentRoot(),
-            // keccak256(abi.encodePacked(account))
-            keccak256(abi.encodePacked(bytes20(account)))
+            keccak256(abi.encodePacked(account))
         );
     }
 
@@ -300,11 +298,11 @@ contract EXEC404 is DN404 {
         return "https://example.com/token/1";
     }
 
-    function name() public pure override returns (string memory) {
+    function name() public view override returns (string memory) {
         return "TEST404";
     }
 
-    function symbol() public pure override returns (string memory) {
+    function symbol() public view override returns (string memory) {
         return "TEST404";
     }
 
@@ -495,135 +493,86 @@ contract EXEC404 is DN404 {
         SafeTransferLib.safeTransferETH(msg.sender, userRefund);
     }
 
-    /// @notice Reads sqrtPriceX96 and tick from a Uniswap V3 pool using a static call
-    /// @param pool The address of the V3 pool
-    /// @return sqrtPriceX96 The current price as a Q64.96
-    /// @return tick The current tick function _staticcallSlot0Values(ad
-    function _staticcallSlot0Values(address pool) internal view returns (uint160 sqrtPriceX96, int24 tick) {
-        // slot0() function selector: 3850c7bd
-        assembly {
-            // Prepare calldata for staticcall (4 bytes for function selector)
-            mstore(0x0, 0x3850c7bd00000000000000000000000000000000000000000000000000000000)
-            
-            // Perform staticcall
-            // First 32 bytes: sqrtPriceX96 (uint160)
-            // Next 32 bytes: tick (int24)
-            let success := staticcall(gas(), pool, 0x0, 0x4, 0x0, 0x40)
-            
-            // Revert if call failed
-            if iszero(success) {
-                revert(0, 0)
-            }
-
-            // Load results
-            sqrtPriceX96 := mload(0x0)    // First 32 bytes contain sqrtPriceX96
-            tick := mload(0x20)           // Next 32 bytes contain tick
-        }
-    }
-
-    function _staticcallTickSpacing(address pool) internal view returns (int24 spacing) {
-        assembly {
-            // Store the function selector for tickSpacing()
-            mstore(0, 0xd0c93a7c00000000000000000000000000000000000000000000000000000000)
-            
-            // Make the call
-            let success := staticcall(gas(), pool, 0, 4, 0, 32)
-            if iszero(success) { revert(0, 0) }
-            
-            // Load the result
-            spacing := mload(0)
-        }
-    }
-
     function _initializeCultPoolLogic() private returns (bool) {
+        console.log("\n=== Starting CULT Pool Initialization ===");
+        console.log("Current cultPool address:", cultPool);
+        console.log("Current cultV3Position:", cultV3Position);
+        console.log("ETH available:", msg.value);
+
+        if (cultV3Position != 0) {
+            console.log("Early exit: Pool or position already exists");
+            return false;
+        }
         
-        if (cultV3Position != 0 || cultPool == address(0)) {
+        if (cultPool == address(0)) {
+            console.log("Early exit: Pool doesn't exist");
             return false;
         }
 
         // Get current tick and calculate proper range
-        //(, int24 currentTick) = _staticcallSlot0Values(cultPool);
-        int24 tickSpacing = _staticcallTickSpacing(cultPool);
-
-        //interface way
-        //(, int24 currentTick,,,,, ) = IUniswapV3Pool(cultPool).slot0();
-            //staticcall way optimized
-            (uint160 sqrtPriceX96,int24 currentTick) = _staticcallSlot0Values(cultPool);
-            // console.log("staticcall version - sqrtPrice:", sqrtPriceX96);
-            // console.log("staticcall version - tick:", currentTick);
-        // low level call abi decode way
-        //(,bytes memory d) = cultPool.staticcall(abi.encodeWithSelector(0x3850c7bd));
-        //(uint160 sqrtPriceX96, int24 currentTick,,,,,) = abi.decode(d, (uint160,int24,uint16,uint16,uint16,uint8,bool));
-        // console.log("low level version - sqrtPrice:", sqrtPriceX96);
-        // console.log("low level version - tick:", currentTick);
-        // First let's log everything from the working version
-        //(,bytes memory d) = cultPool.staticcall(abi.encodeWithSelector(0x3850c7bd));
-        //console.log("Low level call - raw data length:", d.length);
-        // Log the raw bytes in 32-byte chunks
-        // for(uint i = 0; i < d.length; i += 32) {
-        //     bytes32 chunk;
-        //     assembly {
-        //         chunk := mload(add(add(d, 32), i))
-        //     }
-        //     console.log("Chunk %s:", i / 32, uint256(chunk));
-        // }
-        // // Then decode and log the actual values
-        // (uint160 sqrtPriceX96, int24 currentTick,,,,,) = abi.decode(d, (uint160,int24,uint16,uint16,uint16,uint8,bool));
-        // console.log("After decode - sqrtPrice:", sqrtPriceX96);
-        // console.log("After decode - tick:", currentTick);
-
-        // Now let's compare with our assembly version
-        //(uint160 price2, int24 tick2) = _staticcallSlot0Values(cultPool);
-        //console.log("Assembly version - sqrtPrice:", price2);
-        //console.log("Assembly version - tick:", tick2);
-
-        
-        //int24 tickSpacing = IUniswapV3Pool(cultPool).tickSpacing();
-        // (,bytes memory d2) = cultPool.staticcall(abi.encodeWithSelector(0xd0c93a7c));
-        // int24 tickSpacing = abi.decode(d2, (int24));
+        (uint160 sqrtPriceX96, int24 currentTick,,,,, ) = IUniswapV3Pool(cultPool).slot0();
+        int24 tickSpacing = IUniswapV3Pool(cultPool).tickSpacing();
         
         // Calculate ticks ±16 spacing units from current tick
         int24 tickRange = tickSpacing * 16;
-        //int24 tickLower = ((currentTick - tickRange) / tickSpacing) * tickSpacing;
-        //int24 tickUpper = ((currentTick + tickRange) / tickSpacing) * tickSpacing;
+        int24 tickLower = ((currentTick - tickRange) / tickSpacing) * tickSpacing;
+        int24 tickUpper = ((currentTick + tickRange) / tickSpacing) * tickSpacing;
+
+        console.log("\nPool Info:");
+        console.log("Current tick:", currentTick);
+        console.log("Tick spacing:", tickSpacing);
+        console.log("Lower tick:", tickLower);
+        console.log("Upper tick:", tickUpper);
 
         // Buy CULT with half the ETH
-        uint256 cultBought = _buyCultWithExactEth(0.005 ether);
+        uint256 ethForPosition = 0.01 ether;
+        uint256 halfEth = ethForPosition / 2;
+        uint256 cultBought = _buyCultWithExactEth(halfEth);
 
         // Wrap the other half for the position
-        IWETH(weth).deposit{value: 0.005 ether}();
+        IWETH(weth).deposit{value: halfEth}();
+
+        console.log("\nDebug amounts before mint:");
+        console.log("Half ETH (in wei):", halfEth);
+        console.log("CULT bought:", cultBought);
+        console.log("WETH balance:", IERC20(weth).balanceOf(address(this)));
+        console.log("CULT balance:", IERC20(CULT).balanceOf(address(this)));
 
         // Approve tokens for position manager
-        //IERC20(CULT).approve(address(positionManager), cultBought);
-        (bool s,) = (CULT).call(abi.encodeWithSelector(0x095ea7b3, address(positionManager), cultBought)); require(s);
-        //IERC20(weth).approve(address(positionManager), halfEth);
-        (bool s2,) = (weth).call(abi.encodeWithSelector(0x095ea7b3, address(positionManager), 0.005 ether)); require(s2);
+        IERC20(CULT).approve(address(positionManager), cultBought);
+        IERC20(weth).approve(address(positionManager), halfEth);
         
+        console.log("\nAttempting to mint position...");
         try positionManager.mint(INonfungiblePositionManager.MintParams({
             token0: CULT,
             token1: weth,
             fee: POOL_FEE,
-            tickLower: ((currentTick - tickRange) / tickSpacing) * tickSpacing,
-            tickUpper: ((currentTick + tickRange) / tickSpacing) * tickSpacing,
+            tickLower: tickLower,
+            tickUpper: tickUpper,
             amount0Desired: cultBought,
-            amount1Desired: 0.005 ether,
+            amount1Desired: halfEth,
             amount0Min: 0,
             amount1Min: 0,
             recipient: address(this),
             deadline: block.timestamp
         })) returns (uint256 tokenId, uint128 v3Liquidity, uint256 amount0, uint256 amount1) {
             cultV3Position = tokenId;
-           
+            console.log("\nPosition successfully minted:");
+            console.log("Token ID:", tokenId);
+            console.log("Liquidity:", v3Liquidity);
+            console.log("Amount0 used:", amount0);
+            console.log("Amount1 used:", amount1);
+            
             // Refund any unused WETH
-            uint256 unusedWeth = 0.005 ether - amount1;
+            uint256 unusedWeth = halfEth - amount1;
             if (unusedWeth > 0) {
-                
+                console.log("\nRefunding unused WETH:", unusedWeth);
                 IWETH(weth).withdraw(unusedWeth);
             }
             return true;
         } catch Error(string memory reason) {
-            
-            IWETH(weth).withdraw(0.005 ether);
+            console.log("\nMinting failed with reason:", reason);
+            IWETH(weth).withdraw(halfEth);
             return false;
         }
     }
@@ -644,9 +593,7 @@ contract EXEC404 is DN404 {
         require(remainingSupply > 0, "No tokens to deploy");
 
         // Create and store the pair address
-        //liquidityPair = factory.createPair(address(this), weth);
-        (,bytes memory d) = factory.call(abi.encodeWithSelector(0xc9c65396, address(this), weth));
-        liquidityPair = abi.decode(d, (address));
+        liquidityPair = factory.createPair(address(this), weth);
 
         // Set aside small amount for CULT pool initialization
         uint256 ethForCult = 0.01 ether;
@@ -665,7 +612,7 @@ contract EXEC404 is DN404 {
 
         // Try to initialize CULT pool with remaining ETH
         if (!_initializeCultPoolLogic()) {
-            
+            console.log("CULT pool initialization failed");
         }
 
         return (amountToken, amountETH, liquidity);
@@ -675,13 +622,17 @@ contract EXEC404 is DN404 {
     function _selectOperation() internal view returns (uint256 operation, uint256 amount) {
         uint256 execBalance = balanceOf(address(this));
         uint256 ethBalance = address(this).balance;
-        //uint256 cultBalance = IERC20(CULT).balanceOf(address(this));
-        (,bytes memory d) = (CULT).staticcall(abi.encodeWithSelector(0x70a08231, address(this)));
-        uint256 cultBalance = abi.decode(d, (uint256));
+        uint256 cultBalance = IERC20(CULT).balanceOf(address(this));
+
+        // Debug logs
+        console.log("\nBalances:");
+        console.log("EXEC:", execBalance);
+        console.log("ETH:", ethBalance);
+        console.log("CULT:", cultBalance);
 
         // Priority 1: If we have EXEC and low ETH, sell EXEC
         if (execBalance >= MIN_SELL_THRESHOLD && ethBalance < 0.01 ether) {
-            
+            console.log("Low on ETH, selling EXEC:", execBalance);
             return (0, execBalance);
         }
 
@@ -689,7 +640,7 @@ contract EXEC404 is DN404 {
         if (ethBalance >= 0.01 ether && cultBalance < MIN_CULT_THRESHOLD) {
             // Use ALL available ETH (minus gas buffer)
             uint256 ethToUse = ethBalance - 0.005 ether; // Leave 0.005 ETH for gas
-            
+            console.log("Using all ETH to buy CULT:", ethToUse);
             return (1, ethToUse);
         }
 
@@ -699,59 +650,55 @@ contract EXEC404 is DN404 {
             (uint256 optimalCult,) = _getOptimalCultRatio(ethBalance);
             // Use the maximum amount possible while maintaining ratio
             uint256 cultToUse = cultBalance > optimalCult ? optimalCult : cultBalance;
-            
+            console.log("Adding max liquidity with CULT:", cultToUse);
             return (2, cultToUse);
         }
 
-       
+        console.log("No valid operation found");
         return (0, 0);
     }
 
     // Add this internal function to handle tax logic
     function _beforeTransfer(address from, address to, uint256 amount) internal view returns (uint256) {
         // Don't tax if liquidity pair isn't set yet (initial deployment)
-        address liq = liquidityPair;
-        if (liq == address(0)) return amount;
+        if (liquidityPair == address(0)) return amount;
         
         // Don't tax if contract is involved in the transfer
         if (from == address(this) || to == address(this)) return amount;
         
         // Apply tax on liquidity pair interactions
-        if (to == liq || from == liq) {
-            // uint256 taxAmount = (amount * TAX_RATE) / 10000;
-            // return amount - taxAmount;
-            assembly {
-                // amount - ((amount * TAX_RATE) / 10000)
-                let tax := div(mul(amount, TAX_RATE), 10000)
-                amount := sub(amount, tax)
-            }
+        if (to == liquidityPair || from == liquidityPair) {
+            uint256 taxAmount = (amount * TAX_RATE) / 10000;
+            return amount - taxAmount;
         }
+          
         return amount;
     }
 
     function _processTaxes(address from, address to) internal {
         // Skip if pair isn't initialized yet (for initial liquidity)
-        address liq = liquidityPair;
-        uint256 blockSwap = blockSwaps[block.number];
-        if (liq == address(0)) return;
+        if (liquidityPair == address(0)) return;
         if (from == address(this) || to == address(this)) return;
+        
         // Only process on sells (when transferring TO the pair)
-        bool isSell = to == liq;
-        if (isSell && !swapping && blockSwap < 3) {
+        bool isSell = to == liquidityPair;
+        if (isSell && !swapping && blockSwaps[block.number] < 3) {
             uint256 existingBalance = balanceOf(address(this));
             if (existingBalance >= MIN_SELL_THRESHOLD) {
                 swapping = true;
                 (uint256 operation, uint256 amount) = _selectOperation();
                 if (operation == 0) {
+                    console.log("Selling EXEC");
                     _handleSellTax();
                 } else if (operation == 1) {
-                    //_handleBuyCult(amount);
-                    _buyCultWithExactEth(amount);
+                    console.log("Buying CULT:", amount);
+                    _handleBuyCult(amount);
                 } else {
+                    console.log("Adding CULT Liquidity");
                     _handleAddCultLiquidity();
                 }
                 swapping = false;
-                blockSwaps[block.number] = blockSwap + 1;
+                blockSwaps[block.number] = blockSwaps[block.number] + 1;
             }
         }
     }
@@ -807,17 +754,7 @@ contract EXEC404 is DN404 {
         IWETH(weth).deposit{value: ethAmount}();
         
         // 2. Approve WETH
-        //IERC20(weth).approve(address(router3), ethAmount);
-        (bool s,) = (weth).call(abi.encodeWithSelector(0x095ea7b3, address(router3), ethAmount)); require(s);
-        //incorrect assembly
-        // assembly {
-        //     // keccak256("approve(address,uint256)")[:4] = 0x095ea7b3
-        //     mstore(0x0, 0x095ea7b300000000000000000000000000000000000000000000000000000000)
-        //     mstore(0x04, shr(96, shl(96, 0xE592427A0AEce92De3Edee1F18E0157C05861564)))  // router3 address padded to 32 bytes
-        //     mstore(0x24, ethAmount)
-        //     let success := call(gas(), 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2, 0, 0x0, 0x44, 0x0, 0x0) //weth address
-        //     if iszero(success) { revert(0, 0) }
-        // }
+        IERC20(weth).approve(address(router3), ethAmount);
         
         // 3. Swap with 1% fee tier
         bytes memory path = abi.encodePacked(
@@ -844,46 +781,21 @@ contract EXEC404 is DN404 {
 
     // Helper function to calculate optimal CULT/ETH ratio based on current pool price
     function _getOptimalCultRatio(uint256 ethAmount) internal view returns (uint256 optimalCult, uint256 price) {
-        //(uint160 sqrtPriceX96,,,,,,) = IUniswapV3Pool(cultPool).slot0();
-        (uint160 sqrtPriceX96,) = _staticcallSlot0Values(cultPool);
-        //(,bytes memory d) = cultPool.staticcall(abi.encodeWithSelector(0x3850c7bd));
-        //uint160 sqrtPriceX96 = abi.decode(d, (uint160));
-
-        //uint256 priceX96 = uint256(sqrtPriceX96) * uint256(sqrtPriceX96);
-        //price = (priceX96 * (10**18)) >> 192; // Convert to WAD
+        (uint160 sqrtPriceX96,,,,,,) = IUniswapV3Pool(cultPool).slot0();
+        uint256 priceX96 = uint256(sqrtPriceX96) * uint256(sqrtPriceX96);
+        price = (priceX96 * (10**18)) >> 192; // Convert to WAD
+        
         // Calculate how much CULT we should have for this amount of ETH
-        //optimalCult = (ethAmount * price) / 1e18;
-
-        assembly {
-            // Calculate price = (sqrtPriceX96 * sqrtPriceX96 * 1e18) >> 192
-            let priceX96 := mul(sqrtPriceX96, sqrtPriceX96)
-            price := shr(192, mul(priceX96, exp(10, 18)))
-            
-            // Calculate optimalCult = (ethAmount * price) / 1e18
-            optimalCult := div(mul(ethAmount, price), exp(10, 18))
-        }
+        optimalCult = (ethAmount * price) / 1e18;
     }
 
-    // redundant
-    // function _handleBuyCult(uint256 ethAmount) internal {
-    //     // Buy CULT with the ETH amount passed in
-    //     _buyCultWithExactEth(ethAmount);
-    // }
+    function _handleBuyCult(uint256 ethAmount) internal {
+        // Buy CULT with the ETH amount passed in
+        _buyCultWithExactEth(ethAmount);
+    }
 
     function _handleAddCultLiquidity() internal {
-        //uint256 cultBalance = IERC20(CULT).balanceOf(address(this));
-        //(,bytes memory d) = (CULT).staticcall(abi.encodeWithSelector(0x70a08231, address(this)));
-        //uint256 cultBalance = abi.decode(d, (uint256));
-        uint256 cultBalance;
-        assembly {
-            // keccak256("balanceOf(address)")[:4] = 0x70a08231
-            mstore(0x0, 0x70a0823100000000000000000000000000000000000000000000000000000000)
-            mstore(0x04, address())
-            
-            let success := staticcall(gas(), CULT, 0x0, 0x24, 0x0, 0x20)
-            if iszero(success) { revert(0, 0) }
-            cultBalance := mload(0x0)
-        }
+        uint256 cultBalance = IERC20(CULT).balanceOf(address(this));
         uint256 ethBalance = address(this).balance;
         
         if (cultBalance == 0 || ethBalance < 0.005 ether) {
@@ -905,15 +817,12 @@ contract EXEC404 is DN404 {
         }
 
         // Get current price for reference
-        //(uint160 sqrtPriceX96,,,,,,) = IUniswapV3Pool(cultPool).slot0();
-        (uint160 sqrtPriceX96,) = _staticcallSlot0Values(cultPool);
-        //(,bytes memory d) = cultPool.staticcall(abi.encodeWithSelector(0x3850c7bd));
-        //uint160 sqrtPriceX96 = abi.decode(d, (uint160));
+        (uint160 sqrtPriceX96,,,,,,) = IUniswapV3Pool(cultPool).slot0();
         uint256 priceX96 = uint256(sqrtPriceX96) * uint256(sqrtPriceX96);
         uint256 price = (priceX96 * 1e18) >> 192;
         
         if (amount0 > 0 && amount1 > 0.01 ether) {
-          
+            console.log("=== Adding Liquidity ===");
             _increaseCultLiquidity(amount0, amount1);
         }
     }
@@ -937,7 +846,7 @@ contract EXEC404 is DN404 {
     function _increaseCultLiquidity(uint256 cultAmount, uint256 ethAmount) internal returns (bool) {
 
         if (cultV3Position == 0) {
-         
+            console.log("No existing position to increase");
             return false;
         }
 
@@ -945,10 +854,8 @@ contract EXEC404 is DN404 {
         IWETH(weth).deposit{value: ethAmount}();
         
         // Approve tokens
-        //IERC20(CULT).approve(address(positionManager), cultAmount);
-        (bool s,) = (CULT).call(abi.encodeWithSelector(0x095ea7b3, address(positionManager), cultAmount)); require(s);
-        //IERC20(weth).approve(address(positionManager), ethAmount);
-        (bool s2,) = (weth).call(abi.encodeWithSelector(0x095ea7b3, address(positionManager), ethAmount)); require(s2);
+        IERC20(CULT).approve(address(positionManager), cultAmount);
+        IERC20(weth).approve(address(positionManager), ethAmount);
 
         try positionManager.increaseLiquidity(INonfungiblePositionManager.IncreaseLiquidityParams({
             tokenId: cultV3Position,
@@ -960,15 +867,13 @@ contract EXEC404 is DN404 {
         })) returns (uint128 liquidity, uint256 amount0, uint256 amount1) {
 
             // Unwrap any unused WETH
-            //uint256 unusedWeth = IERC20(weth).balanceOf(address(this));
-            (,bytes memory d) = (weth).staticcall(abi.encodeWithSelector(0x70a08231, address(this)));
-            uint256 unusedWeth = abi.decode(d, (uint256));
+            uint256 unusedWeth = IERC20(weth).balanceOf(address(this));
             if (unusedWeth > 0) {
                 IWETH(weth).withdraw(unusedWeth);
             }
             return true;
         } catch Error(string memory reason) {
-         
+            console.log("\nIncreasing liquidity failed:", reason);
             // Unwrap WETH on failure
             IWETH(weth).withdraw(ethAmount);
             return false;
