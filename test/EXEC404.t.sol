@@ -1003,4 +1003,394 @@ contract EXEC404Test is Test {
         assertEq(finalTokensOwed0, 0, "Should collect all token0 fees");
         assertEq(finalTokensOwed1, 0, "Should collect all token1 fees");
     }
+
+    function testBondingMessaging() public {
+        uint256 amount = 100 ether;
+        uint256 maxCost = 1 ether;
+        vm.warp(token.LAUNCH_TIME());
+        address user = testUsers[0];
+        bytes32[] memory proof = generateProof(0, user);
+        
+        vm.startPrank(user);
+        vm.deal(user, maxCost * 3);
+
+        // Initialize account first with a small purchase
+        token.buyBonding{value: maxCost}(amount, maxCost, false, proof, "");
+        console.log("Initial account setup complete");
+
+        // Now test the actual message functionality
+        _testBondingBuy(amount, maxCost, proof, "");
+        _testBondingBuy(amount, maxCost, proof, "");
+        _testBondingBuy(amount, maxCost, proof, "Hello World!");
+
+        // Test sells
+        uint256 sellAmount = 50 ether;
+        _testBondingSell(sellAmount, 0, proof, "");
+        _testBondingSell(sellAmount, 0, proof, "Goodbye!");
+
+        vm.stopPrank();
+    }
+
+    function _testBondingBuy(
+        uint256 amount,
+        uint256 maxCost,
+        bytes32[] memory proof,
+        string memory testMessage
+    ) private {
+        uint256 messageIndex = token.totalMessages();
+        uint256 gasBefore = gasleft();
+        
+        token.buyBonding{value: maxCost}(amount, maxCost, false, proof, testMessage);
+        
+        console.log(
+            "Gas used for buy with%smessage: %d",
+            bytes(testMessage).length == 0 ? " empty " : " ",
+            gasBefore - gasleft()
+        );
+
+        if (bytes(testMessage).length > 0) {
+            (address sender,,,,string memory message) = token.getMessageDetails(messageIndex);
+            assertEq(sender, testUsers[0], "Wrong sender stored");
+            assertEq(message, testMessage, "Wrong message stored");
+        }
+    }
+
+    function _testBondingSell(
+        uint256 amount,
+        uint256 minRefund,
+        bytes32[] memory proof,
+        string memory testMessage
+    ) private {
+        uint256 messageIndex = token.totalMessages();
+        uint256 gasBefore = gasleft();
+        
+        token.sellBonding(amount, minRefund, proof, testMessage);
+        
+        console.log(
+            "Gas used for sell with%smessage: %d",
+            bytes(testMessage).length == 0 ? " empty " : " ",
+            gasBefore - gasleft()
+        );
+
+        if (bytes(testMessage).length > 0) {
+            (address sender,,,,string memory message) = token.getMessageDetails(messageIndex);
+            assertEq(sender, testUsers[0], "Wrong sender stored");
+            assertEq(message, testMessage, "Wrong message stored");
+        }
+    }
+
+    function testGetMessagesBatch() public {
+        uint256 amount = 100 ether;
+        uint256 maxCost = 1 ether;
+        vm.warp(token.LAUNCH_TIME());
+        address user = testUsers[0];
+        bytes32[] memory proof = generateProof(0, user);
+        
+        vm.startPrank(user);
+        vm.deal(user, maxCost * 5);
+
+        // Initialize account
+        token.buyBonding{value: maxCost}(amount, maxCost, false, proof, "");
+        
+        // Create a series of messages
+        string[4] memory testMessages = [
+            "First message",
+            "Second message",
+            "Third message",
+            "Fourth message"
+        ];
+        
+        for(uint i = 0; i < testMessages.length; i++) {
+            if(i % 2 == 0) {
+                token.buyBonding{value: maxCost}(amount, maxCost, false, proof, testMessages[i]);
+            } else {
+                token.sellBonding(amount / 2, 0, proof, testMessages[i]);
+            }
+        }
+        
+        // Test valid range (0-1)
+        console.log("\nTesting range 0-1:");
+        (
+            address[] memory senders,
+            uint32[] memory timestamps,
+            uint64[] memory amounts,
+            bool[] memory isBuys,
+            string[] memory messages
+        ) = token.getMessagesBatch(0, 1);
+        
+        for(uint i = 0; i <= 1; i++) {
+            console.log("Message %s:", i);
+            console.log("Sender:", senders[i]);
+            console.log("Timestamp:", timestamps[i]);
+            console.log("Amount:", amounts[i]);
+            console.log("Is Buy:", isBuys[i]);
+            console.log("Message:", messages[i]);
+        }
+        
+        // Test another valid range (1-3)
+        console.log("\nTesting range 1-3:");
+        (senders, timestamps, amounts, isBuys, messages) = token.getMessagesBatch(1, 3);
+        
+        for(uint i = 0; i < 3; i++) {
+            console.log("Message %s:", i + 1);
+            console.log("Sender:", senders[i]);
+            console.log("Timestamp:", timestamps[i]);
+            console.log("Amount:", amounts[i]);
+            console.log("Is Buy:", isBuys[i]);
+            console.log("Message:", messages[i]);
+        }
+        
+        // Test invalid ranges
+        console.log("\nTesting invalid ranges:");
+        
+        // Test end < start
+        vm.expectRevert("Invalid range");
+        token.getMessagesBatch(2, 1);
+        console.log("Correctly reverted when end < start");
+        
+        // Test out of bounds
+        vm.expectRevert("End out of bounds");
+        token.getMessagesBatch(0, 10);
+        console.log("Correctly reverted when end > totalMessages");
+        
+        vm.stopPrank();
+    }
+
+    function testBondingPriceChanges() public {
+        address user = testUsers[0];
+        bytes32[] memory proof = generateProof(0, user);
+        
+        vm.startPrank(user);
+        vm.deal(user, 100 ether); // Give plenty of ETH
+        vm.warp(token.LAUNCH_TIME());
+
+        uint256 purchaseAmount = 100_000_000 ether; // 10M EXEC per purchase
+        uint256 checkAmount = 10_000_000 ether; // Check price for 10M EXEC
+        
+        console.log("\n=== Bonding Price Changes ===");
+        console.log("Initial price for 10M EXEC: %s wei", token.calculateCost(checkAmount));
+        
+        // Buy in 10M EXEC increments and check price after each purchase
+        for (uint256 i = 1; i <= 20; i++) {
+            uint256 cost = token.calculateCost(purchaseAmount);
+            
+            // Make the purchase
+            _testBondingBuy(purchaseAmount, cost, proof, "");
+            
+            // Check new price for next 10M EXEC
+            uint256 newPrice = token.calculateCost(checkAmount);
+            console.log(
+                "After %sM EXEC purchased - Price for next 10M: %s wei",
+                i * 10,
+                newPrice
+            );
+        }
+        
+        vm.stopPrank();
+    }
+
+    function testBondingSlippage() public {
+        uint256 amount = 10_000_000 ether; // Trying to buy 10M tokens
+        uint256 maxCost = 0.0025 ether;      // But only paying 0.25 ETH (price for ~1M tokens)
+        
+        vm.warp(token.LAUNCH_TIME());
+        address user = testUsers[0];
+        bytes32[] memory proof = generateProof(0, user);
+        
+        vm.startPrank(user);
+        vm.deal(user, maxCost);
+
+        // Calculate the actual cost for 10M tokens
+        uint256 actualCost = token.calculateCost(amount);
+        console.log("Actual cost for 10M tokens:", actualCost);
+        console.log("Attempting to pay only:", maxCost);
+
+        // This should revert because we're trying to buy more tokens than we're paying for
+        vm.expectRevert("Cost exceeds maxCost");
+        token.buyBonding{value: maxCost}(amount, maxCost, false, proof, "");
+
+        // Now let's verify the correct amount we can buy with 0.25 ETH
+        uint256 correctAmount = 1_000_000 ether; // Expected ~1M tokens for 0.25 ETH
+        uint256 correctCost = token.calculateCost(correctAmount);
+        
+        // This should succeed
+        token.buyBonding{value: correctCost}(correctAmount, correctCost, false, proof, "");
+        
+        // Verify the balance is correct
+        assertEq(token.balanceOf(user), correctAmount, "Received wrong amount of tokens");
+        
+        vm.stopPrank();
+    }
+
+    function testTokenEthConversions() public {
+        uint256 maxBondingSupply = token.MAX_SUPPLY() - token.LIQUIDITY_RESERVE();
+        uint256 basePrice = 2500000000000000; // 0.0025 ETH in wei
+        uint256 baseAmount = 1_000_000 ether;  // 1M EXEC
+        
+        console.log("\n=== Testing Full Bonding Curve ===");
+        console.log("Max Bonding Supply:", maxBondingSupply / 1e18, "EXEC");
+        
+        // Test at 10% intervals up to 90%
+        for (uint256 i = 1; i <= 9; i++) {
+            uint256 targetAmount = (maxBondingSupply * i) / 10;
+            
+            // Calculate cost for full amount up to this point
+            uint256 totalCost = token.calculateCost(targetAmount);
+            
+            // Calculate cost for just the last 1M EXEC at this point
+            uint256 costForNext1M;
+            if (i < 9) {
+                uint256 costBefore = token.calculateCost(targetAmount);
+                uint256 costAfter = token.calculateCost(targetAmount + 1_000_000 ether);
+                costForNext1M = costAfter - costBefore;
+            }
+            
+            console.log("\n=== %s0%% of Supply ===", i);
+            console.log("Target EXEC:", targetAmount);
+            console.log("Total Cost in ETH:", totalCost);
+            console.log("Average Price per 1M EXEC:", (totalCost * 1e18) / targetAmount / 1e18, "ETH");
+            if (i < 9) {
+                console.log("Marginal Price per 1M EXEC:", costForNext1M, "ETH");
+            }
+            
+            // Also show the instantaneous price at this point
+            uint256 instantPrice = token.getPrice(targetAmount);
+            console.log("Instant Price:", instantPrice, "ETH");
+        }
+
+        // Now let's do a smaller purchase to verify
+        vm.startPrank(alice);
+        vm.deal(alice, type(uint256).max); // Give maximum possible ETH
+        bytes32[] memory proof = generateProof(0, alice);
+        
+        // Try buying just 10% instead of 50%
+        uint256 largeAmount = maxBondingSupply / 10; // 10% of supply instead of 50%
+        uint256 largeCost = token.calculateCost(largeAmount);
+        
+        console.log("\n=== Large Purchase Test ===");
+        console.log("Attempting to buy:", largeAmount, "EXEC");
+        console.log("Calculated cost:", largeCost, "ETH");
+        
+        token.buyBonding{value: largeCost}(largeAmount, largeCost, false, proof, "");
+        
+        uint256 aliceBalance = token.balanceOf(alice);
+        console.log("\nPurchase Results:");
+        console.log("Alice's balance:", aliceBalance, "EXEC");
+        console.log("Total bonding supply:", token.totalBondingSupply(), "EXEC");
+        
+        vm.stopPrank();
+    }
+
+    function testPriceCalculations() public {
+        // Calculate 10% intervals of the max bonding supply
+        uint256 maxBondingSupply = token.MAX_SUPPLY() - token.LIQUIDITY_RESERVE();
+        
+        console.log("\n=== Price Calculation Test ===");
+        console.log("Max Bonding Supply:", maxBondingSupply / 1e18, "EXEC");
+        
+        // Test at each 10% interval
+        for (uint256 i = 1; i <= 10; i++) {
+            uint256 supplyPoint = (maxBondingSupply * i) / 10;
+            
+            // Get price at this supply point
+            uint256 instantPrice = token.getPrice(supplyPoint);
+            
+            // Calculate integral up to this point
+            uint256 totalCost = token.calculateCost(supplyPoint);
+            
+            // Calculate average price
+            uint256 avgPrice = totalCost / (supplyPoint / 1e18);
+            
+            console.log("\n=== At %s0%% of Supply (%s EXEC) ===", i, supplyPoint / 1e18);
+            console.log("Instant Price:", instantPrice, "ETH");
+            console.log("Total Cost:", totalCost, "ETH");
+            console.log("Average Price:", avgPrice, "ETH");
+            
+            // If not at the end, calculate marginal cost for next small increment
+            if (i < 10) {
+                uint256 nextPoint = supplyPoint + 1000000 ether; // Next 1M tokens
+                uint256 nextCost = token.calculateCost(nextPoint);
+                uint256 marginalCost = nextCost - totalCost;
+                
+                console.log("Marginal Cost (next 1M):", marginalCost, "ETH");
+            }
+        }
+        
+        // Additional test: verify small purchases near the start
+        console.log("\n=== Small Purchase Tests (First 5M EXEC) ===");
+        uint256[] memory smallAmounts = new uint256[](5);
+        for (uint256 i = 0; i < 5; i++) {
+            smallAmounts[i] = (i + 1) * 1000000 ether; // 1M EXEC increments
+            
+            uint256 price = token.getPrice(smallAmounts[i]);
+            uint256 cost = token.calculateCost(smallAmounts[i]);
+            
+            console.log("\nAmount: %sM EXEC", i + 1);
+            console.log("Instant Price:", price, "ETH");
+            console.log("Total Cost:", cost, "ETH");
+            console.log("Average Price:", (cost / (smallAmounts[i] / 1e18)), "ETH");
+        }
+    }
+
+    function testIntegralCalculationSteps() public {
+        // Let's test with 1M EXEC tokens (1e24) first
+        uint256 testAmount = 1000000 ether; // 1M EXEC
+        
+        console.log("\n=== Testing Integral Calculation with 1M EXEC ===");
+        console.log("Input amount:", testAmount / 1e18, "EXEC");
+        
+        // Step 1: Scale down
+        uint256 scaledSupplyWad = testAmount / 1e7;
+        console.log("\nStep 1: Scale down by 1e7");
+        console.log("scaledSupplyWad:", scaledSupplyWad);
+        
+        // Step 2: Base price part
+        uint256 basePart = token.INITIAL_PRICE() * scaledSupplyWad / 1e18;
+        console.log("\nStep 2: Base price part (INITIAL_PRICE * scaledSupplyWad)");
+        console.log("INITIAL_PRICE:", token.INITIAL_PRICE());
+        console.log("basePart:", basePart);
+        
+        // Step 3: Quartic term (x^4)
+        uint256 quarticStep1 = FixedPointMathLib.mulWad(scaledSupplyWad, scaledSupplyWad); // x^2
+        uint256 quarticStep2 = FixedPointMathLib.mulWad(quarticStep1, scaledSupplyWad);    // x^3
+        uint256 quarticStep3 = FixedPointMathLib.mulWad(quarticStep2, scaledSupplyWad);    // x^4
+        uint256 quarticTerm = FixedPointMathLib.mulWad(1 gwei, quarticStep3);              // coefficient * x^4
+        
+        console.log("\nStep 3: Quartic term calculations");
+        console.log("x^2:", quarticStep1);
+        console.log("x^3:", quarticStep2);
+        console.log("x^4:", quarticStep3);
+        console.log("Final quartic term:", quarticTerm);
+        
+        // Step 4: Cubic term (x^3)
+        uint256 cubicStep1 = FixedPointMathLib.mulWad(scaledSupplyWad, scaledSupplyWad);  // x^2
+        uint256 cubicStep2 = FixedPointMathLib.mulWad(cubicStep1, scaledSupplyWad);       // x^3
+        uint256 cubicCoef = 1333333333;                    // 4/3 * 1gwei
+        uint256 cubicTerm = FixedPointMathLib.mulWad(cubicCoef, cubicStep2);              // coefficient * x^3
+        
+        console.log("\nStep 4: Cubic term calculations");
+        console.log("x^2:", cubicStep1);
+        console.log("x^3:", cubicStep2);
+        console.log("Cubic coefficient:", cubicCoef);
+        console.log("Final cubic term:", cubicTerm);
+        
+        // Step 5: Quadratic term (x^2)
+        uint256 quadStep1 = FixedPointMathLib.mulWad(scaledSupplyWad, scaledSupplyWad);   // x^2
+        uint256 quadTerm = FixedPointMathLib.mulWad(2 gwei, quadStep1);                   // coefficient * x^2
+        
+        console.log("\nStep 5: Quadratic term calculations");
+        console.log("x^2:", quadStep1);
+        console.log("Final quadratic term:", quadTerm);
+        
+        // Step 6: Final sum
+        uint256 total = basePart + quarticTerm + cubicTerm + quadTerm;
+        console.log("\nStep 6: Final sum of all terms");
+        console.log("Total:", total);
+        console.log("Total in ETH:", total );
+        
+        // Compare with contract calculation
+        uint256 contractResult = token.calculateCost(testAmount);
+        console.log("\nContract calculation result:", contractResult);
+        console.log("Contract result in ETH:", contractResult );
+    }
 }

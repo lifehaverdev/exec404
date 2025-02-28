@@ -338,12 +338,15 @@ contract EXEC404 is DN404 {
     }
 
     function getPrice(uint256 supply) public pure returns (uint256) {
-        uint256 scaledSupply = supply / 1e24;
-        uint256 basePrice = INITIAL_PRICE;
-        uint256 scaledSupplyWad = scaledSupply * 1e18;
+        // Scale down by 1e26 (divide by 100T tokens) to get into a manageable range
+        // This means 4.44B tokens becomes 44.4
+        // uint256 scaledSupply = supply / 1e25;
+        // uint256 scaledSupplyWad = scaledSupply * 1e18;
+        uint256 scaledSupplyWad = supply / 1e7;
         
+        // Calculate terms with scaled numbers
         uint256 cubicTerm = FixedPointMathLib.mulWad(
-            4 gwei,
+            12 gwei,
             FixedPointMathLib.mulWad(
                 FixedPointMathLib.mulWad(scaledSupplyWad, scaledSupplyWad),
                 scaledSupplyWad
@@ -357,7 +360,37 @@ contract EXEC404 is DN404 {
         
         uint256 linearTerm = FixedPointMathLib.mulWad(4 gwei, scaledSupplyWad);
         
-        return basePrice + cubicTerm + quadraticTerm + linearTerm;
+        return INITIAL_PRICE + cubicTerm + quadraticTerm + linearTerm;
+    }
+
+    function getExecForEth(uint256 ethAmount) public view returns (uint256 execAmount) {
+        // If price is too low, return max possible
+        uint256 remainingSupply = MAX_SUPPLY - LIQUIDITY_RESERVE - totalBondingSupply;
+        if (calculateCost(remainingSupply) <= ethAmount) {
+            return remainingSupply;
+        }
+
+        // Binary search for the amount of EXEC that costs closest to ethAmount
+        uint256 low = 0;
+        uint256 high = remainingSupply;
+        
+        while (low < high) {
+            uint256 mid = (low + high + 1) / 2;
+            uint256 cost = calculateCost(mid);
+            
+            if (cost <= ethAmount) {
+                low = mid;
+            } else {
+                high = mid - 1;
+            }
+        }
+        
+        return low;
+    }
+
+    function getEthForExec(uint256 execAmount) public view returns (uint256 ethAmount) {
+        require(execAmount <= totalBondingSupply, "Amount exceeds bonding supply");
+        return calculateRefund(execAmount);
     }
 
     function calculateIntegral(uint256 lowerBound, uint256 upperBound) internal pure returns (uint256) {
@@ -366,16 +399,18 @@ contract EXEC404 is DN404 {
     }
 
     function _calculateIntegralFromZero(uint256 supply) internal pure returns (uint256) {
-        // Scale down supply by 1e25 to match getPrice scaling
-        uint256 scaledSupply = supply / 1e25;
-        uint256 scaledSupplyWad = scaledSupply * 1e18;
+        // Scale down to hundreds since price curve is per 10M tokens
+        // uint256 scaledSupply = supply / 1e26;
+        // uint256 scaledSupplyWad = scaledSupply * 1e18;
+        uint256 scaledSupplyWad = supply / 1e7;
         
-        // Integrate base price: 0.025x
-        uint256 basePart = (INITIAL_PRICE * supply) / 1e25;
+        // Base price integral dewadded by 1e18
+        uint256 basePart = INITIAL_PRICE * scaledSupplyWad / 1e18;
         
-        // Integrate 4e-9x^3 -> (4e-9/4)x^4
+        // Calculate integral terms with scaled numbers
         uint256 quarticTerm = FixedPointMathLib.mulWad(
-            1 gwei, // 4e9/4 = 1e9
+            //12 / 4 
+            3 gwei,
             FixedPointMathLib.mulWad(
                 FixedPointMathLib.mulWad(
                     FixedPointMathLib.mulWad(scaledSupplyWad, scaledSupplyWad),
@@ -385,26 +420,29 @@ contract EXEC404 is DN404 {
             )
         );
         
-        // Integrate 4e-9x^2 -> (4e-9/3)x^3
         uint256 cubicTerm = FixedPointMathLib.mulWad(
-            FixedPointMathLib.mulDiv(4 gwei, 3, 1e18),  // 4e9/3
+            1333333333, //4/3 * 1gwei
             FixedPointMathLib.mulWad(
                 FixedPointMathLib.mulWad(scaledSupplyWad, scaledSupplyWad),
                 scaledSupplyWad
             )
         );
         
-        // Integrate 4e-9x -> (4e-9/2)x^2
         uint256 quadraticTerm = FixedPointMathLib.mulWad(
-            2 gwei,  // 4e9/2 = 2e9
+            2 gwei,
             FixedPointMathLib.mulWad(scaledSupplyWad, scaledSupplyWad)
         );
         
+        // Scale the result back up by 1e8
         return basePart + quarticTerm + cubicTerm + quadraticTerm;
     }
 
     function calculateCost(uint256 amount) public view returns (uint256) {
         return calculateIntegral(totalBondingSupply, totalBondingSupply + amount);
+    }
+
+    function calculateRefund(uint256 amount) public view returns (uint256) {
+        return calculateIntegral(totalBondingSupply - amount, totalBondingSupply);
     }
 
     function buyBonding(
@@ -414,9 +452,10 @@ contract EXEC404 is DN404 {
         bytes32[] calldata proof,
         string calldata message
     ) external payable whitelistGated(proof) {
-        require(totalBondingSupply + amount <= MAX_SUPPLY - LIQUIDITY_RESERVE, "Exceeds bonding supply");
+        // Check for overflow before adding
+        require(totalBondingSupply <= MAX_SUPPLY - LIQUIDITY_RESERVE - amount, "Exceeds bonding supply");
         uint256 totalCost = calculateCost(amount);
-        require(totalCost <= maxCost, "Slippage exceeded");
+        require(maxCost >= totalCost, "Cost exceeds maxCost");
         require(msg.value >= totalCost, "Insufficient ETH sent");
 
         // Only flip skipNFT if it's currently true and user wants to mint
@@ -431,13 +470,14 @@ contract EXEC404 is DN404 {
 
         // Store message if provided
         if (bytes(message).length > 0) {
-            require(amount <= type(uint64).max, "Amount too large for message storage");
+            uint64 scaledAmount = uint64(amount / 1e18);
+            require(scaledAmount <= type(uint64).max, "Amount too large for message storage");
             
             bondingMessages[totalMessages++] = BondingMessage({
                 sender: msg.sender,
                 packedData: packData(
                     uint32(block.timestamp),
-                    uint64(amount),
+                    scaledAmount,
                     true  // isBuy
                 ),
                 message: message
@@ -463,7 +503,7 @@ contract EXEC404 is DN404 {
         require(balanceOf(msg.sender) >= amount, "Insufficient balance");
 
         // Calculate refund and validate
-        uint256 refund = calculateIntegral(totalBondingSupply - amount, totalBondingSupply);
+        uint256 refund = calculateRefund(amount);
         require(refund >= minRefund && reserve >= refund, "Invalid refund");
 
         // Transfer tokens first
@@ -473,12 +513,12 @@ contract EXEC404 is DN404 {
 
         // Store message if provided
         if (bytes(message).length > 0) {
-            require(amount <= type(uint64).max, "Amount too large for message storage");
+            require(amount / 1 ether <= type(uint64).max, "Amount too large for message storage");
             bondingMessages[totalMessages++] = BondingMessage({
                 sender: msg.sender,
                 packedData: packData(
                     uint32(block.timestamp),
-                    uint64(amount),
+                    uint64(amount  /  1 ether),
                     false  // isBuy
                 ),
                 message: message
