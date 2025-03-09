@@ -736,8 +736,8 @@ contract EXEC404Test is Test {
         
         // Simulate trades
         for(uint256 i = 0; i < 100; i++) {
-            vm.roll(block.number + 1);
-            vm.warp(block.timestamp + 15);
+            vm.roll(block.number + i % 2);
+            vm.warp(block.timestamp + 15 * (i % 2));
             
             if(i % 2 == 0) { // Buy
                 address trader = traders[i % traders.length];
@@ -809,7 +809,7 @@ contract EXEC404Test is Test {
         // Final state
         console.log("\n=== Final Balances ===");
         console.log("EXEC Balance:", token.balanceOf(address(token)) / 1 ether);
-        console.log("ETH Balance:", address(token).balance / 1 ether);
+        console.log("ETH Balance:", address(token).balance );
         console.log("CULT Balance:", IERC20(token.CULT()).balanceOf(address(token)) / 1 ether);
     }
 
@@ -959,6 +959,23 @@ contract EXEC404Test is Test {
         Gas: 94018 Count: 2
         Gas: 94050 Count: 2
         Gas: 94019 Count: 13
+
+
+        after assemblifying approve and balanceOf
+        OOF our cheapest tx are more spensive
+        3/7/24
+        maybe its because of otehr logic too T.T
+        === Unique Gas Values ===
+        Gas: 160824 Count: 1
+        Gas: 117024 Count: 1
+        Gas: 117025 Count: 3
+        Gas: 116996 Count: 1
+        Gas: 116997 Count: 1
+        Gas: 117026 Count: 1
+        Gas: 117027 Count: 2
+        Gas: 95097 Count: 2
+        Gas: 95127 Count: 1
+        Gas: 95128 Count: 2
         */
     }
 
@@ -1332,65 +1349,65 @@ contract EXEC404Test is Test {
         }
     }
 
-    function testIntegralCalculationSteps() public {
-        // Let's test with 1M EXEC tokens (1e24) first
-        uint256 testAmount = 1000000 ether; // 1M EXEC
+    // function testIntegralCalculationSteps() public {
+    //     // Let's test with 1M EXEC tokens (1e24) first
+    //     uint256 testAmount = 1000000 ether; // 1M EXEC
         
-        console.log("\n=== Testing Integral Calculation with 1M EXEC ===");
-        console.log("Input amount:", testAmount / 1e18, "EXEC");
+    //     console.log("\n=== Testing Integral Calculation with 1M EXEC ===");
+    //     console.log("Input amount:", testAmount / 1e18, "EXEC");
         
-        // Step 1: Scale down
-        uint256 scaledSupplyWad = testAmount / 1e7;
-        console.log("\nStep 1: Scale down by 1e7");
-        console.log("scaledSupplyWad:", scaledSupplyWad);
+    //     // Step 1: Scale down
+    //     uint256 scaledSupplyWad = testAmount / 1e7;
+    //     console.log("\nStep 1: Scale down by 1e7");
+    //     console.log("scaledSupplyWad:", scaledSupplyWad);
         
-        // Step 2: Base price part
-        uint256 basePart = token.INITIAL_PRICE() * scaledSupplyWad / 1e18;
-        console.log("\nStep 2: Base price part (INITIAL_PRICE * scaledSupplyWad)");
-        console.log("INITIAL_PRICE:", token.INITIAL_PRICE());
-        console.log("basePart:", basePart);
+    //     // Step 2: Base price part
+    //     uint256 basePart = token.INITIAL_PRICE() * scaledSupplyWad / 1e18;
+    //     console.log("\nStep 2: Base price part (INITIAL_PRICE * scaledSupplyWad)");
+    //     console.log("INITIAL_PRICE:", token.INITIAL_PRICE());
+    //     console.log("basePart:", basePart);
         
-        // Step 3: Quartic term (x^4)
-        uint256 quarticStep1 = FixedPointMathLib.mulWad(scaledSupplyWad, scaledSupplyWad); // x^2
-        uint256 quarticStep2 = FixedPointMathLib.mulWad(quarticStep1, scaledSupplyWad);    // x^3
-        uint256 quarticStep3 = FixedPointMathLib.mulWad(quarticStep2, scaledSupplyWad);    // x^4
-        uint256 quarticTerm = FixedPointMathLib.mulWad(1 gwei, quarticStep3);              // coefficient * x^4
+    //     // Step 3: Quartic term (x^4)
+    //     uint256 quarticStep1 = FixedPointMathLib.mulWad(scaledSupplyWad, scaledSupplyWad); // x^2
+    //     uint256 quarticStep2 = FixedPointMathLib.mulWad(quarticStep1, scaledSupplyWad);    // x^3
+    //     uint256 quarticStep3 = FixedPointMathLib.mulWad(quarticStep2, scaledSupplyWad);    // x^4
+    //     uint256 quarticTerm = FixedPointMathLib.mulWad(1 gwei, quarticStep3);              // coefficient * x^4
         
-        console.log("\nStep 3: Quartic term calculations");
-        console.log("x^2:", quarticStep1);
-        console.log("x^3:", quarticStep2);
-        console.log("x^4:", quarticStep3);
-        console.log("Final quartic term:", quarticTerm);
+    //     console.log("\nStep 3: Quartic term calculations");
+    //     console.log("x^2:", quarticStep1);
+    //     console.log("x^3:", quarticStep2);
+    //     console.log("x^4:", quarticStep3);
+    //     console.log("Final quartic term:", quarticTerm);
         
-        // Step 4: Cubic term (x^3)
-        uint256 cubicStep1 = FixedPointMathLib.mulWad(scaledSupplyWad, scaledSupplyWad);  // x^2
-        uint256 cubicStep2 = FixedPointMathLib.mulWad(cubicStep1, scaledSupplyWad);       // x^3
-        uint256 cubicCoef = 1333333333;                    // 4/3 * 1gwei
-        uint256 cubicTerm = FixedPointMathLib.mulWad(cubicCoef, cubicStep2);              // coefficient * x^3
+    //     // Step 4: Cubic term (x^3)
+    //     uint256 cubicStep1 = FixedPointMathLib.mulWad(scaledSupplyWad, scaledSupplyWad);  // x^2
+    //     uint256 cubicStep2 = FixedPointMathLib.mulWad(cubicStep1, scaledSupplyWad);       // x^3
+    //     uint256 cubicCoef = 1333333333;                    // 4/3 * 1gwei
+    //     uint256 cubicTerm = FixedPointMathLib.mulWad(cubicCoef, cubicStep2);              // coefficient * x^3
         
-        console.log("\nStep 4: Cubic term calculations");
-        console.log("x^2:", cubicStep1);
-        console.log("x^3:", cubicStep2);
-        console.log("Cubic coefficient:", cubicCoef);
-        console.log("Final cubic term:", cubicTerm);
+    //     console.log("\nStep 4: Cubic term calculations");
+    //     console.log("x^2:", cubicStep1);
+    //     console.log("x^3:", cubicStep2);
+    //     console.log("Cubic coefficient:", cubicCoef);
+    //     console.log("Final cubic term:", cubicTerm);
         
-        // Step 5: Quadratic term (x^2)
-        uint256 quadStep1 = FixedPointMathLib.mulWad(scaledSupplyWad, scaledSupplyWad);   // x^2
-        uint256 quadTerm = FixedPointMathLib.mulWad(2 gwei, quadStep1);                   // coefficient * x^2
+    //     // Step 5: Quadratic term (x^2)
+    //     uint256 quadStep1 = FixedPointMathLib.mulWad(scaledSupplyWad, scaledSupplyWad);   // x^2
+    //     uint256 quadTerm = FixedPointMathLib.mulWad(2 gwei, quadStep1);                   // coefficient * x^2
         
-        console.log("\nStep 5: Quadratic term calculations");
-        console.log("x^2:", quadStep1);
-        console.log("Final quadratic term:", quadTerm);
+    //     console.log("\nStep 5: Quadratic term calculations");
+    //     console.log("x^2:", quadStep1);
+    //     console.log("Final quadratic term:", quadTerm);
         
-        // Step 6: Final sum
-        uint256 total = basePart + quarticTerm + cubicTerm + quadTerm;
-        console.log("\nStep 6: Final sum of all terms");
-        console.log("Total:", total);
-        console.log("Total in ETH:", total );
+    //     // Step 6: Final sum
+    //     uint256 total = basePart + quarticTerm + cubicTerm + quadTerm;
+    //     console.log("\nStep 6: Final sum of all terms");
+    //     console.log("Total:", total);
+    //     console.log("Total in ETH:", total );
         
-        // Compare with contract calculation
-        uint256 contractResult = token.calculateCost(testAmount);
-        console.log("\nContract calculation result:", contractResult);
-        console.log("Contract result in ETH:", contractResult );
-    }
+    //     // Compare with contract calculation
+    //     uint256 contractResult = token.calculateCost(testAmount);
+    //     console.log("\nContract calculation result:", contractResult);
+    //     console.log("Contract result in ETH:", contractResult );
+    // }
 }
