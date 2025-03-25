@@ -5,6 +5,7 @@ import { DN404 } from "dn404/src/DN404.sol";
 import { DN404Mirror } from "dn404/src/DN404Mirror.sol";
 import { FixedPointMathLib } from "solady/utils/FixedPointMathLib.sol";
 import { SafeTransferLib } from "solady/utils/SafeTransferLib.sol";
+import { LibString } from "solady/utils/LibString.sol";
 import { MerkleProofLib } from "solady/utils/MerkleProofLib.sol";
 import {ISwapRouter} from "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 import {IMulticall} from "@uniswap/v3-periphery/contracts/interfaces/IMulticall.sol";
@@ -22,20 +23,8 @@ import {IMulticall} from "@uniswap/v3-periphery/contracts/interfaces/IMulticall.
 //     function createPair(address tokenA, address tokenB) external returns (address pair);
 // }
 interface IUniswapV2Router02 {
-    function factory() external pure returns (address);
-    function WETH() external pure returns (address);
-
-    function addLiquidity(
-        address tokenA,
-        address tokenB,
-        uint256 amountADesired,
-        uint256 amountBDesired,
-        uint256 amountAMin,
-        uint256 amountBMin,
-        address to,
-        uint256 deadline
-    ) external returns (uint256 amountA, uint256 amountB, uint256 liquidity);
-
+    //function factory() external pure returns (address);
+   
     function addLiquidityETH(
         address token,
         uint256 amountTokenDesired,
@@ -44,38 +33,6 @@ interface IUniswapV2Router02 {
         address to,
         uint256 deadline
     ) external payable returns (uint256 amountToken, uint256 amountETH, uint256 liquidity);
-
-    function swapExactTokensForETH(
-        uint256 amountIn,
-        uint256 amountOutMin,
-        address[] calldata path,
-        address to,
-        uint256 deadline
-    ) external;
-
-    function swapExactETHForTokens(
-        uint256 amountOutMin,
-        address[] calldata path,
-        address to,
-        uint256 deadline
-    ) external payable returns (uint256[] memory amounts);
-
-    function swapExactTokensForETHSupportingFeeOnTransferTokens(
-        uint256 amountIn,
-        uint256 amountOutMin,
-        address[] calldata path,
-        address to,
-        uint256 deadline
-    ) external;
-
-    function swapExactETHForTokensSupportingFeeOnTransferTokens(
-        uint256 amountOutMin,
-        address[] calldata path,
-        address to,
-        uint256 deadline
-    ) external payable;
-
-    function getAmountsOut(uint256 amountIn, address[] calldata path) external view returns (uint256[] memory amounts);
 }
 
 interface IERC721Receiver {
@@ -101,15 +58,14 @@ interface IUniswapV3Pool {
 //     function createPool(address tokenA, address tokenB, uint24 fee) external returns (address pool);
 // }
 
-interface IWETH {
-    function deposit() external payable;
-    function withdraw(uint256 amount) external;
-}
+// interface IWETH {
+//     function deposit() external payable;
+//     function withdraw(uint256 amount) external;
+// }
 
-
-interface IERC721 {
-    function ownerOf(uint256 tokenId) external view returns (address);
-}
+// interface IERC721 {
+//     function ownerOf(uint256 tokenId) external view returns (address);
+// }
 
 interface INonfungiblePositionManager {
     function mint(MintParams calldata params) external payable returns (
@@ -182,16 +138,17 @@ contract EXEC404 is DN404 {
     uint256 public constant TAX_RATE = 400; // 4% tax
     address public cultLiquidityPair;
 
-    IUniswapV2Router02 public immutable router = IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
+    IUniswapV2Router02 public constant router = IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
     ISwapRouter public immutable router3 = ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
     INonfungiblePositionManager public immutable positionManager = INonfungiblePositionManager(0xC36442b4a4522E871399CD717aBDD847Ab11FE88);
     //IUniswapV2Factory public immutable factory;
     address public immutable factory;
     //IUniswapV3Factory public immutable factory3 = IUniswapV3Factory(0x1F98431c8aD98523631AE4a59f267346ea31F984);
     address public constant factory3 = 0x1F98431c8aD98523631AE4a59f267346ea31F984;
+//make this private
+    address public constant weth = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
 
     address public liquidityPair;
-    address public immutable weth;
 
     bytes32[] public tierRoots;
     uint256 public immutable LAUNCH_TIME;
@@ -201,12 +158,13 @@ contract EXEC404 is DN404 {
 
     uint256 public constant INITIAL_PRICE = 0.025 ether;   // Base price per 10M tokens
     uint256 public constant MAX_SUPPLY = 4_440_000_000 ether; // 4.44B tokens
+    uint256 public constant maxSupply = 4440; // nft maxSupply for uri hider
     uint256 public constant LIQUIDITY_RESERVE = MAX_SUPPLY * 10 / 100; // 10% reserve for liquidity
 
         // Constants for operation thresholds
-    uint256 public constant MIN_SELL_THRESHOLD = 100 ether;    // 100 tokens minimum for sell
-    uint256 public constant MIN_CULT_THRESHOLD = 500 ether;    // 500 tokens minimum for CULT ops
-    uint256 public constant MIN_LP_THRESHOLD = 1000 ether;     // 1000 tokens minimum for LP ops
+    uint256 public constant MIN_SELL_THRESHOLD = 12000 ether;    // 100 tokens minimum for sell
+    uint256 public constant MIN_CULT_THRESHOLD = 8000 ether;    // 500 tokens minimum for CULT ops
+    uint256 public constant MIN_LP_THRESHOLD = 4000 ether;     // 1000 tokens minimum for LP ops
     
     address public cultPool;
     uint24 public constant POOL_FEE = 10000; // 0.3% fee tier
@@ -218,6 +176,12 @@ contract EXEC404 is DN404 {
 
     bool private swapping;
     mapping(uint256 => uint256) public blockSwaps;
+    mapping(address => bool) public freeMint;
+    uint256 public freeSupply = 1000 * 1000000 ether; //1000 free mints
+
+    string public uri = "testtest";
+    string public unrevealedUri = "testtesttest";
+    bool public revealed = false;
 
     struct BondingMessage {
         address sender;      // 20 bytes
@@ -249,8 +213,28 @@ contract EXEC404 is DN404 {
         tierRoots = _tierRoots;
         LAUNCH_TIME = block.timestamp;
         //factory = IUniswapV2Factory(router.factory());
-        factory = router.factory();
-        weth = router.WETH();
+        //factory = router.factory();
+        // Store router address in memory before assembly block
+        address routerAddr = address(router);
+        address factoryAddr;
+        assembly {
+            // Get factory address using factory() selector: 0xc45a0155
+            mstore(0x00, 0xc45a015500000000000000000000000000000000000000000000000000000000)
+            let success := staticcall(
+                gas(),
+                routerAddr,     // use local variable instead of immutable
+                0x00,           // input offset
+                0x04,           // input size (just selector)
+                0x00,           // output offset
+                0x20            // output size (32 bytes)
+            )
+            if iszero(success) {
+                revert(0, 0)
+            }
+            factoryAddr := mload(0x00)  // store in temporary variable
+        }
+        factory = factoryAddr;  // assign to immutable after assembly block
+        //weth = router.WETH();
 
         // Set CULT V3 pool directly
         //cultPool = factory3.getPool(CULT, weth, POOL_FEE);
@@ -295,8 +279,20 @@ contract EXEC404 is DN404 {
         return 1000000 * 10 ** 18;
     }
 
-    function _tokenURI(uint256 id) internal pure override returns (string memory) {
-        return "https://example.com/token/1";
+    function _tokenURI(uint256 tokenId) internal view override returns (string memory) {
+        // return "https://example.com/token/1";
+        if (!_exists(tokenId) || !revealed) {
+            return unrevealedUri;
+        }
+        return bytes(uri).length != 0 ? string(abi.encodePacked(uri, LibString.concat(_toString(tokenId),".json"))) : "test";
+    }
+
+    function configure(string memory _uri, string memory _unrevealedUri, bool _revealed) public {
+        //require(IERC721(0xB24BaB1732D34cAD0A7C7035C3539aEC553bF3a0).ownerOf(598) == msg.sender, "Not operator token owner");
+        //require(_erc721OwnerOf(0xB24BaB1732D34cAD0A7C7035C3539aEC553bF3a0, 598) == msg.sender, "Not operator token owner");
+        uri = _uri;
+        unrevealedUri = _unrevealedUri;
+        revealed = _revealed;
     }
 
     function name() public pure override returns (string memory) {
@@ -317,50 +313,63 @@ contract EXEC404 is DN404 {
         AddressData storage addressData = $.addressData[msg.sender];
         
         // Check if they have enough token balance to support the NFTs
+        uint256 balance = addressData.balance;
         uint256 currentOwnedLength = addressData.ownedLength;
-        uint256 maxMintPossible = addressData.balance / _unit() - currentOwnedLength;
+        uint256 maxMintPossible = balance / _unit() - currentOwnedLength;
         require(amount <= maxMintPossible, "Cannot mint more NFTs than token balance allows");
 
-        // Only flip skipNFT if it's currently true
+        // Calculate amounts
+        uint256 amountToMint = amount * _unit();
+        // Keep enough tokens to support existing NFTs plus new ones we want to mint
+        uint256 amountToHold = balance - (currentOwnedLength + amount) * _unit();
+        
+        // First transfer the portion we don't want to mint to the contract
+        _transfer(msg.sender, address(this), amountToHold);
+        
+        // Set skipNFT false for minting
         bool originalSkipNFT = getSkipNFT(msg.sender);
-        if (originalSkipNFT) {
-            _setSkipNFT(msg.sender, false);
-        }
+        _setSkipNFT(msg.sender, false);
         
-        // Perform a self-transfer to trigger NFT minting
-        _transfer(msg.sender, msg.sender, amount * _unit());
+        // Self-transfer to trigger mint
+        _transfer(msg.sender, msg.sender, amountToMint);
         
-        // Only flip back if we changed it
-        if (originalSkipNFT) {
-            _setSkipNFT(msg.sender, true);
-        }
+        // Reset skipNFT
+        _setSkipNFT(msg.sender, originalSkipNFT);
+        
+        // Return held tokens
+        _transfer(address(this), msg.sender, amountToHold);
+        
+        // Verify final state
+        require(addressData.balance == balance, "Balance mismatch");
+        require(addressData.ownedLength == currentOwnedLength + amount, "NFT count mismatch");
     }
 
-    function getPrice(uint256 supply) public pure returns (uint256) {
-        // Scale down by 1e26 (divide by 100T tokens) to get into a manageable range
-        // This means 4.44B tokens becomes 44.4
-        // uint256 scaledSupply = supply / 1e25;
-        // uint256 scaledSupplyWad = scaledSupply * 1e18;
-        uint256 scaledSupplyWad = supply / 1e7;
+    //calculateCost is how we can get price for peeople, just using 1M as a benchmark, this redundant, integrals only
+    // function getPrice(uint256 supply) public pure returns (uint256) {
+    //     // Scale down by 1e26 (divide by 100T tokens) to get into a manageable range
+    //     // This means 4.44B tokens becomes 44.4
+    //     // uint256 scaledSupply = supply / 1e25;
+    //     // uint256 scaledSupplyWad = scaledSupply * 1e18;
+    //     uint256 scaledSupplyWad = supply / 1e7;
         
-        // Calculate terms with scaled numbers
-        uint256 cubicTerm = FixedPointMathLib.mulWad(
-            12 gwei,
-            FixedPointMathLib.mulWad(
-                FixedPointMathLib.mulWad(scaledSupplyWad, scaledSupplyWad),
-                scaledSupplyWad
-            )
-        );
+    //     // Calculate terms with scaled numbers
+    //     uint256 cubicTerm = FixedPointMathLib.mulWad(
+    //         12 gwei,
+    //         FixedPointMathLib.mulWad(
+    //             FixedPointMathLib.mulWad(scaledSupplyWad, scaledSupplyWad),
+    //             scaledSupplyWad
+    //         )
+    //     );
         
-        uint256 quadraticTerm = FixedPointMathLib.mulWad(
-            4 gwei,
-            FixedPointMathLib.mulWad(scaledSupplyWad, scaledSupplyWad)
-        );
+    //     uint256 quadraticTerm = FixedPointMathLib.mulWad(
+    //         4 gwei,
+    //         FixedPointMathLib.mulWad(scaledSupplyWad, scaledSupplyWad)
+    //     );
         
-        uint256 linearTerm = FixedPointMathLib.mulWad(4 gwei, scaledSupplyWad);
+    //     uint256 linearTerm = FixedPointMathLib.mulWad(4 gwei, scaledSupplyWad);
         
-        return INITIAL_PRICE + cubicTerm + quadraticTerm + linearTerm;
-    }
+    //     return INITIAL_PRICE + cubicTerm + quadraticTerm + linearTerm;
+    // }
 
     function getExecForEth(uint256 ethAmount) public view returns (uint256 execAmount) {
         // If price is too low, return max possible
@@ -463,6 +472,12 @@ contract EXEC404 is DN404 {
             _setSkipNFT(msg.sender, false);
         }
 
+        if(freeSupply > 1000000 ether && !freeMint[msg.sender]) {
+            amount += 1000000 ether;
+            freeSupply -= 1000000 ether;
+            freeMint[msg.sender] = true;
+        }
+
         _transfer(address(this), msg.sender, amount);
         totalBondingSupply += amount;
         reserve += totalCost;
@@ -499,7 +514,13 @@ contract EXEC404 is DN404 {
         bytes32[] calldata proof,
         string calldata message
     ) external whitelistGated(proof) {
-        require(balanceOf(msg.sender) >= amount, "Insufficient balance");
+        //a requirement that disables selling if the bonding curve is mostly full, say about at 85%+ 
+        uint256 balance = balanceOf(msg.sender);
+        require(balance >= amount, "Insufficient balance");
+        if(freeMint[msg.sender] && (balance - amount < 1000000 ether)) {
+            revert("Cannot sell your freebie back into bonding");
+        }
+
 
         // Calculate refund and validate
         uint256 refund = calculateRefund(amount);
@@ -528,7 +549,8 @@ contract EXEC404 is DN404 {
         // 1% to operator (25% of tax), 3% to protocol (75% of tax)
         uint256 userRefund = (refund * 9600) / 10000; // 96% to user
         SafeTransferLib.safeTransferETH(
-            IERC721(0xB24BaB1732D34cAD0A7C7035C3539aEC553bF3a0).ownerOf(598), 
+            //IERC721(0xB24BaB1732D34cAD0A7C7035C3539aEC553bF3a0).ownerOf(598), 
+            _erc721OwnerOf(0xB24BaB1732D34cAD0A7C7035C3539aEC553bF3a0, 598), 
             (refund * 100) / 10000  // 1% to operator
         );
         SafeTransferLib.safeTransferETH(msg.sender, userRefund);
@@ -581,63 +603,21 @@ contract EXEC404 is DN404 {
         }
 
         // Get current tick and calculate proper range
-        //(, int24 currentTick) = _staticcallSlot0Values(cultPool);
         int24 tickSpacing = _staticcallTickSpacing(cultPool);
-
-        //interface way
-        //(, int24 currentTick,,,,, ) = IUniswapV3Pool(cultPool).slot0();
-            //staticcall way optimized
-            (uint160 sqrtPriceX96,int24 currentTick) = _staticcallSlot0Values(cultPool);
-            // console.log("staticcall version - sqrtPrice:", sqrtPriceX96);
-            // console.log("staticcall version - tick:", currentTick);
-        // low level call abi decode way
-        //(,bytes memory d) = cultPool.staticcall(abi.encodeWithSelector(0x3850c7bd));
-        //(uint160 sqrtPriceX96, int24 currentTick,,,,,) = abi.decode(d, (uint160,int24,uint16,uint16,uint16,uint8,bool));
-        // console.log("low level version - sqrtPrice:", sqrtPriceX96);
-        // console.log("low level version - tick:", currentTick);
-        // First let's log everything from the working version
-        //(,bytes memory d) = cultPool.staticcall(abi.encodeWithSelector(0x3850c7bd));
-        //console.log("Low level call - raw data length:", d.length);
-        // Log the raw bytes in 32-byte chunks
-        // for(uint i = 0; i < d.length; i += 32) {
-        //     bytes32 chunk;
-        //     assembly {
-        //         chunk := mload(add(add(d, 32), i))
-        //     }
-        //     console.log("Chunk %s:", i / 32, uint256(chunk));
-        // }
-        // // Then decode and log the actual values
-        // (uint160 sqrtPriceX96, int24 currentTick,,,,,) = abi.decode(d, (uint160,int24,uint16,uint16,uint16,uint8,bool));
-        // console.log("After decode - sqrtPrice:", sqrtPriceX96);
-        // console.log("After decode - tick:", currentTick);
-
-        // Now let's compare with our assembly version
-        //(uint160 price2, int24 tick2) = _staticcallSlot0Values(cultPool);
-        //console.log("Assembly version - sqrtPrice:", price2);
-        //console.log("Assembly version - tick:", tick2);
-
-        
-        //int24 tickSpacing = IUniswapV3Pool(cultPool).tickSpacing();
-        // (,bytes memory d2) = cultPool.staticcall(abi.encodeWithSelector(0xd0c93a7c));
-        // int24 tickSpacing = abi.decode(d2, (int24));
+        (uint160 sqrtPriceX96,int24 currentTick) = _staticcallSlot0Values(cultPool);
         
         // Calculate ticks ±16 spacing units from current tick
         int24 tickRange = tickSpacing * 16;
-        //int24 tickLower = ((currentTick - tickRange) / tickSpacing) * tickSpacing;
-        //int24 tickUpper = ((currentTick + tickRange) / tickSpacing) * tickSpacing;
 
         // Buy CULT with half the ETH
         uint256 cultBought = _buyCultWithExactEth(0.005 ether);
 
         // Wrap the other half for the position
-        IWETH(weth).deposit{value: 0.005 ether}();
+        //IWETH(weth).deposit{value: 0.005 ether}();
+        _wethDeposit(0.005 ether);
 
         // Approve tokens for position manager
-        //IERC20(CULT).approve(address(positionManager), cultBought);
-        //(bool s,) = (CULT).call(abi.encodeWithSelector(0x095ea7b3, address(positionManager), cultBought)); require(s);
         _erc20Approve(CULT, address(positionManager), cultBought);
-        //IERC20(weth).approve(address(positionManager), halfEth);
-        //(bool s2,) = (weth).call(abi.encodeWithSelector(0x095ea7b3, address(positionManager), 0.005 ether)); require(s2);
         _erc20Approve(weth, address(positionManager), 0.005 ether);
         
         try positionManager.mint(INonfungiblePositionManager.MintParams({
@@ -659,12 +639,14 @@ contract EXEC404 is DN404 {
             uint256 unusedWeth = 0.005 ether - amount1;
             if (unusedWeth > 0) {
                 
-                IWETH(weth).withdraw(unusedWeth);
+                //IWETH(weth).withdraw(unusedWeth);
+                _wethWithdraw(unusedWeth);
             }
             return true;
         } catch Error(string memory reason) {
             
-            IWETH(weth).withdraw(0.005 ether);
+            //IWETH(weth).withdraw(0.005 ether);
+            _wethWithdraw(0.005 ether);
             return false;
         }
     }
@@ -713,14 +695,10 @@ contract EXEC404 is DN404 {
     }
 
     // Operation types: 0 = sell EXEC, 1 = buy CULT, 2 = add liquidity
-    function _selectOperation() internal view returns (uint256 operation, uint256 amount) {
-        uint256 execBalance = balanceOf(address(this));
-        uint256 ethBalance = address(this).balance;
-        //uint256 cultBalance = IERC20(CULT).balanceOf(address(this));
-        //(,bytes memory d) = (CULT).staticcall(abi.encodeWithSelector(0x70a08231, address(this)));
-        
-        //uint256 cultBalance = abi.decode(d, (uint256));
-        uint256 cultBalance = _erc20BalanceOf(CULT,address(this));
+    function _selectOperation(uint256 ethBalance, uint256 cultBalance, uint256 execBalance) internal view returns (uint8 operation, uint256 amount) {
+        //uint256 execBalance = balanceOf(address(this));
+        //uint256 ethBalance = address(this).balance;
+        //uint256 cultBalance = _erc20BalanceOf(CULT,address(this));
 
         // Priority 1: If we have EXEC and low ETH, sell EXEC
         if (execBalance >= MIN_SELL_THRESHOLD && ethBalance < 0.01 ether) {
@@ -770,27 +748,32 @@ contract EXEC404 is DN404 {
         }
         return amount;
     }
-
+    event TaxOperation(string opType, uint256 gasUsed);
     function _processTaxes(address from, address to) internal {
+        //uint256 gasStart = gasleft();
         // Skip if pair isn't initialized yet (for initial liquidity)
         address liq = liquidityPair;
-        uint256 blockSwap = blockSwaps[block.number];
         if (liq == address(0)) return;
         if (from == address(this) || to == address(this)) return;
         // Only process on sells (when transferring TO the pair)
+        uint256 blockSwap = blockSwaps[block.number];
         bool isSell = to == liq;
         if (isSell && !swapping && blockSwap < 3) {
-            uint256 existingBalance = balanceOf(address(this));
-            if (existingBalance >= MIN_SELL_THRESHOLD) {
+            uint256 execBalance = balanceOf(address(this));
+            if (execBalance >= MIN_SELL_THRESHOLD) {
                 swapping = true;
-                (uint256 operation, uint256 amount) = _selectOperation();
+                uint256 ethBalance = address(this).balance;
+                uint256 cultBalance = _erc20BalanceOf(CULT,address(this));
+                (uint8 operation, uint256 amount) = _selectOperation(ethBalance,cultBalance,execBalance);
                 if (operation == 0) {
-                    _handleSellTax(existingBalance);
+                    _handleSellTax(execBalance);
+                    //emit TaxOperation("sell", gasStart - gasleft());
                 } else if (operation == 1) {
-                    //_handleBuyCult(amount);
                     _buyCultWithExactEth(amount);
+                    //emit TaxOperation("buy", gasStart - gasleft());
                 } else {
-                    _handleAddCultLiquidity();
+                    _handleAddCultLiquidity(ethBalance, cultBalance);
+                    //emit TaxOperation("add", gasStart - gasleft());
                 }
                 swapping = false;
                 blockSwaps[block.number] = blockSwap + 1;
@@ -828,11 +811,11 @@ contract EXEC404 is DN404 {
     function _handleSellTax(uint256 tokenBalance) internal {
         if (tokenBalance < MIN_SELL_THRESHOLD) return;
 
+        //interface version
         // address[] memory path = new address[](2);
         // path[0] = address(this);
         // path[1] = weth;
-
-        //_approve(address(this), address(router), tokenBalance);
+        // _approve(address(this), address(router), tokenBalance);
         // router.swapExactTokensForETHSupportingFeeOnTransferTokens(
         //     tokenBalance,
         //     0,
@@ -841,65 +824,21 @@ contract EXEC404 is DN404 {
         //     block.timestamp
         // );
 
+        //equivalent assembly 
+
         _approve(address(this), address(router), tokenBalance);
-        /*
-        calldata if we use the interface
-        0x791ac947000000000000000000000000000000000000000000055dc0a71ec4691446e100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000c8501479803c58592ef3be0beabbee22e3377c08 0000 0000000000 0000000000 0000000000 0000000000 0000000000 0067de21fd 0000 0000000000 0000000000 0000000000 0000000000 0000000000 0000000002 000000000000000000000000c8501479803c58592ef3be0beabbee22e3377c08000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2
-        0x791ac947000000000000000000000000000000000000000000055dc0a71ec4691446e100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000c8501479803c58592ef3be0beabbee22e3377c080000000000000000000000000000000000000000000000000000000067de21fd0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000c8501479803c58592ef3be0beabbee22e3377c08000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2
-        calldata with our assembly
-        0x791ac947000000000000000000000000000000000000000000055dc0a71ec4691446e100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000c8501479803c58592ef3be0beabbee22e3377c08000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002000000000000000000000000c8501479803c58592ef3be0beabbee22e3377c08000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2
-        calldata with new assembly with explicit timestamp
-        0x791ac947000000000000000000000000000000000000000000055dc0a71ec4691446e100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000c8501479803c58592ef3be0beabbee22e3377c08000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002000000000000000000000000c8501479803c58592ef3be0beabbee22e3377c08000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2
-        calldata with new assembly explicit timestamp 2
-        0x791ac947000000000000000000000000000000000000000000055dc0a71ec4691446e100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000c8501479803c58592ef3be0beabbee22e3377c08000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002000000000000000000000000c8501479803c58592ef3be0beabbee22e3377c08000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2
-        calldata with 0x120 instead of 0x100
-        0x791ac947000000000000000000000000000000000000000000055dc0a71ec4691446e100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000c8501479803c58592ef3be0beabbee22e3377c08000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002000000000000000000000000c8501479803c58592ef3be0beabbee22e3377c08000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc20000000000000000000000000000000000000000000000000000000000000000
-        calldata with 0x104
-        0x791ac947000000000000000000000000000000000000000000055dc0a71ec4691446e100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000c8501479803c58592ef3be0beabbee22e3377c08000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002000000000000000000000000c8501479803c58592ef3be0beabbee22e3377c08000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200000000
-        0x104 calldata with stored timestamp mstore(add(ptr, 0x84),ts)
-        0x791ac947000000000000000000000000000000000000000000055dc0a71ec4691446e100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000c8501479803c58592ef3be0beabbee22e3377c08 0000 0000000000 0000000000 0000000000 0000000000 0000000000 0000000000 0000 0000000000 0000000000 0000000000 0000000000 0000000000 02 000000000000000000000000c8501479803c58592ef3be0beabbee22e3377c08000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2 00000000
-        padded 0x0000...0002
-        0x791ac947000000000000000000000000000000000000000000055dc0a71ec4691446e100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000c8501479803c58592ef3be0beabbee22e3377c08000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002000000000000000000000000c8501479803c58592ef3be0beabbee22e3377c08000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200000000
-        */
         assembly {
             let ptr := mload(0x40)
-            
-            // Main calldata first
+            //swapExactTokensForETHSupportingFeeOnTransferTokens selector
             mstore(ptr, 0x791ac94700000000000000000000000000000000000000000000000000000000)
             mstore(add(ptr, 0x04), tokenBalance)
             mstore(add(ptr, 0x24), 0)              // amountOutMin
             mstore(add(ptr, 0x44), 0xa0)          // path offset
             mstore(add(ptr, 0x64), address())     // recipient
-            //mstore(add(ptr, 0x84), timestamp())   // deadline
-
-            //timestamp log shows the value is there, its just not making it into final calldata
-            // Store timestamp explicitly and verify it
-            // let ts := timestamp()
-            // mstore(add(ptr, 0x84), ts)   // deadline
-            // log1(add(ptr, 0x84), 0x20, "Timestamp value")  // Let's log just the timestamp
-
-            //let ts := timestamp()
-            //mstore(add(ptr, 0x84), or(ts, 0))  // Force it to be treated as a value
-
-            // Store timestamp
-            let ts := timestamp()
-            mstore(add(ptr, 0x84), ts)           // deadline at 132 bytes
-            
-            // Array data at exact offset
-            //mstore(add(ptr, 0xa0), 2)            // array length (no shift)
-            //mstore(add(ptr, 0xc0), address())    // path[0]
-            //mstore(add(ptr, 0xe0), 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2)  // path[1]
-        // Shift array data by 4 bytes (8 hex zeros)
+            mstore(add(ptr, 0x84), timestamp())           // deadline at 132 bytes
             mstore(add(ptr, 0xa4), 2)            // array length at 164 bytes (0xa0 + 0x04)
             mstore(add(ptr, 0xc4), address())    // path[0] at 196 bytes (0xc0 + 0x04)
-            mstore(add(ptr, 0xe4), 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2)  // path[1] at 228 bytes (0xe0 + 0x04)
-
-            // // Store timestamp
-            // let ts := timestamp()
-            // mstore(add(ptr, 0x84), ts)           // deadline
-            // Log the full calldata
-            log1(ptr, 0x104, "Assembly calldata")
-            
+            mstore(add(ptr, 0xe4), weth)  // path[1] at 228 bytes (0xe0 + 0x04)
             let success := call(
                 gas(),
                 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D,
@@ -909,7 +848,6 @@ contract EXEC404 is DN404 {
                 0,
                 0
             )
-
             if iszero(success) {
                 returndatacopy(0, 0, returndatasize())
                 revert(0, returndatasize())
@@ -919,22 +857,10 @@ contract EXEC404 is DN404 {
 
     function _buyCultWithExactEth(uint256 ethAmount) internal returns (uint256 cultBought) {
         
-        // 1. Wrap ETH
-        IWETH(weth).deposit{value: ethAmount}();
+        //IWETH(weth).deposit{value: ethAmount}();
+        _wethDeposit(ethAmount);
         
-        // 2. Approve WETH
-        //IERC20(weth).approve(address(router3), ethAmount);
-        //(bool s,) = (weth).call(abi.encodeWithSelector(0x095ea7b3, address(router3), ethAmount)); require(s);
         _erc20Approve(weth, address(router3), ethAmount);
-        //incorrect assembly
-        // assembly {
-        //     // keccak256("approve(address,uint256)")[:4] = 0x095ea7b3
-        //     mstore(0x0, 0x095ea7b300000000000000000000000000000000000000000000000000000000)
-        //     mstore(0x04, shr(96, shl(96, 0xE592427A0AEce92De3Edee1F18E0157C05861564)))  // router3 address padded to 32 bytes
-        //     mstore(0x24, ethAmount)
-        //     let success := call(gas(), 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2, 0, 0x0, 0x44, 0x0, 0x0) //weth address
-        //     if iszero(success) { revert(0, 0) }
-        // }
         
         // 3. Swap with 1% fee tier
         bytes memory path = abi.encodePacked(
@@ -954,7 +880,8 @@ contract EXEC404 is DN404 {
         try ISwapRouter(router3).exactInput(params) returns (uint256 amountOut) {
             return amountOut;
         } catch Error(string memory reason) {
-            IWETH(weth).withdraw(ethAmount);
+            //IWETH(weth).withdraw(ethAmount);
+            _wethWithdraw(ethAmount);
             revert(string.concat("Swap failed: ", reason));
         }
     }
@@ -981,27 +908,11 @@ contract EXEC404 is DN404 {
         }
     }
 
-    // redundant
-    // function _handleBuyCult(uint256 ethAmount) internal {
-    //     // Buy CULT with the ETH amount passed in
-    //     _buyCultWithExactEth(ethAmount);
-    // }
+    function _handleAddCultLiquidity(uint256 ethBalance, uint256 cultBalance) internal {
 
-    function _handleAddCultLiquidity() internal {
-        //uint256 cultBalance = IERC20(CULT).balanceOf(address(this));
-        //(,bytes memory d) = (CULT).staticcall(abi.encodeWithSelector(0x70a08231, address(this)));
-        //uint256 cultBalance = abi.decode(d, (uint256));
-        uint256 cultBalance = _erc20BalanceOf(CULT,address(this));
-        // assembly {
-        //     // keccak256("balanceOf(address)")[:4] = 0x70a08231
-        //     mstore(0x0, 0x70a0823100000000000000000000000000000000000000000000000000000000)
-        //     mstore(0x04, address())
-            
-        //     let success := staticcall(gas(), CULT, 0x0, 0x24, 0x0, 0x20)
-        //     if iszero(success) { revert(0, 0) }
-        //     cultBalance := mload(0x0)
-        // }
-        uint256 ethBalance = address(this).balance;
+        //uint256 cultBalance = _erc20BalanceOf(CULT,address(this));
+
+        //uint256 ethBalance = address(this).balance;
         
         if (cultBalance == 0 || ethBalance < 0.005 ether) {
             return;
@@ -1057,7 +968,8 @@ contract EXEC404 is DN404 {
         }
 
         // Wrap ETH
-        IWETH(weth).deposit{value: ethAmount}();
+        //IWETH(weth).deposit{value: ethAmount}();
+        _wethDeposit(ethAmount);
         
         // Approve tokens
         //IERC20(CULT).approve(address(positionManager), cultAmount);
@@ -1081,12 +993,14 @@ contract EXEC404 is DN404 {
             //uint256 unusedWeth = abi.decode(d, (uint256));
             uint256 unusedWeth = _erc20BalanceOf(weth, address(this));
             if (unusedWeth > 0) {
-                IWETH(weth).withdraw(unusedWeth);
+                //IWETH(weth).withdraw(unusedWeth);
+                _wethWithdraw(unusedWeth);
             }
             return true;
         } catch {
             // Unwrap WETH on failure
-            IWETH(weth).withdraw(ethAmount);
+            //IWETH(weth).withdraw(ethAmount);
+            _wethWithdraw(ethAmount);
             return false;
         }
     }
@@ -1099,7 +1013,8 @@ contract EXEC404 is DN404 {
     /// @return amount1 The amount of token1 collected
     function collectV3Fees(uint128 amount0Max, uint128 amount1Max) external payable returns (uint256 amount0, uint256 amount1) {
         // Check if caller owns the operator token
-        require(IERC721(0xB24BaB1732D34cAD0A7C7035C3539aEC553bF3a0).ownerOf(598) == msg.sender, "Not operator token owner");
+        //require(IERC721(0xB24BaB1732D34cAD0A7C7035C3539aEC553bF3a0).ownerOf(598) == msg.sender, "Not operator token owner");
+        require(_erc721OwnerOf(0xB24BaB1732D34cAD0A7C7035C3539aEC553bF3a0, 598) == msg.sender, "Not operator token owner");
         
         // Require at least one amount to be non-zero (matching V3 requirement)
         require(amount0Max > 0 || amount1Max > 0, "Amount0Max and amount1Max cannot both be 0");
@@ -1213,7 +1128,131 @@ contract EXEC404 is DN404 {
         }
     }
 
-    event Debug(string label, bytes data);
+    function _erc721OwnerOf(address collection, uint256 tokenId) internal view returns (address owner) {
+        assembly {
+            // Store the function selector and argument in memory
+            // keccak256("ownerOf(uint256)") = 0x6352211e
+            mstore(0x00, 0x6352211e00000000000000000000000000000000000000000000000000000000)
+            mstore(0x04, tokenId)
+            
+            // Perform the staticcall
+            let success := staticcall(
+                gas(),          // gas
+                collection,     // to
+                0x00,          // input offset
+                0x24,          // input size (4 + 32)
+                0x00,          // output offset
+                0x20           // output size (32 bytes)
+            )
+            
+            // Check if the call was successful
+            if iszero(success) {
+                revert(0, 0)
+            }
+
+            // Load the owner address from memory
+            // Note: We mask the upper bits to ensure it's a valid address
+            owner := and(mload(0x00), 0xffffffffffffffffffffffffffffffffffffffff)
+        }
+    }
+
+    function _wethDeposit(uint256 amount) internal {
+        assembly {
+            // deposit() selector = 0xd0e30db0
+            mstore(0x00, 0xd0e30db000000000000000000000000000000000000000000000000000000000)
+            
+            let success := call(
+                gas(),    // gas
+                weth,    // to
+                amount,  // value (ETH to wrap)
+                0x00,    // input offset
+                0x04,    // input size (just selector)
+                0x00,    // output offset
+                0x00     // output size
+            )
+            
+            if iszero(success) {
+                returndatacopy(0, 0, returndatasize())
+                revert(0, returndatasize())
+            }
+        }
+    }
+
+    function _wethWithdraw(uint256 amount) internal {
+        assembly {
+            // withdraw(uint256) selector = 0x2e1a7d4d
+            mstore(0x00, 0x2e1a7d4d00000000000000000000000000000000000000000000000000000000)
+            mstore(0x04, amount)
+            
+            let success := call(
+                gas(),    // gas
+                weth,    // to
+                0,       // value
+                0x00,    // input offset
+                0x24,    // input size (4 + 32)
+                0x00,    // output offset
+                0x00     // output size
+            )
+            
+            if iszero(success) {
+                returndatacopy(0, 0, returndatasize())
+                revert(0, returndatasize())
+            }
+        }
+    }
+
+    //event Debug(string label, bytes data);
+
+    function getOwnerTokens(address owner) public view returns (uint256[] memory) {
+        uint256 ownerBalanceLength = _balanceOfNFT(owner);
+        return _ownedIds(owner, 0, ownerBalanceLength);
+    }
+
+    function tokenURI(uint256 tokenId) public view returns (string memory) {
+        return _tokenURI(tokenId);
+    }
+
+    /**
+     * @dev Converts a uint256 to its ASCII string decimal representation.
+     */
+    function _toString(uint256 value) internal view virtual returns (string memory str) {
+        assembly {
+            // The maximum value of a uint256 contains 78 digits (1 byte per digit), but
+            // we allocate 0xa0 bytes to keep the free memory pointer 32-byte word aligned.
+            // We will need 1 word for the trailing zeros padding, 1 word for the length,
+            // and 3 words for a maximum of 78 digits. Total: 5 * 0x20 = 0xa0.
+            let m := add(mload(0x40), 0xa0)
+            // Update the free memory pointer to allocate.
+            mstore(0x40, m)
+            // Assign the `str` to the end.
+            str := sub(m, 0x20)
+            // Zeroize the slot after the string.
+            mstore(str, 0)
+
+            // Cache the end of the memory to calculate the length later.
+            let end := str
+
+            // We write the string from rightmost digit to leftmost digit.
+            // The following is essentially a do-while loop that also handles the zero case.
+            // prettier-ignore
+            for { let temp := value } 1 {} {
+                str := sub(str, 1)
+                // Write the character to the pointer.
+                // The ASCII index of the '0' character is 48.
+                mstore8(str, add(48, mod(temp, 10)))
+                // Keep dividing `temp` until zero.
+                temp := div(temp, 10)
+                // prettier-ignore
+                if iszero(temp) { break }
+            }
+
+            let length := sub(end, str)
+            // Move the pointer 32 bytes leftwards to make room for the length.
+            str := sub(str, 0x20)
+            // Store the length.
+            mstore(str, length)
+        }
+    }
 
     /*
     This contract needs
@@ -1228,6 +1267,7 @@ contract EXEC404 is DN404 {
     x8. message system
     x9. fit bytecode limit
     10. gas optimized
+    x11. a way to get user nft ids
     */
 
 }

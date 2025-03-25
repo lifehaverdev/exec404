@@ -22,7 +22,15 @@ contract DeployScript is Script {
 
         vm.startBroadcast();
         EXEC404 token = new EXEC404(roots);
+        token.configure(
+            "/public/execs/",
+            "/public/execs/unrevealed.png",
+            true
+        );
         vm.stopBroadcast();
+        // vm.startPrank(0x1821BD18CBdD267CE4e389f893dDFe7BEB333aB6);
+        
+        // vm.stopPrank();
 
         return token;
     }

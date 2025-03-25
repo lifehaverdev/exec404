@@ -5,6 +5,10 @@ import "forge-std/Test.sol";
 import "../src/DN404EXEC.sol";
 import { DN404Mirror } from "dn404/src/DN404Mirror.sol";
 
+interface IWETH {
+    function deposit() external payable;
+    function withdraw(uint256 amount) external;
+}
 interface IERC20 {
     function balanceOf(address account) external view returns (uint256);
     function transfer(address to, uint256 amount) external returns (bool);
@@ -19,7 +23,31 @@ interface IUniswapV2Pair {
     function swap(uint amount0Out, uint amount1Out, address to, bytes calldata data) external;
 }
 
+interface IUniswapV2Router002 {
+    function swapExactETHForTokens(
+        uint256 amountOutMin,
+        address[] calldata path,
+        address to,
+        uint256 deadline
+    ) external payable returns (uint256[] memory amounts);
 
+    function swapExactETHForTokensSupportingFeeOnTransferTokens(
+        uint256 amountOutMin,
+        address[] calldata path,
+        address to,
+        uint256 deadline
+    ) external payable;
+
+    function swapExactTokensForETHSupportingFeeOnTransferTokens(
+        uint256 amountIn,
+        uint256 amountOutMin,
+        address[] calldata path,
+        address to,
+        uint256 deadline
+    ) external;
+
+    function getAmountsOut(uint256 amountIn, address[] calldata path) external view returns (uint256[] memory amounts);
+}
 
 contract EXEC404Test is Test {
     // Constants for common addresses
@@ -444,7 +472,7 @@ contract EXEC404Test is Test {
 
     // Helper function to simulate bonding curve sales and deploy liquidity
     function setupLiquidityPool() internal returns (uint256 lpTokens) {
-        uint256 dailyPurchaseAmount = token.MAX_SUPPLY() / 10;
+        uint256 dailyPurchaseAmount = token.MAX_SUPPLY() / 11;
         
         // Buy tokens through bonding curve over 12 days
         for(uint256 day = 0; day < 9; day++) {
@@ -575,13 +603,13 @@ contract EXEC404Test is Test {
         path[0] = WETH;
         path[1] = address(token);
         
-        uint256[] memory amounts = IUniswapV2Router02(ROUTER).getAmountsOut(amountIn, path);
+        uint256[] memory amounts = IUniswapV2Router002(ROUTER).getAmountsOut(amountIn, path);
         
         console.log("\nSwap Details:");
         console.log("ETH in:", amountIn);
         console.log("Expected tokens out:", amounts[1]);
         
-        IUniswapV2Router02(ROUTER).swapExactETHForTokens{value: amountIn}(
+        IUniswapV2Router002(ROUTER).swapExactETHForTokens{value: amountIn}(
             0,
             path,
             trader,
@@ -605,7 +633,7 @@ contract EXEC404Test is Test {
         path[1] = address(token);
         
         // Buy tokens first
-        IUniswapV2Router02(ROUTER).swapExactETHForTokensSupportingFeeOnTransferTokens{value: 1 ether}(
+        IUniswapV2Router002(ROUTER).swapExactETHForTokensSupportingFeeOnTransferTokens{value: 1 ether}(
             0,
             path,
             trader,
@@ -622,7 +650,7 @@ contract EXEC404Test is Test {
         path[0] = address(token);
         path[1] = WETH;
         
-        IUniswapV2Router02(ROUTER).swapExactTokensForETHSupportingFeeOnTransferTokens(
+        IUniswapV2Router002(ROUTER).swapExactTokensForETHSupportingFeeOnTransferTokens(
             sellAmount,
             0,
             path,
@@ -736,8 +764,10 @@ contract EXEC404Test is Test {
         
         // Simulate trades
         for(uint256 i = 0; i < 100; i++) {
-            vm.roll(block.number + i % 2);
-            vm.warp(block.timestamp + 15 * (i % 2));
+            //vm.roll(block.number + i % 2);
+            //vm.warp(block.timestamp + 15 * (i % 2));
+            vm.roll(block.number + i);
+            vm.warp(block.timestamp + 15*i);
             
             if(i % 2 == 0) { // Buy
                 address trader = traders[i % traders.length];
@@ -749,7 +779,7 @@ contract EXEC404Test is Test {
                 
                 uint256 ethBefore = address(token).balance;
                 
-                try IUniswapV2Router02(ROUTER).swapExactETHForTokensSupportingFeeOnTransferTokens{value: 1 ether}(
+                try IUniswapV2Router002(ROUTER).swapExactETHForTokensSupportingFeeOnTransferTokens{value: 1 ether}(
                     0,
                     path,
                     trader,
@@ -778,7 +808,7 @@ contract EXEC404Test is Test {
                     path[1] = WETH;
                     
                     token.approve(ROUTER, sellAmount);
-                    try IUniswapV2Router02(ROUTER).swapExactTokensForETHSupportingFeeOnTransferTokens(
+                    try IUniswapV2Router002(ROUTER).swapExactTokensForETHSupportingFeeOnTransferTokens(
                         sellAmount,
                         0,
                         path,
@@ -869,7 +899,7 @@ contract EXEC404Test is Test {
                 path[0] = WETH;
                 path[1] = address(token);
                 
-                try IUniswapV2Router02(ROUTER).swapExactETHForTokensSupportingFeeOnTransferTokens{value: 1 ether}(
+                try IUniswapV2Router002(ROUTER).swapExactETHForTokensSupportingFeeOnTransferTokens{value: 1 ether}(
                     0,
                     path,
                     trader,
@@ -905,7 +935,7 @@ contract EXEC404Test is Test {
                     path[1] = WETH;
                     
                     token.approve(ROUTER, sellAmount);
-                    try IUniswapV2Router02(ROUTER).swapExactTokensForETHSupportingFeeOnTransferTokens(
+                    try IUniswapV2Router002(ROUTER).swapExactTokensForETHSupportingFeeOnTransferTokens(
                         sellAmount,
                         0,
                         path,
@@ -976,6 +1006,31 @@ contract EXEC404Test is Test {
         Gas: 95097 Count: 2
         Gas: 95127 Count: 1
         Gas: 95128 Count: 2
+
+
+        //After assembly sellTax 
+        === Unique Gas Values ===
+        Gas: 160824 Count: 1
+        Gas: 117024 Count: 1
+        Gas: 117025 Count: 3
+        Gas: 116996 Count: 1
+        Gas: 116997 Count: 1
+        Gas: 117026 Count: 1
+        Gas: 117027 Count: 2
+        Gas: 95097 Count: 2
+        Gas: 95127 Count: 1
+        Gas: 95128 Count: 2
+
+        Why is it the SAME! T.T
+
+
+        direct gas emits
+        ├─ emit TaxOperation(opType: "add", gasUsed: 130778 [1.307e5])
+        ├─ emit TaxOperation(opType: "buy", gasUsed: 112930 [1.129e5])
+        ├─ emit TaxOperation(opType: "sell", gasUsed: 133437 [1.334e5])
+        sell using interface so it IS cheaper with my assembly bs. lfg!!!
+        ├─ emit TaxOperation(opType: "sell", gasUsed: 134112 [1.341e5])
+
         */
     }
 
@@ -1239,115 +1294,117 @@ contract EXEC404Test is Test {
         vm.stopPrank();
     }
 
-    function testTokenEthConversions() public {
-        uint256 maxBondingSupply = token.MAX_SUPPLY() - token.LIQUIDITY_RESERVE();
-        uint256 basePrice = 2500000000000000; // 0.0025 ETH in wei
-        uint256 baseAmount = 1_000_000 ether;  // 1M EXEC
+    //price deprecat4ed
+    // function testTokenEthConversions() public {
+    //     uint256 maxBondingSupply = token.MAX_SUPPLY() - token.LIQUIDITY_RESERVE();
+    //     uint256 basePrice = 2500000000000000; // 0.0025 ETH in wei
+    //     uint256 baseAmount = 1_000_000 ether;  // 1M EXEC
         
-        console.log("\n=== Testing Full Bonding Curve ===");
-        console.log("Max Bonding Supply:", maxBondingSupply / 1e18, "EXEC");
+    //     console.log("\n=== Testing Full Bonding Curve ===");
+    //     console.log("Max Bonding Supply:", maxBondingSupply / 1e18, "EXEC");
         
-        // Test at 10% intervals up to 90%
-        for (uint256 i = 1; i <= 9; i++) {
-            uint256 targetAmount = (maxBondingSupply * i) / 10;
+    //     // Test at 10% intervals up to 90%
+    //     for (uint256 i = 1; i <= 9; i++) {
+    //         uint256 targetAmount = (maxBondingSupply * i) / 10;
             
-            // Calculate cost for full amount up to this point
-            uint256 totalCost = token.calculateCost(targetAmount);
+    //         // Calculate cost for full amount up to this point
+    //         uint256 totalCost = token.calculateCost(targetAmount);
             
-            // Calculate cost for just the last 1M EXEC at this point
-            uint256 costForNext1M;
-            if (i < 9) {
-                uint256 costBefore = token.calculateCost(targetAmount);
-                uint256 costAfter = token.calculateCost(targetAmount + 1_000_000 ether);
-                costForNext1M = costAfter - costBefore;
-            }
+    //         // Calculate cost for just the last 1M EXEC at this point
+    //         uint256 costForNext1M;
+    //         if (i < 9) {
+    //             uint256 costBefore = token.calculateCost(targetAmount);
+    //             uint256 costAfter = token.calculateCost(targetAmount + 1_000_000 ether);
+    //             costForNext1M = costAfter - costBefore;
+    //         }
             
-            console.log("\n=== %s0%% of Supply ===", i);
-            console.log("Target EXEC:", targetAmount);
-            console.log("Total Cost in ETH:", totalCost);
-            console.log("Average Price per 1M EXEC:", (totalCost * 1e18) / targetAmount / 1e18, "ETH");
-            if (i < 9) {
-                console.log("Marginal Price per 1M EXEC:", costForNext1M, "ETH");
-            }
+    //         console.log("\n=== %s0%% of Supply ===", i);
+    //         console.log("Target EXEC:", targetAmount);
+    //         console.log("Total Cost in ETH:", totalCost);
+    //         console.log("Average Price per 1M EXEC:", (totalCost * 1e18) / targetAmount / 1e18, "ETH");
+    //         if (i < 9) {
+    //             console.log("Marginal Price per 1M EXEC:", costForNext1M, "ETH");
+    //         }
             
-            // Also show the instantaneous price at this point
-            uint256 instantPrice = token.getPrice(targetAmount);
-            console.log("Instant Price:", instantPrice, "ETH");
-        }
+    //         // Also show the instantaneous price at this point
+    //         uint256 instantPrice = token.getPrice(targetAmount);
+    //         console.log("Instant Price:", instantPrice, "ETH");
+    //     }
 
-        // Now let's do a smaller purchase to verify
-        vm.startPrank(alice);
-        vm.deal(alice, type(uint256).max); // Give maximum possible ETH
-        bytes32[] memory proof = generateProof(0, alice);
+    //     // Now let's do a smaller purchase to verify
+    //     vm.startPrank(alice);
+    //     vm.deal(alice, type(uint256).max); // Give maximum possible ETH
+    //     bytes32[] memory proof = generateProof(0, alice);
         
-        // Try buying just 10% instead of 50%
-        uint256 largeAmount = maxBondingSupply / 10; // 10% of supply instead of 50%
-        uint256 largeCost = token.calculateCost(largeAmount);
+    //     // Try buying just 10% instead of 50%
+    //     uint256 largeAmount = maxBondingSupply / 10; // 10% of supply instead of 50%
+    //     uint256 largeCost = token.calculateCost(largeAmount);
         
-        console.log("\n=== Large Purchase Test ===");
-        console.log("Attempting to buy:", largeAmount, "EXEC");
-        console.log("Calculated cost:", largeCost, "ETH");
+    //     console.log("\n=== Large Purchase Test ===");
+    //     console.log("Attempting to buy:", largeAmount, "EXEC");
+    //     console.log("Calculated cost:", largeCost, "ETH");
         
-        token.buyBonding{value: largeCost}(largeAmount, largeCost, false, proof, "");
+    //     token.buyBonding{value: largeCost}(largeAmount, largeCost, false, proof, "");
         
-        uint256 aliceBalance = token.balanceOf(alice);
-        console.log("\nPurchase Results:");
-        console.log("Alice's balance:", aliceBalance, "EXEC");
-        console.log("Total bonding supply:", token.totalBondingSupply(), "EXEC");
+    //     uint256 aliceBalance = token.balanceOf(alice);
+    //     console.log("\nPurchase Results:");
+    //     console.log("Alice's balance:", aliceBalance, "EXEC");
+    //     console.log("Total bonding supply:", token.totalBondingSupply(), "EXEC");
         
-        vm.stopPrank();
-    }
+    //     vm.stopPrank();
+    // }
 
-    function testPriceCalculations() public {
-        // Calculate 10% intervals of the max bonding supply
-        uint256 maxBondingSupply = token.MAX_SUPPLY() - token.LIQUIDITY_RESERVE();
+    // price deprecated
+    // function testPriceCalculations() public {
+    //     // Calculate 10% intervals of the max bonding supply
+    //     uint256 maxBondingSupply = token.MAX_SUPPLY() - token.LIQUIDITY_RESERVE();
         
-        console.log("\n=== Price Calculation Test ===");
-        console.log("Max Bonding Supply:", maxBondingSupply / 1e18, "EXEC");
+    //     console.log("\n=== Price Calculation Test ===");
+    //     console.log("Max Bonding Supply:", maxBondingSupply / 1e18, "EXEC");
         
-        // Test at each 10% interval
-        for (uint256 i = 1; i <= 10; i++) {
-            uint256 supplyPoint = (maxBondingSupply * i) / 10;
+    //     // Test at each 10% interval
+    //     for (uint256 i = 1; i <= 10; i++) {
+    //         uint256 supplyPoint = (maxBondingSupply * i) / 10;
             
-            // Get price at this supply point
-            uint256 instantPrice = token.getPrice(supplyPoint);
+    //         // Get price at this supply point
+    //         uint256 instantPrice = token.getPrice(supplyPoint);
             
-            // Calculate integral up to this point
-            uint256 totalCost = token.calculateCost(supplyPoint);
+    //         // Calculate integral up to this point
+    //         uint256 totalCost = token.calculateCost(supplyPoint);
             
-            // Calculate average price
-            uint256 avgPrice = totalCost / (supplyPoint / 1e18);
+    //         // Calculate average price
+    //         uint256 avgPrice = totalCost / (supplyPoint / 1e18);
             
-            console.log("\n=== At %s0%% of Supply (%s EXEC) ===", i, supplyPoint / 1e18);
-            console.log("Instant Price:", instantPrice, "ETH");
-            console.log("Total Cost:", totalCost, "ETH");
-            console.log("Average Price:", avgPrice, "ETH");
+    //         console.log("\n=== At %s0%% of Supply (%s EXEC) ===", i, supplyPoint / 1e18);
+    //         console.log("Instant Price:", instantPrice, "ETH");
+    //         console.log("Total Cost:", totalCost, "ETH");
+    //         console.log("Average Price:", avgPrice, "ETH");
             
-            // If not at the end, calculate marginal cost for next small increment
-            if (i < 10) {
-                uint256 nextPoint = supplyPoint + 1000000 ether; // Next 1M tokens
-                uint256 nextCost = token.calculateCost(nextPoint);
-                uint256 marginalCost = nextCost - totalCost;
+    //         // If not at the end, calculate marginal cost for next small increment
+    //         if (i < 10) {
+    //             uint256 nextPoint = supplyPoint + 1000000 ether; // Next 1M tokens
+    //             uint256 nextCost = token.calculateCost(nextPoint);
+    //             uint256 marginalCost = nextCost - totalCost;
                 
-                console.log("Marginal Cost (next 1M):", marginalCost, "ETH");
-            }
-        }
+    //             console.log("Marginal Cost (next 1M):", marginalCost, "ETH");
+    //         }
+    //     }
         
-        // Additional test: verify small purchases near the start
-        console.log("\n=== Small Purchase Tests (First 5M EXEC) ===");
-        uint256[] memory smallAmounts = new uint256[](5);
-        for (uint256 i = 0; i < 5; i++) {
-            smallAmounts[i] = (i + 1) * 1000000 ether; // 1M EXEC increments
+    //     // Additional test: verify small purchases near the start
+    //     console.log("\n=== Small Purchase Tests (First 5M EXEC) ===");
+    //     uint256[] memory smallAmounts = new uint256[](5);
+    //     for (uint256 i = 0; i < 5; i++) {
+    //         smallAmounts[i] = (i + 1) * 1000000 ether; // 1M EXEC increments
             
-            uint256 price = token.getPrice(smallAmounts[i]);
-            uint256 cost = token.calculateCost(smallAmounts[i]);
+    //         uint256 price = token.getPrice(smallAmounts[i]);
+    //         uint256 cost = token.calculateCost(smallAmounts[i]);
             
-            console.log("\nAmount: %sM EXEC", i + 1);
-            console.log("Instant Price:", price, "ETH");
-            console.log("Total Cost:", cost, "ETH");
-            console.log("Average Price:", (cost / (smallAmounts[i] / 1e18)), "ETH");
-        }
-    }
+    //         console.log("\nAmount: %sM EXEC", i + 1);
+    //         console.log("Instant Price:", price, "ETH");
+    //         console.log("Total Cost:", cost, "ETH");
+    //         console.log("Average Price:", (cost / (smallAmounts[i] / 1e18)), "ETH");
+    //     }
+    // }
 
     // function testIntegralCalculationSteps() public {
     //     // Let's test with 1M EXEC tokens (1e24) first
