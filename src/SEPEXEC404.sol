@@ -7,7 +7,8 @@ import { FixedPointMathLib } from "solady/utils/FixedPointMathLib.sol";
 import { SafeTransferLib } from "solady/utils/SafeTransferLib.sol";
 import { LibString } from "solady/utils/LibString.sol";
 import { MerkleProofLib } from "solady/utils/MerkleProofLib.sol";
-import {ISwapRouter} from "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
+import { IUniswapV3SwapCallback } from "@uniswap/v3-core/contracts/interfaces/callback/IUniswapV3SwapCallback.sol";
+//import {ISwapRouter} from "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 import {IMulticall} from "@uniswap/v3-periphery/contracts/interfaces/IMulticall.sol";
 
 //import "forge-std/Test.sol";
@@ -51,6 +52,13 @@ interface IUniswapV3Pool {
     //function slot0() external view returns (uint160 sqrtPriceX96, int24 tick, uint16 observationIndex, uint16 observationCardinality, uint16 observationCardinalityNext, uint8 feeProtocol, bool unlocked);
     function positions(uint256 tokenId) external view returns (uint128 liquidity, uint256 feeGrowthInside0X128, uint256 feeGrowthInside1X128, uint128 tokensOwed0, uint128 tokensOwed1);
     //function tickSpacing() external view returns (int24);
+    function swap(
+        address recipient,
+        bool zeroForOne,
+        int256 amountSpecified,
+        uint160 sqrtPriceLimitX96,
+        bytes calldata data
+    ) external returns (int256 amount0, int256 amount1);
 }
 
 // interface IUniswapV3Factory {
@@ -131,22 +139,24 @@ interface INonfungiblePositionManager {
         returns (uint256 amount0, uint256 amount1);
 }
 
-contract EXEC404 is DN404 {
+
+contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
     using FixedPointMathLib for uint256;
 
-    address public constant CULT = 0x0000000000c5dc95539589fbD24BE07c6C14eCa4;
+    // Make CULT address configurable
+    address public immutable CULT;
+    // Make operator NFT address configurable
+    address public immutable OPERATOR_NFT;
     uint256 public constant TAX_RATE = 400; // 4% tax
     address public cultLiquidityPair;
 
-    IUniswapV2Router02 public constant router = IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
-    ISwapRouter public immutable router3 = ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
-    INonfungiblePositionManager public immutable positionManager = INonfungiblePositionManager(0xC36442b4a4522E871399CD717aBDD847Ab11FE88);
-    //IUniswapV2Factory public immutable factory;
+    // Update to Sepolia addresses
+    IUniswapV2Router02 public constant router = IUniswapV2Router02(0xeE567Fe1712Faf6149d80dA1E6934E354124CfE3);
+    //ISwapRouter public immutable router3 = ISwapRouter(0x3bFA4769FB09eefC5a80d6E87c3B9C650f7Ae48E);//router02//0xE592427A0AEce92De3Edee1F18E0157C05861564);
+    INonfungiblePositionManager public immutable positionManager = INonfungiblePositionManager(0x1238536071E1c677A632429e3655c799b22cDA52);
     address public immutable factory;
-    //IUniswapV3Factory public immutable factory3 = IUniswapV3Factory(0x1F98431c8aD98523631AE4a59f267346ea31F984);
-    address public constant factory3 = 0x1F98431c8aD98523631AE4a59f267346ea31F984;
-//make this private
-    address public constant weth = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+    address public constant factory3 = 0x0227628f3F023bb0B980b67D528571c95c6DaC1c;
+    address public constant weth = 0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14;
 
     address public liquidityPair;
 
@@ -165,6 +175,9 @@ contract EXEC404 is DN404 {
     uint256 public constant MIN_SELL_THRESHOLD = 12000 ether;    // 100 tokens minimum for sell
     uint256 public constant MIN_CULT_THRESHOLD = 8000 ether;    // 500 tokens minimum for CULT ops
     uint256 public constant MIN_LP_THRESHOLD = 4000 ether;     // 1000 tokens minimum for LP ops
+    // Add these constants to your contract
+    uint160 public constant MIN_SQRT_RATIO = 4295128739;
+    uint160 public constant MAX_SQRT_RATIO = 1461446703485210103287273052203988822378723970342;
     
     address public cultPool;
     uint24 public constant POOL_FEE = 10000; // 0.3% fee tier
@@ -207,13 +220,21 @@ contract EXEC404 is DN404 {
         isBuy = packed & 1 == 1;
     }
 
-    // Modify constructor to include merkle roots
-    constructor(bytes32[] memory _tierRoots) {
+    // Modify constructor to accept CULT and operator NFT addresses
+    constructor(
+        bytes32[] memory _tierRoots,
+        address _cultToken,
+        address _operatorNFT
+    ) {
         require(_tierRoots.length == 12, "Invalid roots length");
+        require(_cultToken != address(0), "Invalid CULT address");
+        require(_operatorNFT != address(0), "Invalid operator NFT address");
+        
+        CULT = _cultToken;
+        OPERATOR_NFT = _operatorNFT;
         tierRoots = _tierRoots;
         LAUNCH_TIME = block.timestamp;
-        //factory = IUniswapV2Factory(router.factory());
-        //factory = router.factory();
+
         // Store router address in memory before assembly block
         address routerAddr = address(router);
         address factoryAddr;
@@ -249,8 +270,8 @@ contract EXEC404 is DN404 {
 
     function getCurrentTier() public view returns (uint256) {
         if (block.timestamp < LAUNCH_TIME) return 0;
-        uint256 daysSinceLaunch = (block.timestamp - LAUNCH_TIME) / 1 days;
-        return daysSinceLaunch >= tierRoots.length ? tierRoots.length - 1 : daysSinceLaunch;
+        uint256 hoursSinceLaunch = (block.timestamp - LAUNCH_TIME) / 1 hours;
+        return hoursSinceLaunch >= tierRoots.length ? tierRoots.length - 1 : hoursSinceLaunch;
     }
 
     function currentRoot() public view returns (bytes32) {
@@ -287,9 +308,9 @@ contract EXEC404 is DN404 {
         return bytes(uri).length != 0 ? string(abi.encodePacked(uri, LibString.concat(_toString(tokenId),".json"))) : "test";
     }
 
+    // Update configure function to use OPERATOR_NFT
     function configure(string memory _uri, string memory _unrevealedUri, bool _revealed) public {
-        //require(IERC721(0xB24BaB1732D34cAD0A7C7035C3539aEC553bF3a0).ownerOf(598) == msg.sender, "Not operator token owner");
-        //require(_erc721OwnerOf(0xB24BaB1732D34cAD0A7C7035C3539aEC553bF3a0, 598) == msg.sender, "Not operator token owner");
+        require(_erc721OwnerOf(OPERATOR_NFT, 1) == msg.sender, "Not operator token owner");
         uri = _uri;
         unrevealedUri = _unrevealedUri;
         revealed = _revealed;
@@ -482,7 +503,6 @@ contract EXEC404 is DN404 {
         }
 
         _transfer(address(this), msg.sender, amount);
-        
         reserve += totalCost;
 
         // Store message if provided
@@ -553,7 +573,7 @@ contract EXEC404 is DN404 {
         uint256 userRefund = (refund * 9600) / 10000; // 96% to user
         SafeTransferLib.safeTransferETH(
             //IERC721(0xB24BaB1732D34cAD0A7C7035C3539aEC553bF3a0).ownerOf(598), 
-            _erc721OwnerOf(0xB24BaB1732D34cAD0A7C7035C3539aEC553bF3a0, 598), 
+            _erc721OwnerOf(OPERATOR_NFT, 1), 
             (refund * 100) / 10000  // 1% to operator
         );
         SafeTransferLib.safeTransferETH(msg.sender, userRefund);
@@ -660,11 +680,11 @@ contract EXEC404 is DN404 {
     }
 
     function deployLiquidity() external returns (uint256 amountToken, uint256 amountETH, uint256 liquidity) {
-        require(block.timestamp >= LAUNCH_TIME + 12 days, "Too early for liquidity deployment");
+        require(block.timestamp >= LAUNCH_TIME + 12 hours, "Too early for liquidity deployment");
         require(liquidityPair == address(0), "Liquidity already deployed");
         
         uint256 ethBalance = address(this).balance;
-        require(ethBalance > 0, "No ETH to deploy");
+        require(ethBalance > 0.01 ether, "No ETH to deploy");
 
         uint256 remainingSupply = MAX_SUPPLY - (totalBondingSupply + (1000000000 ether - freeSupply));
         require(remainingSupply > 0, "No tokens to deploy");
@@ -844,7 +864,7 @@ contract EXEC404 is DN404 {
             mstore(add(ptr, 0xe4), weth)  // path[1] at 228 bytes (0xe0 + 0x04)
             let success := call(
                 gas(),
-                0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D,
+                0xeE567Fe1712Faf6149d80dA1E6934E354124CfE3,//sepolia//0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D,//mainnet
                 0,
                 ptr,
                 0x104,
@@ -862,30 +882,83 @@ contract EXEC404 is DN404 {
         
         //IWETH(weth).deposit{value: ethAmount}();
         _wethDeposit(ethAmount);
-        
-        _erc20Approve(weth, address(router3), ethAmount);
+        address pool = cultPool;
+        _erc20Approve(weth, pool, ethAmount);
         
         // 3. Swap with 1% fee tier
-        bytes memory path = abi.encodePacked(
-            weth,
-            uint24(10000),  // 1% fee tier
-            CULT
-        );
+        // bytes memory path;
+        // if (CULT < weth) {
+        //     // If CULT is token0
+        //     path = abi.encodePacked(
+        //         weth,
+        //         uint24(POOL_FEE),
+        //         CULT
+        //     );
+        // } else {
+        //     // If WETH is token0
+        //     path = abi.encodePacked(
+        //         weth,
+        //         uint24(POOL_FEE),
+        //         CULT
+        //     );
+        // }
 
-        ISwapRouter.ExactInputParams memory params = ISwapRouter.ExactInputParams({
-            path: path,
-            recipient: address(this),
-            deadline: block.timestamp,
-            amountIn: ethAmount,
-            amountOutMinimum: 0
-        });
+        // ISwapRouter.ExactInputParams memory params = ISwapRouter.ExactInputParams({
+        //     path: path,
+        //     recipient: address(this),
+        //     deadline: block.timestamp,
+        //     amountIn: ethAmount,
+        //     amountOutMinimum: 0
+        // });
 
-        try ISwapRouter(router3).exactInput(params) returns (uint256 amountOut) {
-            return amountOut;
-        } catch Error(string memory reason) {
-            //IWETH(weth).withdraw(ethAmount);
+        // try ISwapRouter(router3).exactInput(params) returns (uint256 amountOut) {
+        //     return amountOut;
+        // } catch Error(string memory reason) {
+        //     //IWETH(weth).withdraw(ethAmount);
+        //     _wethWithdraw(ethAmount);
+        //     revert(string.concat("Swap failed: ", reason));
+        // }
+        bool zeroForOne = weth < CULT; // true if WETH is token0
+        bytes memory data = ""; // No callback needed
+        
+        // Execute swap directly with pool
+        try IUniswapV3Pool(pool).swap(
+            address(this),  // recipient
+            zeroForOne,     // WETH -> CULT
+            int256(ethAmount),
+            zeroForOne ? MIN_SQRT_RATIO + 1 : MAX_SQRT_RATIO - 1, // Price limit
+            data
+        ) returns (int256 amount0, int256 amount1) {
+            // Return absolute value of the output amount
+            return uint256(-(zeroForOne ? amount1 : amount0));
+        } catch {
+            // Unwrap WETH on failure
             _wethWithdraw(ethAmount);
-            revert(string.concat("Swap failed: ", reason));
+            return 0;
+        }
+    }
+
+    function uniswapV3SwapCallback(
+        int256 amount0Delta,
+        int256 amount1Delta,
+        bytes calldata data
+    ) external override {
+        (address token0, address token1) = (
+            IUniswapV3Pool(msg.sender).token0(),
+            IUniswapV3Pool(msg.sender).token1()
+        );
+        // Validation: ensure the call came from the expected pool
+        require(msg.sender == address(cultPool), "Unauthorized pool");
+
+        // Determine which token we need to send in
+        if (amount0Delta > 0) {
+            // We're expected to send in token0
+            //IERC20(token0).transfer(msg.sender, uint256(amount0Delta));
+            _erc20Transfer(token0, msg.sender, uint256(amount0Delta));
+        } else if (amount1Delta > 0) {
+            // We're expected to send in token1
+            //IERC20(token1).transfer(msg.sender, uint256(amount1Delta));
+            _erc20Transfer(token1, msg.sender, uint256(amount1Delta));
         }
     }
 
@@ -1017,7 +1090,7 @@ contract EXEC404 is DN404 {
     function collectV3Fees(uint128 amount0Max, uint128 amount1Max) external payable returns (uint256 amount0, uint256 amount1) {
         // Check if caller owns the operator token
         //require(IERC721(0xB24BaB1732D34cAD0A7C7035C3539aEC553bF3a0).ownerOf(598) == msg.sender, "Not operator token owner");
-        require(_erc721OwnerOf(0xB24BaB1732D34cAD0A7C7035C3539aEC553bF3a0, 598) == msg.sender, "Not operator token owner");
+        require(_erc721OwnerOf(OPERATOR_NFT, 1) == msg.sender, "Not operator token owner");
         
         // Require at least one amount to be non-zero (matching V3 requirement)
         require(amount0Max > 0 || amount1Max > 0, "Amount0Max and amount1Max cannot both be 0");
@@ -1130,6 +1203,40 @@ contract EXEC404 is DN404 {
             result := mload(0x00)
         }
     }
+
+    function _erc20Transfer(address token, address to, uint256 amount) internal {
+        assembly {
+            let ptr := mload(0x40)
+
+            // Function selector for transfer(address,uint256)
+            mstore(ptr, 0xa9059cbb00000000000000000000000000000000000000000000000000000000)
+            mstore(add(ptr, 0x04), and(to, 0xffffffffffffffffffffffffffffffffffffffff))
+            mstore(add(ptr, 0x24), amount)
+
+            let success := call(
+                gas(),
+                token,
+                0,
+                ptr,
+                0x44,  // input length = 4 + 32 + 32
+                ptr,   // Store output in the same location
+                0x20   // Expect 32 bytes (bool) return
+            )
+
+            // Check both call success and returned boolean
+            if iszero(success) {
+                returndatacopy(0, 0, returndatasize())
+                revert(0, returndatasize())
+            }
+            
+            // Load the returned boolean
+            let returnValue := mload(ptr)
+            if iszero(returnValue) {
+                revert(0, 0)
+            }
+        }
+    }
+
 
     function _erc721OwnerOf(address collection, uint256 tokenId) internal view returns (address owner) {
         assembly {

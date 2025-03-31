@@ -841,6 +841,15 @@ contract EXEC404Test is Test {
         console.log("EXEC Balance:", token.balanceOf(address(token)) / 1 ether);
         console.log("ETH Balance:", address(token).balance );
         console.log("CULT Balance:", IERC20(token.CULT()).balanceOf(address(token)) / 1 ether);
+
+        // Get V3 position details
+        uint256 positionId = token.cultV3Position();
+        if (positionId > 0) {
+            (,,,,,,,uint128 liquidity,,,,) = INonfungiblePositionManager(address(token.positionManager())).positions(positionId);
+            console.log("CULT-ETH V3 Position Liquidity:", liquidity);
+        } else {
+            console.log("No V3 Position found");
+        }
     }
 
     function predictOperation() internal view returns (uint256) {
