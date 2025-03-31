@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 import  "forge-std/Script.sol";
 import "forge-std/console.sol";
-import {SequentialMerkleWhitelist} from "../src/SequentialMerkleWhitelist.sol";
+import {SequentialMerkleWhitelist} from "../../src/components/SequentialMerkleWhitelist.sol";
 
 contract DeploySequentialMerkleWhitelist is Script {
     // Test addresses to demonstrate the concept

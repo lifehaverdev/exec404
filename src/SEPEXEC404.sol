@@ -186,6 +186,7 @@ contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
     uint256 public cultV3Position;
 
     event WhitelistInitialized(bytes32[] roots);
+    uint256 constant startTokenId = 1;
 
     bool private swapping;
     mapping(uint256 => uint256) public blockSwaps;

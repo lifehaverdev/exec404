@@ -2,7 +2,7 @@
 pragma solidity ^0.8.19;
 
 import {Test} from "forge-std/Test.sol";
-import {LiquidityDeployer} from "../src/LiquidityDeployer.sol";
+import {LiquidityDeployer} from "../../src/components/LiquidityDeployer.sol";
 import {ERC20} from "solady/tokens/ERC20.sol";
 import {IUniswapV2Pair} from "@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol";
 import {IUniswapV2Router02} from "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";

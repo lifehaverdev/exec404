@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "forge-std/Script.sol";
-import "../src/Bonding.sol";
+import "../../src/components/Bonding.sol";
 
 contract DeployBonding is Script {
     function run() external returns (Bonding bondingContract) {

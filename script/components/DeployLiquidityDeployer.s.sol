@@ -2,7 +2,7 @@
 pragma solidity ^0.8.19;
 
 import {Script} from "forge-std/Script.sol";
-import {LiquidityDeployer} from "../src/LiquidityDeployer.sol";
+import {LiquidityDeployer} from "../../src/components/LiquidityDeployer.sol";
 
 contract DeployLiquidityDeployer is Script {
     function run() external returns (LiquidityDeployer) {
