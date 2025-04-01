@@ -55,6 +55,20 @@ interface IPositionManager {
         );
 }
 
+interface IUniswapV3Pool {
+    //function token0() external view returns (address);
+    //function token1() external view returns (address);
+    //function fee() external view returns (uint24);
+    //function positions(uint256 tokenId) external view returns (uint128 liquidity, uint256 feeGrowthInside0X128, uint256 feeGrowthInside1X128, uint128 tokensOwed0, uint128 tokensOwed1);
+    function swap(
+        address recipient,
+        bool zeroForOne,
+        int256 amountSpecified,
+        uint160 sqrtPriceLimitX96,
+        bytes calldata data
+    ) external returns (int256 amount0, int256 amount1);
+}
+
 
 interface IUniswapV2Pair {
     function token0() external view returns (address);
@@ -287,7 +301,7 @@ contract SEPEXEC404Test is Test {
     }
 
     function generateProof(uint256 day, address user) internal view returns (bytes32[] memory) {
-        require(whitelistsByDay[day][user], "User not whitelisted for this day");
+        require(whitelistsByDay[day][user], "User not white");
         
         // Count whitelisted addresses for this day
         uint256 leafCount = 0;
@@ -478,6 +492,10 @@ contract SEPEXEC404Test is Test {
         
         vm.stopPrank();
         return lpTokens;
+    }
+
+    function testLiquidityPool() public {
+        uint256 initialLpTokens = setupLiquidityPool();
     }
 
     function testMarketSep() public {

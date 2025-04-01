@@ -9,87 +9,30 @@ import { LibString } from "solady/utils/LibString.sol";
 import { MerkleProofLib } from "solady/utils/MerkleProofLib.sol";
 import { IUniswapV3SwapCallback } from "@uniswap/v3-core/contracts/interfaces/callback/IUniswapV3SwapCallback.sol";
 
-interface IUniswapV2Router02 {
-    function addLiquidityETH(
-        address token,
-        uint256 amountTokenDesired,
-        uint256 amountTokenMin,
-        uint256 amountETHMin,
-        address to,
-        uint256 deadline
-    ) external payable returns (uint256 amountToken, uint256 amountETH, uint256 liquidity);
-}
+// interface IUniswapV2Router02 {
+//     function addLiquidityETH(
+//         address token,
+//         uint256 amountTokenDesired,
+//         uint256 amountTokenMin,
+//         uint256 amountETHMin,
+//         address to,
+//         uint256 deadline
+//     ) external payable returns (uint256 amountToken, uint256 amountETH, uint256 liquidity);
+// }
 
-interface IUniswapV3Pool {
-    //function token0() external view returns (address);
-    //function token1() external view returns (address);
-    //function fee() external view returns (uint24);
-    //function positions(uint256 tokenId) external view returns (uint128 liquidity, uint256 feeGrowthInside0X128, uint256 feeGrowthInside1X128, uint128 tokensOwed0, uint128 tokensOwed1);
-    function swap(
-        address recipient,
-        bool zeroForOne,
-        int256 amountSpecified,
-        uint160 sqrtPriceLimitX96,
-        bytes calldata data
-    ) external returns (int256 amount0, int256 amount1);
-}
-
-
-//interface INonfungiblePositionManager {
-    // function mint(MintParams calldata params) external payable returns (
-    //     uint256 tokenId,
-    //     uint128 liquidity,
-    //     uint256 amount0,
-    //     uint256 amount1
-    // );
-
-    //function increaseLiquidity(IncreaseLiquidityParams calldata params) external payable returns (uint128 liquidity, uint256 amount0, uint256 amount1);
-
-    // struct MintParams {
-    //     address token0;
-    //     address token1;
-    //     uint24 fee;
-    //     int24 tickLower;
-    //     int24 tickUpper;
-    //     uint256 amount0Desired;
-    //     uint256 amount1Desired;
-    //     uint256 amount0Min;
-    //     uint256 amount1Min;
-    //     address recipient;
-    //     uint256 deadline;
-    // }
-
-    // function positions(uint256 tokenId)
-    //     external
-    //     view
-    //     returns (
-    //         uint96 nonce,
-    //         address operator,
-    //         address token0,
-    //         address token1,
-    //         uint24 fee,
-    //         int24 tickLower,
-    //         int24 tickUpper,
-    //         uint128 liquidity,
-    //         uint256 feeGrowthInside0LastX128,
-    //         uint256 feeGrowthInside1LastX128,
-    //         uint128 tokensOwed0,
-    //         uint128 tokensOwed1
-    //     );
-
-    // struct CollectParams {
-    //     uint256 tokenId;
-    //     address recipient;
-    //     uint128 amount0Max;
-    //     uint128 amount1Max;
-    // }
-    
-    // function collect(CollectParams calldata params)
-    //     external
-    //     payable
-    //     returns (uint256 amount0, uint256 amount1);
-//}
-
+// interface IUniswapV3Pool {
+//     function token0() external view returns (address);
+//     function token1() external view returns (address);
+//     //function fee() external view returns (uint24);
+//     //function positions(uint256 tokenId) external view returns (uint128 liquidity, uint256 feeGrowthInside0X128, uint256 feeGrowthInside1X128, uint128 tokensOwed0, uint128 tokensOwed1);
+//     function swap(
+//         address recipient,
+//         bool zeroForOne,
+//         int256 amountSpecified,
+//         uint160 sqrtPriceLimitX96,
+//         bytes calldata data
+//     ) external returns (int256 amount0, int256 amount1);
+// }
 
 contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
     //using FixedPointMathLib for uint256;
@@ -102,7 +45,8 @@ contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
     address public cultLiquidityPair;
 
     // Update to Sepolia addresses
-    IUniswapV2Router02 public constant router = IUniswapV2Router02(0xeE567Fe1712Faf6149d80dA1E6934E354124CfE3);
+    //IUniswapV2Router02 public constant router = IUniswapV2Router02(0xeE567Fe1712Faf6149d80dA1E6934E354124CfE3);
+    address public constant router = 0xeE567Fe1712Faf6149d80dA1E6934E354124CfE3;
     //ISwapRouter public immutable router3 = ISwapRouter(0x3bFA4769FB09eefC5a80d6E87c3B9C650f7Ae48E);//router02//0xE592427A0AEce92De3Edee1F18E0157C05861564);
     //INonfungiblePositionManager public immutable positionManager = INonfungiblePositionManager(0x1238536071E1c677A632429e3655c799b22cDA52);
     address public constant positionManager = 0x1238536071E1c677A632429e3655c799b22cDA52;
@@ -179,9 +123,9 @@ contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
         address _cultToken,
         address _operatorNFT
     ) {
-        require(_tierRoots.length == 12, "Bad roots length");
-        require(_cultToken != address(0), "Bad CULT addr");
-        require(_operatorNFT != address(0), "Bad operator NFT addr");
+        require(_tierRoots.length == 12, "Bad roots");
+        require(_cultToken != address(0), "Bad CULT");
+        require(_operatorNFT != address(0), "Bad opNFT");
         
         CULT = _cultToken;
         OPERATOR_NFT = _operatorNFT;
@@ -214,7 +158,7 @@ contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
         //cultPool = factory3.getPool(CULT, weth, POOL_FEE);
         (,bytes memory d) = factory3.staticcall(abi.encodeWithSelector(0x1698ee82, CULT, weth, POOL_FEE));
         cultPool = abi.decode(d, (address));
-        require(cultPool != address(0), "CULT pool no exist");
+        require(cultPool != address(0), "no CULT");
         
         emit WhitelistInitialized(_tierRoots);
         address mirror = address(new DN404Mirror(msg.sender));
@@ -314,8 +258,8 @@ contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
         _transfer(address(this), msg.sender, amountToHold);
         
         // Verify final state
-        require(addressData.balance == balance, "Balance mismatch");
-        require(addressData.ownedLength == currentOwnedLength + amount, "NFT count mismatch");
+        require(addressData.balance == balance);
+        require(addressData.ownedLength == currentOwnedLength + amount);
     }
 
     function getExecForEth(uint256 ethAmount) public view returns (uint256 execAmount) {
@@ -344,7 +288,7 @@ contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
     }
 
     function getEthForExec(uint256 execAmount) public view returns (uint256 ethAmount) {
-        require(execAmount <= totalBondingSupply, "Exceeds bonding supply");
+        require(execAmount <= totalBondingSupply, "Exceeds bonding");
         return calculateRefund(execAmount);
     }
 
@@ -408,9 +352,9 @@ contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
         string calldata message
     ) external payable whitelistGated(proof) {
         // Check for overflow before adding
-        require(totalBondingSupply <= MAX_SUPPLY - LIQUIDITY_RESERVE - amount, "Exceeds bonding supply");
+        require(totalBondingSupply <= MAX_SUPPLY - LIQUIDITY_RESERVE - amount, "Exceeds bonding");
         uint256 totalCost = calculateCost(amount);
-        require(maxCost >= totalCost, "Cost exceeds maxCost");
+        require(maxCost >= totalCost, "MaxCost exceeded");
         require(msg.value >= totalCost, "Low ETH value");
 
         // Only flip skipNFT if it's currently true and user wants to mint
@@ -434,7 +378,7 @@ contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
         // Store message if provided
         if (bytes(message).length > 0) {
             uint64 scaledAmount = uint64(amount / 1e18);
-            require(scaledAmount <= type(uint64).max, "Too size for msg storage");
+            require(scaledAmount <= type(uint64).max, "Too size for msg");
             
             bondingMessages[totalMessages++] = BondingMessage({
                 sender: msg.sender,
@@ -465,7 +409,7 @@ contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
     ) external whitelistGated(proof) {
         //a requirement that disables selling if the bonding curve is mostly full, say about at 85%+ 
         uint256 balance = balanceOf(msg.sender);
-        require(balance >= amount, "Insufficient balance");
+        require(balance >= amount, "smolbalance");
         if(freeMint[msg.sender] && (balance - amount < 1000000 ether)) {
             revert("Cannot sell your freebie back into bonding");
         }
@@ -482,7 +426,7 @@ contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
 
         // Store message if provided
         if (bytes(message).length > 0) {
-            require(amount / 1 ether <= type(uint64).max, "Too size for msg storage");
+            require(amount / 1 ether <= type(uint64).max, "Too size for msg");
             bondingMessages[totalMessages++] = BondingMessage({
                 sender: msg.sender,
                 packedData: packData(
@@ -608,10 +552,10 @@ contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
         
         assembly {
             let ptr := mload(0x40)
-            mstore(ptr, 0x8831645600000000000000000000000000000000000000000000000000000000)
-            
-            // Pack parameters with correct token ordering
-            switch isToken0 
+            mstore(ptr, 0x8831645600000000000000000000000000000000000000000000000000000000) // function selector: mint()
+
+            // Pack parameters depending on isToken0
+            switch isToken0
             case 1 {
                 mstore(add(ptr, 0x04), _CULT)
                 mstore(add(ptr, 0x24), weth)
@@ -624,45 +568,45 @@ contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
                 mstore(add(ptr, 0xa4), 5000000000000000)
                 mstore(add(ptr, 0xc4), cultBought)
             }
-            
+
             mstore(add(ptr, 0x44), POOL_FEE)
             mstore(add(ptr, 0x64), tickLower)
             mstore(add(ptr, 0x84), tickUpper)
-            mstore(add(ptr, 0xe4), 0)
-            mstore(add(ptr, 0x104), 0)
-            mstore(add(ptr, 0x124), address())
-            mstore(add(ptr, 0x144), timestamp())
+            mstore(add(ptr, 0xe4), 0)                          // amount0Min
+            mstore(add(ptr, 0x104), 0)                         // amount1Min
+            mstore(add(ptr, 0x124), address())                // recipient
+            mstore(add(ptr, 0x144), timestamp())              // deadline
 
-            success := call(
-                gas(),
-                _posMan,
-                0,
-                ptr,
-                0x164,
-                ptr,
-                0x80
-            )
+            success := call(gas(), _posMan, 0, ptr, 0x164, ptr, 0xA0)
 
             if success {
-                sstore(cultV3Position.slot, mload(ptr))
-                
-                let amount1 := mload(add(ptr, 0x80))  // Fixed offset for amount1
-                let unusedWeth := sub(5000000000000000, amount1)
-                
-                if gt(unusedWeth, 0) {
-                    mstore(0x00, 0x2e1a7d4d00000000000000000000000000000000000000000000000000000000)
-                    mstore(0x04, unusedWeth)
-                    pop(call(gas(), weth, 0, 0x00, 0x24, 0x00, 0x00))
+                sstore(cultV3Position.slot, mload(ptr)) // tokenId
+
+                // Ensure the return buffer is large enough before reading amount1
+                if iszero(lt(returndatasize(), 0xA0)) {
+                    let amount1 := mload(add(ptr, 0x80)) // safely read amount1
+                    let unusedWeth := sub(5000000000000000, amount1)
+
+                    // Clamp unusedWeth to 0.005 ether max
+                    if gt(unusedWeth, 0) {
+                        if gt(unusedWeth, 5000000000000000) {
+                            unusedWeth := 0
+                        }
+
+                        mstore(0x00, 0x2e1a7d4d00000000000000000000000000000000000000000000000000000000) // withdraw selector
+                        mstore(0x04, unusedWeth)
+                        pop(call(gas(), weth, 0, 0x00, 0x24, 0x00, 0x00))
+                    }
                 }
             }
+
+            // fallback unwrap if mint failed
             if iszero(success) {
                 mstore(0x00, 0x2e1a7d4d00000000000000000000000000000000000000000000000000000000)
                 mstore(0x04, 5000000000000000)
                 pop(call(gas(), weth, 0, 0x00, 0x24, 0x00, 0x00))
             }
         }
-        
-        return success;
     }
 
     // Keep external version for direct calls if needed
@@ -691,14 +635,48 @@ contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
 
         // Deploy V2 liquidity first
         _approve(address(this), address(router), remainingSupply);
-        (amountToken, amountETH, liquidity) = router.addLiquidityETH{value: ethForV2}(
-            address(this),
-            remainingSupply,
-            0,
-            0,
-            address(this),
-            block.timestamp
-        );
+        // (amountToken, amountETH, liquidity) = router.addLiquidityETH{value: ethForV2}(
+        //     address(this),
+        //     remainingSupply,
+        //     0,
+        //     0,
+        //     address(this),
+        //     block.timestamp
+        // );
+        assembly {
+            // addLiquidityETH selector: 0xf305d719
+            let ptr := mload(0x40)
+            mstore(ptr, 0xf305d71900000000000000000000000000000000000000000000000000000000)
+            
+            // Pack parameters
+            mstore(add(ptr, 0x04), address())          // token address
+            mstore(add(ptr, 0x24), remainingSupply)    // amountTokenDesired
+            mstore(add(ptr, 0x44), 0)                  // amountTokenMin
+            mstore(add(ptr, 0x64), 0)                  // amountETHMin
+            mstore(add(ptr, 0x84), address())          // to address
+            mstore(add(ptr, 0xa4), timestamp())        // deadline
+
+            // Make the call
+            let success := call(
+                gas(),
+                router,          // router address
+                ethForV2,       // ETH value
+                ptr,            // input
+                0xc4,          // input size (4 + 6 * 32)
+                ptr,           // output
+                0x60           // output size (3 * 32)
+            )
+
+            if iszero(success) {
+                returndatacopy(0, 0, returndatasize())
+                revert(0, 0)
+            }
+
+            // Store return values
+            amountToken := mload(ptr)
+            amountETH := mload(add(ptr, 0x20))
+            liquidity := mload(add(ptr, 0x40))
+        }
 
         // Try to initialize CULT pool with remaining ETH
         if (!_initializeCultPoolLogic()) {
@@ -914,21 +892,72 @@ contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
         bytes memory data = ""; // No callback needed
         
         // Execute swap directly with pool
-        try IUniswapV3Pool(pool).swap(
-            address(this),  // recipient
-            zeroForOne,     // WETH -> CULT
-            int256(ethAmount),
-            //MIN MAX SQRT RATIO
-            zeroForOne ? 4295128739 + 1 : 1461446703485210103287273052203988822378723970342 - 1, // Price limit
-            data
-        ) returns (int256 amount0, int256 amount1) {
-            // Return absolute value of the output amount
-            return uint256(-(zeroForOne ? amount1 : amount0));
-        } catch {
-            // Unwrap WETH on failure
-            _wethWithdraw(ethAmount);
-            return 0;
+        // try IUniswapV3Pool(pool).swap(
+        //     address(this),  // recipient
+        //     zeroForOne,     // WETH -> CULT
+        //     int256(ethAmount),
+        //     //MIN MAX SQRT RATIO
+        //     zeroForOne ? 4295128739 + 1 : 1461446703485210103287273052203988822378723970342 - 1, // Price limit
+        //     data
+        // ) returns (int256 amount0, int256 amount1) {
+        //     // Return absolute value of the output amount
+        //     return uint256(-(zeroForOne ? amount1 : amount0));
+        // } catch {
+        //     // Unwrap WETH on failure
+        //     _wethWithdraw(ethAmount);
+        //     return 0;
+        // }
+        uint256 result;
+        assembly {
+            let ptr := mload(0x40)
+
+            mstore(ptr, 0x128acb0800000000000000000000000000000000000000000000000000000000)
+            mstore(add(ptr, 0x04), address())
+            mstore(add(ptr, 0x24), iszero(iszero(zeroForOne)))
+            mstore(add(ptr, 0x44), ethAmount)
+
+            switch zeroForOne
+            case 1 {
+                mstore(add(ptr, 0x64), 4295128740)
+            }
+            default {
+                mstore(add(ptr, 0x64), 1461446703485210103287273052203988822378723970341)
+            }
+
+            mstore(add(ptr, 0x84), 0xa0)
+            mstore(add(ptr, 0xa4), 0)
+
+            let callSuccess := call(
+                gas(),
+                pool,
+                0,
+                ptr,
+                0xc4,
+                ptr,
+                0x40
+            )
+
+            if callSuccess {
+                let amount0 := mload(ptr)
+                let amount1 := mload(add(ptr, 0x20))
+
+                switch zeroForOne
+                case 1 {
+                    result := sub(0, amount1)
+                }
+                default {
+                    result := sub(0, amount0)
+                }
+            }
+
+            if iszero(callSuccess) {
+                mstore(0x00, 0x2e1a7d4d)
+                mstore(0x04, ethAmount)
+                pop(call(gas(), weth, 0, 0x00, 0x24, 0x00, 0x00))
+                result := 0
+            }
         }
+        cultBought = result;
     }
 
     function uniswapV3SwapCallback(
@@ -940,10 +969,10 @@ contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
         //     IUniswapV3Pool(msg.sender).token0(),
         //     IUniswapV3Pool(msg.sender).token1()
         // );
-        // Validation: ensure the call came from the expected pool
-        require(msg.sender == address(cultPool), "Unauthed pool");
+        // // Validation: ensure the call came from the expected pool
+        // require(msg.sender == address(cultPool), "Unauthed pool");
 
-        // // Determine which token we need to send in
+        // // // Determine which token we need to send in
         // if (amount0Delta > 0) {
         //     // We're expected to send in token0
         //     //IERC20(token0).transfer(msg.sender, uint256(amount0Delta));
@@ -954,42 +983,46 @@ contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
         //     _erc20Transfer(token1, msg.sender, uint256(amount1Delta));
         // }
         assembly {
-            // token0() selector: 0x0dfe1681
-            mstore(0x00, 0x0dfe168100000000000000000000000000000000000000000000000000000000)
-            let token0
-            let token1
-            
-            // Get token0
-            if iszero(staticcall(gas(), caller(), 0x00, 0x04, 0x00, 0x20)) {
-                revert(0, 0)
+            // Load msg.sender and cultPool into memory for comparison
+            let sender := caller()
+            if iszero(eq(sender, sload(cultPool.slot))) {
+                // revert("Unauthed pool")
+                mstore(0x00, 0x20)
+                mstore(0x20, 0x0e) // string length
+                mstore(0x40, "Unauthed pool")
+                revert(0x00, 0x4e)
             }
-            token0 := mload(0x00)
-            
-            // token1() selector: 0xd21220a7
-            mstore(0x00, 0xd21220a700000000000000000000000000000000000000000000000000000000)
-            
-            // Get token1
-            if iszero(staticcall(gas(), caller(), 0x00, 0x04, 0x00, 0x20)) {
-                revert(0, 0)
-            }
-            token1 := mload(0x00)
 
-            // Handle transfers
-            switch gt(amount0Delta, 0)
-            case 1 {
-                // transfer() selector: 0xa9059cbb
-                mstore(0x00, 0xa9059cbb00000000000000000000000000000000000000000000000000000000)
-                mstore(0x04, caller())
-                mstore(0x24, amount0Delta)
+            // Get token0
+            //mstore(0x00, 0x0dfe1681)
+            mstore(0x00, 0x0dfe168100000000000000000000000000000000000000000000000000000000)
+            if iszero(staticcall(gas(), sender, 0x00, 0x04, 0x00, 0x20)) {
+                revert(0, 0)
+            }
+            let token0 := mload(0x00)
+
+            // Get token1
+            //mstore(0x00, 0xd21220a7)
+            mstore(0x00, 0xd21220a700000000000000000000000000000000000000000000000000000000)
+            if iszero(staticcall(gas(), sender, 0x00, 0x04, 0x00, 0x20)) {
+                revert(0, 0)
+            }
+            let token1 := mload(0x00)
+
+            // Prepare transfer selector: transfer(address,uint256)
+            mstore(0x00, 0xa9059cbb00000000000000000000000000000000000000000000000000000000)
+            mstore(0x04, sender)
+
+            // Check if amount0Delta > 0
+            if sgt(amount0Delta, 0) {
+                mstore(0x24, amount0Delta) // int256 > 0 is safe to cast directly
                 pop(call(gas(), token0, 0, 0x00, 0x44, 0x00, 0x00))
             }
-            case 0 {
-                if gt(amount1Delta, 0) {
-                    mstore(0x00, 0xa9059cbb00000000000000000000000000000000000000000000000000000000)
-                    mstore(0x04, caller())
-                    mstore(0x24, amount1Delta)
-                    pop(call(gas(), token1, 0, 0x00, 0x44, 0x00, 0x00))
-                }
+
+            // Else if amount1Delta > 0
+            if sgt(amount1Delta, 0) {
+                mstore(0x24, amount1Delta)
+                pop(call(gas(), token1, 0, 0x00, 0x44, 0x00, 0x00))
             }
         }
     }
