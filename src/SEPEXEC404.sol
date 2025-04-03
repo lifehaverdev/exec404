@@ -1,3 +1,79 @@
+/*
+###+-++#+----+##+++++......-.....++++##+++###++++---++..............................................................-...--------.---..
+####+++++++++#####+++--+++###+-+-#++++#####+++#+++###+--+++###############+-++++-++#####+++-+++#######+++######++++++++##########++++-
+####+++--------####+--+--------+.-----#####------+-.----+++--------------.+-++--++#-----.+++-++------##++.----.++++-+##.--------###-+-
+###++------------##++--.----.++#.-----++++++----.+-------+#--------------.#-+-----#------++--+#.------+##.-----#++-+#.------------#++.
+###+------#+#-----##+#-.----.+--.-----+#+++-----.#+++++++++---+------+----+-------#------++++++.-------.#-----.#+++#.------#+------++.
+##+#-----#+++#--+.##++#.----.#--.-----++++++----.#-----+--++++#+-----++++---------+------+--+-+.---------+-----#++++------#+##.....++.
+##+.-----++++#########++-----++#+-----++#++-----.#-------------+-----++-----------+-----------+.--------------.#+-++------#++#######+.
+##+#-----++++#-----###++-----+++#-----++++++----.#+++++--------------+------------+-----------+.----#----------#+-++------###+-----++.
+###+-------#------+##++#------+------#++++++-----------.--------------------------------.------.----+#---------#+-+#-------..-----.+-.
++##++#-----------+++#+#+#-----------##++++++--------------------------------------------.------------+++------.+-+-+#+-----------+#++.
+####+++++-----#+++++++++#+##-----+#++#++++++--------------------+++++------+++-----+++++----------------#.-----+----++##.-----.+##++-.
+-#+--++++++#++++++++++++++#++++++++++#++++++#-+-++-----------.--------..-.-----..-----------------+------+++++++-------++#####+++----.
+-#+#####++++####+##+##+#+++++++++++++#++++++#---------------------------------------------------------------------+---------------++-.
+-#+###+##########+##+##+####+++++++++#++++++#-------------------------.....------------------------------------------------+++++-----.
+##+++##+##+##############++#####+++++#++++++#------------------------...#+...-----------------.--------------------------------------.
+-+###+#++####++++++++++++++++++####+++++++++#.----.---------------....#####...------------------------------------------+------------.
+###+##++#+++++++++++++#####+++++++###+++++++#.--------...............#######..-------------------------------------------------------.
++####-#######+++++++++++++##++#####++##+++++#.--------.#####...##############..------------------------------------------------------.
+##++######+#++++++++++#+++++#+++###+++++#+++#.--------..######################..----------.....--.....-------------------------------.
++#+#######+##+++###++++++++++--+++##+++++#++#.--------...#####################-.---------........-...........-......-----------------.
++####++########++--+#############--+++++++###..--------...#####################.--------..#####-.#####...###.-##.##-.--#+-.-..-------.
+#############++-###+###############+-+++++++#-..--------..#####################..-------..#####.######...##....###-#....+####+-------.
+#####++++###+######-##################++++++##-..-------..#####################..-------..-.#.##.#.-##.-#.###+#+.##..#########.------.
+############+++-##++###################-++++++#+..------..##########--#########..--------.........................#########...-------.
+#####+###+++++++--+----##################+++++###.-------..####################..-------------------------....##########...----------.
+#####+##+-++++-###+####---################-++++##--------..#####################...-------------------.....#########....-------------.
+#######+####+-####-+###++++-###############-##++##--------..####################+#...--------------.....#########....----------------.
+###+##---#########-+####----+###############-#+#+#---------...################+++##-....-------.....+########+....-------------------.
+++++++#-####################-++##############++++#---------....-############+..+-#####...........#########-....----------------------.
+####+########################-+##############++#++#-........#########-+##+...--+##########+...#########........--.--.----------------.
+####++-######++-##############++##############+##++###+++-###########-#++..---+#####################.........-------#---+++++########+
+###++++#+----++##############-.#+#############-+#++##+#-++###############+-.-++###################+.+##############++++++++++++++++++-
+###++#++#######+++##############+#############+++++##+#################---++++#########+--############################++++++++++++++++
+###++.#+---####----..#######+.#---+##..#+..###--+++-----################++-.+#######---++##########+++++++++++++++++++++++++++++++++++
+##++++---+++-##-#----#######.##.#-###..##.-.##.-+#--+++.################+.++#####--++++#############++++++++++++++++++++++++++++++++++
+##+++++#---.+#+#+-#-.#######-#.---.##..##.-..#.-+--#++##################++###+--++++#################+++++++++++++++++++++++++++++++++
+##+#++#-+#-+##++.-#-#########-----###..##.##.---+---###################++#+--++#######################++++++++++++++++++++++++++++++++
++#+#+--.-----++#+#--###..###+.#-#--##..##.-##---++-.....-#########+++++++++###########################++++++++++++++++++++++++++++++++
+-#++++#++####++++#+#############+++#######+###++#################-++++++-+############################++++++++++++++++++++++++++++++++
+##+++#++###+++++++++++#+++-+####+++#######+#####################+++++++################################+++++++++++++++++++++++++++++++
+##+++#+++++++++++++++++++#++####+++#######+############+-######--+++##+#################################++++++++++++++++++++++++++++++
+###++#+++++##++++.+++++++##-+###+-#######++############-##############-##################################+++++++++++++++++++++++++++++
+###++#+#++++++++#+#+##++#+-###+-#########+#############-#################################################+++++++++++++++++++++++++++++
+###+++-+++++++++++++#++++++############################-##################################################++++++++++++++++++++++++++++
+####+++++++++++++++-++++#+++#-+-############+++#########+++#####+##########################################+++++++++++++++++++++++++++
+####++++#.+#+++++#++#+-++####+++#######++###++++--++++++++++-+--############################################++++++++++++++++++++++++++
+##+##+#++++#++##.++++####-++++########+#####+++++++++++++++++++##############################################+++++++++++++++++++++++++
+##++##+++#++#++++++++++++++++########+#####++##+++++++++++++-+###############################################+++++++++++++++++++++++++
+#######+++++++##++++++++++++########+#####++##+-++++++++++###################################################++++++##+++++++++++++++++
+########+++++++##++++++++++#######++##++#++++###++++++++++##################################################++++++#-++++++++++++++++++
+##########+++++++++++++++#######+++++-+#++++++#+++++++++++#################################################+++++++#.#+++++++++++++++++
+####+##-+##++++++#+++++######+++#++++#++++++++++++++++++++#############+###################################++++#+##-###+++++++++++++++
+#############+++-##++####++++++++++##++++++#++++++++++++++################################################+++++--------###++++++++++++
+################+--++++++++++++++##++++++##+++++++++++++++############+##################################++-############-#+#++++++++++
+#####################++++++#####++++++++#++++++++++++++++##############################################++-###-.....-...-##--#+++++++++
+##############+#############++++++++++##+++++++++++++++++#############################################++###...#---##----..##+#++++++++
+######################+++++++###++++##+++++++++++++++++++############################################+-+#.#.-...--.----....-#-++++++++
+#########################+###########+++++++####++++++++#############################################++##.-+-##-.---....###.##+#++++++
+############+#####.+#####+#+..##....#++#+##+.#.###++++++######.#######.......#######################+++#..-.-.-##...-##-.....#++#+++++
++#############..........##++..+.#....+++.........#++++#+.##.##.#..####.##.##..######################+-##-##----..###-..---+#.#+-#+++++
++#############+###.+########..#+...##++##.#+.#.###+++++-###.##..######.##.##.######.################++##....----....-------..#-#++++++
++#################.##.+##+....+.-#..#+++..##...#++++++##..#.#.....####........-######################++#+-##--------------..+#+#++++++
++++#####++++###..++.-.++++-#.###..##+++##......+##++++#.-##.#..#-.###########.####+.#################++##-....-----------+#-##++++++++
++##########+#...+#+++...+++#.##..#+..++..##+.###.#+++++.##.##.#....#######....########################+++##..##.--+---#...##++++++++++
++#+++#++++++#+##+++++##+++#+++##++++#++###++#++###++++##################################################++###-...--....-####++++++++++
++####+#+#+#+#+#++++++++++#+++####++#++++++++++++++++++####################################################+++############+++++++++++++
++##+#######+##+++++###++++++++++##+++++++++++++++++++-#######################################################+++++++++++++++++++++++++
++######+++++#+++++++++++++++####+++++++++++++++++++++-#########################################################+++++++##++++++++++++++
++###+######+#++++++++++++++++####++++++++++++++++++++###########################################################+++++++++++#+++++++##+
++#######+##+#++##+++++++++++++--++#+++++++++++++++++-###########################################################+++++++++++#++++++++++
++#+++###++#+###+++++++++++++####++++++++++++++++++###############################################################+++++++++++++++++++++
+++##+########++++++++++++###++++#++++++++++++######+####-+++#####################################################+++++++++++++++++++++
+-++++++------+++-+---+##+---+++-+++++++++++++####---##-++++-+#####################################################+++++++++++++++++++-
+*/
+
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
@@ -9,89 +85,38 @@ import { LibString } from "solady/utils/LibString.sol";
 import { MerkleProofLib } from "solady/utils/MerkleProofLib.sol";
 import { IUniswapV3SwapCallback } from "@uniswap/v3-core/contracts/interfaces/callback/IUniswapV3SwapCallback.sol";
 
-// interface IUniswapV2Router02 {
-//     function addLiquidityETH(
-//         address token,
-//         uint256 amountTokenDesired,
-//         uint256 amountTokenMin,
-//         uint256 amountETHMin,
-//         address to,
-//         uint256 deadline
-//     ) external payable returns (uint256 amountToken, uint256 amountETH, uint256 liquidity);
-// }
+   /// @title SEPEXEC404 - A DN404 token with advanced liquidity and NFT features
+   /// @notice This contract extends DN404 with the following key features:
+   /// @dev Implements bonding curve, liquidity provision, and NFT mechanics
+   ///
+   /// Key Features:
+   /// - 12-day presale with daily sequential merkle tree whitelisting
+   /// - Automatic liquidity deployment after presale period
+   /// - Buy/sell taxes that convert to CULT-ETH liquidity
+   /// - NFT minting disabled by default (skipNFT = true)
+   /// - Balance-based NFT minting system
+   /// - Designated NFT holder can collect liquidity position fees
+   /// - Portion of deployed liquidity allocated to designated NFT holder
+   /// - On-chain message system for buys/sells
+   /// - Gas optimized within bytecode limits
+   /// - NFT ID tracking per user
+   ///
+   /// Made by Arthur T. McDonald (twitter: x.com/miladystation)
+   /// Website: ms2.fun
+   /// For the Milady Cult Coin community
+   ///
 
-// interface IUniswapV3Pool {
-//     function token0() external view returns (address);
-//     function token1() external view returns (address);
-//     //function fee() external view returns (uint24);
-//     //function positions(uint256 tokenId) external view returns (uint128 liquidity, uint256 feeGrowthInside0X128, uint256 feeGrowthInside1X128, uint128 tokensOwed0, uint128 tokensOwed1);
-//     function swap(
-//         address recipient,
-//         bool zeroForOne,
-//         int256 amountSpecified,
-//         uint160 sqrtPriceLimitX96,
-//         bytes calldata data
-//     ) external returns (int256 amount0, int256 amount1);
-// }
+// ┌───────────────────────────────────────────────────────────────┐
+// │                                                               │
+// │                     CULT EXEC CONTRACT                        │
+// │                                                               │
+// └───────────────────────────────────────────────────────────────┘
 
 contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
-    //using FixedPointMathLib for uint256;
 
-    // Make CULT address configurable
-    address public immutable CULT;
-    // Make operator NFT address configurable
-    address public immutable OPERATOR_NFT;
-    uint256 public constant TAX_RATE = 400; // 4% tax
-    address public cultLiquidityPair;
-
-    // Update to Sepolia addresses
-    //IUniswapV2Router02 public constant router = IUniswapV2Router02(0xeE567Fe1712Faf6149d80dA1E6934E354124CfE3);
-    address public constant router = 0xeE567Fe1712Faf6149d80dA1E6934E354124CfE3;
-    //ISwapRouter public immutable router3 = ISwapRouter(0x3bFA4769FB09eefC5a80d6E87c3B9C650f7Ae48E);//router02//0xE592427A0AEce92De3Edee1F18E0157C05861564);
-    //INonfungiblePositionManager public immutable positionManager = INonfungiblePositionManager(0x1238536071E1c677A632429e3655c799b22cDA52);
-    address public constant positionManager = 0x1238536071E1c677A632429e3655c799b22cDA52;
-    address public immutable factory;
-    address public constant factory3 = 0x0227628f3F023bb0B980b67D528571c95c6DaC1c;
-    address public constant weth = 0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14;
-
-    address public liquidityPair;
-
-    bytes32[] public tierRoots;
-    uint256 public immutable LAUNCH_TIME;
-
-    uint256 public totalBondingSupply;
-    uint256 public reserve;
-
-    uint256 public constant INITIAL_PRICE = 0.025 ether;   // Base price per 10M tokens
-    uint256 public constant MAX_SUPPLY = 4_440_000_000 ether; // 4.44B tokens
-    uint256 public constant maxSupply = 4440; // nft maxSupply for uri hider
-    uint256 public constant LIQUIDITY_RESERVE = MAX_SUPPLY * 10 / 100; // 10% reserve for liquidity
-
-        // Constants for operation thresholds
-    uint256 public constant MIN_SELL_THRESHOLD = 12000 ether;    // 100 tokens minimum for sell
-    uint256 public constant MIN_CULT_THRESHOLD = 8000 ether;    // 500 tokens minimum for CULT ops
-    uint256 public constant MIN_LP_THRESHOLD = 4000 ether;     // 1000 tokens minimum for LP ops
-    // Add these constants to your contract
-    //uint160 public constant MIN_SQRT_RATIO = 4295128739;
-    //uint160 public constant MAX_SQRT_RATIO = 1461446703485210103287273052203988822378723970342;
-    
-    address public cultPool;
-    uint24 public constant POOL_FEE = 10000; // 0.3% fee tier
-    
-    int24 public constant TICK_SPACING = 60;
-    uint256 public cultV3Position;
-
-    event WhitelistInitialized(bytes32[] roots);
-    uint256 constant startTokenId = 1;
-
-    bool private swapping;
-    mapping(uint256 => uint256) public blockSwaps;
-    mapping(address => bool) public freeMint;
-    uint256 public freeSupply = 1000 * 1000000 ether; //1000 free mints
-
-    string public uri;
-    string public unrevealedUri;
-    bool public revealed = false;
+    // ┌─────────────────────────┐
+    // │         Types           │
+    // └─────────────────────────┘
 
     struct BondingMessage {
         address sender;      // 20 bytes
@@ -99,25 +124,103 @@ contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
         string message;     // variable length
     }
 
+    // ┌─────────────────────────┐
+    // │        Externals        │
+    // └─────────────────────────┘
+
+    address private constant router = 0xeE567Fe1712Faf6149d80dA1E6934E354124CfE3;
+    address private constant positionManager = 0x1238536071E1c677A632429e3655c799b22cDA52;
+    address private constant factory3 = 0x0227628f3F023bb0B980b67D528571c95c6DaC1c;
+    address private constant weth = 0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14;
+
+    // ┌─────────────────────────┐
+    // │        Constants        │
+    // └─────────────────────────┘
+
+    uint256 private constant INITIAL_PRICE = 0.025 ether;   // Base price per 10M tokens
+    uint256 public constant MAX_SUPPLY = 4_440_000_000 ether; // 4.44B tokens
+    uint256 public constant maxSupply = 4440; // nft maxSupply for uri hider
+    uint256 private constant LIQUIDITY_RESERVE = MAX_SUPPLY * 10 / 100; // 10% reserve for liquidity
+
+        // ┌─────────────┐
+        // │  Tax Stuff  │
+        // └─────────────┘
+
+    uint256 private constant MIN_SELL_THRESHOLD = 12000 ether;    // 100 tokens minimum for sell
+    uint256 private constant MIN_CULT_THRESHOLD = 8000 ether;    // 500 tokens minimum for CULT ops
+    uint256 private constant MIN_LP_THRESHOLD = 4000 ether;     // 1000 tokens minimum for LP ops
+    uint256 public constant TAX_RATE = 400; // 4% tax
+    uint24 private constant POOL_FEE = 10000; // 0.3% fee tier
+    
+    int24 private constant TICK_SPACING = 60;
+
+    uint256 public constant startTokenId = 1;
+
+    // ┌─────────────────────────┐
+    // │        Immutables       │
+    // └─────────────────────────┘
+
+    // Make CULT address configurable //hardcode it as constant in mainnet version
+    address public immutable CULT;
+    address private immutable factory;
+    // Make operator NFT address configurable
+    //hardcode it as constant in mainnet version
+    address public immutable OPERATOR_NFT;
+    uint256 public immutable LAUNCH_TIME;
+
+    // ┌─────────────────────────┐
+    // │        Variables        │
+    // └─────────────────────────┘
+    
+    address private cultLiquidityPair;
+
+    address public liquidityPair;
+
+    bytes32[] private tierRoots;
+    
+    uint256 public totalBondingSupply;
+    uint256 public reserve;
+
+    address public cultPool;
+    
+    uint256 public cultV3Position;
+
+    bool private swapping;
+    mapping(uint256 => uint256) private blockSwaps;
+    mapping(address => bool) public freeMint;
+    uint256 public freeSupply = 1000 * 1000000 ether; //1000 free mints
+
+    string public uri;
+    string public unrevealedUri;
+    bool public revealed = false;
+
     mapping(uint256 => BondingMessage) public bondingMessages;
     uint256 public totalMessages;
 
-    // Helper functions for packing/unpacking data
-    function packData(uint32 timestamp, uint64 amount, bool isBuy) internal pure returns (uint96) {
-        return uint96(
-            (uint96(timestamp) << 64) |  // timestamp in highest 32 bits
-            (uint96(amount) << 1) |      // amount in middle 63 bits
-            (isBuy ? 1 : 0)             // isBuy flag in lowest bit
-        );
+    // ┌─────────────────────────┐
+    // │        Events           │
+    // └─────────────────────────┘
+
+    event WhitelistInitialized(bytes32[] roots);
+    event V3FeesCollected(address indexed collector, uint256 amount0, uint256 amount1);
+
+    // ┌─────────────────────────┐
+    // │        Modifiers        │
+    // └─────────────────────────┘
+
+    modifier whitelistGated(bytes32[] calldata proof) {
+        require(liquidityPair == address(0), "Presale ended");
+        uint256 currentTier = getCurrentTier();
+        if (currentTier < tierRoots.length - 1) {
+            require(isWhitelisted(proof, msg.sender), "Non-white");
+        }
+        _;
     }
 
-    function unpackData(uint96 packed) internal pure returns (uint32 timestamp, uint64 amount, bool isBuy) {
-        timestamp = uint32(packed >> 64);
-        amount = uint64(packed >> 1);
-        isBuy = packed & 1 == 1;
-    }
+// ┌───────────────────────────────────────────────┐
+// │                CONSTRUCTOR                    │
+// └───────────────────────────────────────────────┘
 
-    // Modify constructor to accept CULT and operator NFT addresses
     constructor(
         bytes32[] memory _tierRoots,
         address _cultToken,
@@ -165,69 +268,146 @@ contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
         _initializeDN404(MAX_SUPPLY, address(this), mirror);
     }
 
-    function getCurrentTier() public view returns (uint256) {
-        if (block.timestamp < LAUNCH_TIME) return 0;
-        uint256 hoursSinceLaunch = (block.timestamp - LAUNCH_TIME) / 1 hours;
-        return hoursSinceLaunch >= tierRoots.length ? tierRoots.length - 1 : hoursSinceLaunch;
+// ┌───────────────────────────────────────────────┐
+// │             External Functions                │
+// └───────────────────────────────────────────────┘
+
+    /// @notice Allows users to buy tokens through the bonding curve mechanism
+    /// @dev Only whitelisted addresses can call this function
+    /// @param amount The amount of tokens to buy
+    /// @param maxCost The maximum ETH cost the user is willing to pay
+    /// @param mintNFT If true, will mint NFTs for the tokens. If false, keeps as ERC20
+    /// @param proof The merkle proof to verify the caller is whitelisted
+    /// @param message Optional message to store with the purchase
+    function buyBonding(
+        uint256 amount, 
+        uint256 maxCost, 
+        bool mintNFT, 
+        bytes32[] calldata proof,
+        string calldata message
+    ) external payable whitelistGated(proof) {
+        // Verify:
+        // 1. Amount requested + current supply doesn't exceed max bonding supply (MAX_SUPPLY - LIQUIDITY_RESERVE)
+        // 2. User's specified maxCost is >= actual cost calculated from bonding curve
+        // 3. User sent enough ETH to cover the actual cost
+        require(totalBondingSupply <= MAX_SUPPLY - LIQUIDITY_RESERVE - amount, "Exceeds bonding");
+        uint256 totalCost = calculateCost(amount);
+        require(maxCost >= totalCost, "MaxCost exceeded");
+        require(msg.value >= totalCost, "Low ETH value");
+
+        // Only flip skipNFT if it's currently true and user wants to mint
+        bool originalSkipNFT = mintNFT ? getSkipNFT(msg.sender) : false;
+        if (originalSkipNFT) {
+            _setSkipNFT(msg.sender, false);
+        }
+
+        // Handle free mints if applicable
+        if(freeSupply > 1000000 ether && !freeMint[msg.sender]) {
+            totalBondingSupply += amount;
+            amount += 1000000 ether;
+            freeSupply -= 1000000 ether;
+            freeMint[msg.sender] = true;
+        } else {
+            totalBondingSupply += amount;
+        }
+
+        // Transfer tokens from contract to user
+        _transfer(address(this), msg.sender, amount);
+        reserve += totalCost;
+
+        // Store message if provided
+        if (bytes(message).length > 0) {
+            uint64 scaledAmount = uint64(amount / 1e18);
+            require(scaledAmount <= type(uint64).max, "Too size for msg");
+            
+            bondingMessages[totalMessages++] = BondingMessage({
+                sender: msg.sender,
+                packedData: packData(
+                    uint32(block.timestamp),
+                    scaledAmount,
+                    true  // isBuy
+                ),
+                message: message
+            });
+        }
+
+        // Only flip back if we changed it
+        if (originalSkipNFT) {
+            _setSkipNFT(msg.sender, true);
+        }
+
+        // Return any excess ETH to user
+        if (msg.value > totalCost) {
+            SafeTransferLib.safeTransferETH(msg.sender, msg.value - totalCost);
+        }
     }
 
-    function currentRoot() public view returns (bytes32) {
-        return tierRoots[getCurrentTier()];
-    }
+    /// @notice Allows users to sell tokens back to the bonding curve
+    /// @dev Requires whitelisting and prevents selling of free minted tokens
+    /// @param amount The amount of tokens to sell back
+    /// @param minRefund The minimum ETH refund amount expected
+    /// @param proof Merkle proof for whitelist verification
+    /// @param message Optional message to store with the sale
+    /// @custom:tax 4% total tax (1% to operator, 3% to protocol)
+    function sellBonding(
+        uint256 amount, 
+        uint256 minRefund, 
+        bytes32[] calldata proof,
+        string calldata message
+    ) external whitelistGated(proof) {
+        // Requirements for selling tokens back to bonding curve:
+        // 1. User must have sufficient balance to sell the requested amount
+        // 2. Users who received free tokens (freeMint) cannot sell below their initial 1M token allocation
+        // 3. The calculated refund must meet the user's minimum expected refund amount
+        // 4. The contract must have sufficient ETH reserves to process the refund
+        uint256 balance = balanceOf(msg.sender);
+        require(balance >= amount, "smolbalance");
+        if(freeMint[msg.sender] && (balance - amount < 1000000 ether)) {
+            revert("Cannot sell your freebie back into bonding");
+        }
+        // Calculate refund and validate
+        uint256 refund = calculateRefund(amount);
+        require(refund >= minRefund && reserve >= refund, "Invalid refund");
 
-    function isWhitelisted(bytes32[] calldata proof, address account) public view returns (bool) {
-        return MerkleProofLib.verify(
-            proof,
-            currentRoot(),
-            // keccak256(abi.encodePacked(account))
-            keccak256(abi.encodePacked(bytes20(account)))
+        // Transfer tokens first
+        _transfer(msg.sender, address(this), amount);
+        totalBondingSupply -= amount;
+        reserve -= refund;
+
+        // Store message if provided
+        if (bytes(message).length > 0) {
+            require(amount / 1 ether <= type(uint64).max, "Too size for msg");
+            bondingMessages[totalMessages++] = BondingMessage({
+                sender: msg.sender,
+                packedData: packData(
+                    uint32(block.timestamp),
+                    uint64(amount  /  1 ether),
+                    false  // isBuy
+                ),
+                message: message
+            });
+        }
+
+        // Calculate and distribute refund with tax (4% total tax)
+        // 1% to operator (25% of tax), 3% to protocol (75% of tax)
+        uint256 userRefund = (refund * 9600) / 10000; // 96% to user
+        SafeTransferLib.safeTransferETH(
+            //IERC721(0xB24BaB1732D34cAD0A7C7035C3539aEC553bF3a0).ownerOf(598), 
+            _erc721OwnerOf(OPERATOR_NFT, 1), 
+            (refund * 100) / 10000  // 1% to operator
         );
+        SafeTransferLib.safeTransferETH(msg.sender, userRefund);
     }
 
-    modifier whitelistGated(bytes32[] calldata proof) {
-        require(liquidityPair == address(0), "Presale ended");
-        uint256 currentTier = getCurrentTier();
-        if (currentTier < tierRoots.length - 1) {
-            require(isWhitelisted(proof, msg.sender), "Non-white");
-        }
-        _;
-    }
-
-    function _unit() internal pure override returns (uint256) {
-        //1,000,000 $EXEC per Executive
-        return 1000000 * 10 ** 18;
-    }
-
-    function _tokenURI(uint256 tokenId) internal view override returns (string memory) {
-        // return "https://example.com/token/1";
-        if (!_exists(tokenId) || !revealed) {
-            return unrevealedUri;
-        }
-        return bytes(uri).length != 0 ? string(abi.encodePacked(uri, LibString.concat(_toString(tokenId),".json"))) : "test";
-    }
-
-    // Update configure function to use OPERATOR_NFT
-    function configure(string memory _uri, string memory _unrevealedUri, bool _revealed) public {
-        require(_erc721OwnerOf(OPERATOR_NFT, 1) == msg.sender, "not oper");
-        uri = _uri;
-        unrevealedUri = _unrevealedUri;
-        revealed = _revealed;
-    }
-
-    function name() public pure override returns (string memory) {
-        return "TEST404";
-    }
-
-    function symbol() public pure override returns (string memory) {
-        return "TEST404";
-    }
-
-    /// @dev Override to set skip NFT default to On (true)
-    function _skipNFTDefault() internal view override returns (SkipNFTDefault) {
-        return SkipNFTDefault.On;
-    }
-
-    function balanceMint(uint256 amount) public {
+    /// @notice Allows a user to mint NFTs based on their token balance by temporarily storing excess tokens
+    /// @dev DN404 mints NFTs when tokens are transferred and the recipient has skipNFT set to false.
+    /// This function:
+    /// 1. Calculates how many NFTs the user's balance can support
+    /// 2. Temporarily stores excess tokens in the contract that shouldn't be minted
+    /// 3. Sets skipNFT to false and triggers a self-transfer to mint the desired NFTs
+    /// 4. Returns the stored tokens back to the user
+    /// @param amount The number of NFTs to mint
+    function balanceMint(uint256 amount) external {
         DN404Storage storage $ = _getDN404Storage();
         AddressData storage addressData = $.addressData[msg.sender];
         
@@ -263,359 +443,24 @@ contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
         require(addressData.ownedLength == currentOwnedLength + amount);
     }
 
-    function getExecForEth(uint256 ethAmount) public view returns (uint256 execAmount) {
-        // If price is too low, return max possible
-        uint256 remainingSupply = MAX_SUPPLY - LIQUIDITY_RESERVE - totalBondingSupply;
-        if (calculateCost(remainingSupply) <= ethAmount) {
-            return remainingSupply;
-        }
-
-        // Binary search for the amount of EXEC that costs closest to ethAmount
-        uint256 low = 0;
-        uint256 high = remainingSupply;
-        
-        while (low < high) {
-            uint256 mid = (low + high + 1) / 2;
-            uint256 cost = calculateCost(mid);
-            
-            if (cost <= ethAmount) {
-                low = mid;
-            } else {
-                high = mid - 1;
-            }
-        }
-        
-        return low;
-    }
-
-    function getEthForExec(uint256 execAmount) public view returns (uint256 ethAmount) {
-        require(execAmount <= totalBondingSupply, "Exceeds bonding");
-        return calculateRefund(execAmount);
-    }
-
-    function calculateIntegral(uint256 lowerBound, uint256 upperBound) internal pure returns (uint256) {
-        require(upperBound >= lowerBound, "Invalid bounds");
-        return _calculateIntegralFromZero(upperBound) - _calculateIntegralFromZero(lowerBound);
-    }
-
-    function _calculateIntegralFromZero(uint256 supply) internal pure returns (uint256) {
-        // Scale down to hundreds since price curve is per 10M tokens
-        // uint256 scaledSupply = supply / 1e26;
-        // uint256 scaledSupplyWad = scaledSupply * 1e18;
-        uint256 scaledSupplyWad = supply / 1e7;
-        
-        // Base price integral dewadded by 1e18
-        uint256 basePart = INITIAL_PRICE * scaledSupplyWad / 1e18;
-        
-        // Calculate integral terms with scaled numbers
-        uint256 quarticTerm = FixedPointMathLib.mulWad(
-            //12 / 4 
-            3 gwei,
-            FixedPointMathLib.mulWad(
-                FixedPointMathLib.mulWad(
-                    FixedPointMathLib.mulWad(scaledSupplyWad, scaledSupplyWad),
-                    scaledSupplyWad
-                ),
-                scaledSupplyWad
-            )
-        );
-        
-        uint256 cubicTerm = FixedPointMathLib.mulWad(
-            1333333333, //4/3 * 1gwei
-            FixedPointMathLib.mulWad(
-                FixedPointMathLib.mulWad(scaledSupplyWad, scaledSupplyWad),
-                scaledSupplyWad
-            )
-        );
-        
-        uint256 quadraticTerm = FixedPointMathLib.mulWad(
-            2 gwei,
-            FixedPointMathLib.mulWad(scaledSupplyWad, scaledSupplyWad)
-        );
-        
-        // Scale the result back up by 1e8
-        return basePart + quarticTerm + cubicTerm + quadraticTerm;
-    }
-
-    function calculateCost(uint256 amount) public view returns (uint256) {
-        return calculateIntegral(totalBondingSupply, totalBondingSupply + amount);
-    }
-
-    function calculateRefund(uint256 amount) public view returns (uint256) {
-        return calculateIntegral(totalBondingSupply - amount, totalBondingSupply);
-    }
-
-    function buyBonding(
-        uint256 amount, 
-        uint256 maxCost, 
-        bool mintNFT, 
-        bytes32[] calldata proof,
-        string calldata message
-    ) external payable whitelistGated(proof) {
-        // Check for overflow before adding
-        require(totalBondingSupply <= MAX_SUPPLY - LIQUIDITY_RESERVE - amount, "Exceeds bonding");
-        uint256 totalCost = calculateCost(amount);
-        require(maxCost >= totalCost, "MaxCost exceeded");
-        require(msg.value >= totalCost, "Low ETH value");
-
-        // Only flip skipNFT if it's currently true and user wants to mint
-        bool originalSkipNFT = mintNFT ? getSkipNFT(msg.sender) : false;
-        if (originalSkipNFT) {
-            _setSkipNFT(msg.sender, false);
-        }
-
-        if(freeSupply > 1000000 ether && !freeMint[msg.sender]) {
-            totalBondingSupply += amount;
-            amount += 1000000 ether;
-            freeSupply -= 1000000 ether;
-            freeMint[msg.sender] = true;
-        } else {
-            totalBondingSupply += amount;
-        }
-
-        _transfer(address(this), msg.sender, amount);
-        reserve += totalCost;
-
-        // Store message if provided
-        if (bytes(message).length > 0) {
-            uint64 scaledAmount = uint64(amount / 1e18);
-            require(scaledAmount <= type(uint64).max, "Too size for msg");
-            
-            bondingMessages[totalMessages++] = BondingMessage({
-                sender: msg.sender,
-                packedData: packData(
-                    uint32(block.timestamp),
-                    scaledAmount,
-                    true  // isBuy
-                ),
-                message: message
-            });
-        }
-
-        // Only flip back if we changed it
-        if (originalSkipNFT) {
-            _setSkipNFT(msg.sender, true);
-        }
-
-        if (msg.value > totalCost) {
-            SafeTransferLib.safeTransferETH(msg.sender, msg.value - totalCost);
-        }
-    }
-
-    function sellBonding(
-        uint256 amount, 
-        uint256 minRefund, 
-        bytes32[] calldata proof,
-        string calldata message
-    ) external whitelistGated(proof) {
-        //a requirement that disables selling if the bonding curve is mostly full, say about at 85%+ 
-        uint256 balance = balanceOf(msg.sender);
-        require(balance >= amount, "smolbalance");
-        if(freeMint[msg.sender] && (balance - amount < 1000000 ether)) {
-            revert("Cannot sell your freebie back into bonding");
-        }
-
-
-        // Calculate refund and validate
-        uint256 refund = calculateRefund(amount);
-        require(refund >= minRefund && reserve >= refund, "Invalid refund");
-
-        // Transfer tokens first
-        _transfer(msg.sender, address(this), amount);
-        totalBondingSupply -= amount;
-        reserve -= refund;
-
-        // Store message if provided
-        if (bytes(message).length > 0) {
-            require(amount / 1 ether <= type(uint64).max, "Too size for msg");
-            bondingMessages[totalMessages++] = BondingMessage({
-                sender: msg.sender,
-                packedData: packData(
-                    uint32(block.timestamp),
-                    uint64(amount  /  1 ether),
-                    false  // isBuy
-                ),
-                message: message
-            });
-        }
-
-        // Calculate and distribute refund with tax (4% total tax)
-        // 1% to operator (25% of tax), 3% to protocol (75% of tax)
-        uint256 userRefund = (refund * 9600) / 10000; // 96% to user
-        SafeTransferLib.safeTransferETH(
-            //IERC721(0xB24BaB1732D34cAD0A7C7035C3539aEC553bF3a0).ownerOf(598), 
-            _erc721OwnerOf(OPERATOR_NFT, 1), 
-            (refund * 100) / 10000  // 1% to operator
-        );
-        SafeTransferLib.safeTransferETH(msg.sender, userRefund);
-    }
-
-    /// @notice Reads sqrtPriceX96 and tick from a Uniswap V3 pool using a static call
-    /// @param pool The address of the V3 pool
-    /// @return sqrtPriceX96 The current price as a Q64.96
-    /// @return tick The current tick function _staticcallSlot0Values(ad
-    function _staticcallSlot0Values(address pool) internal view returns (uint160 sqrtPriceX96, int24 tick) {
-        // slot0() function selector: 3850c7bd
-        assembly {
-            // Prepare calldata for staticcall (4 bytes for function selector)
-            mstore(0x0, 0x3850c7bd00000000000000000000000000000000000000000000000000000000)
-            
-            // Perform staticcall
-            // First 32 bytes: sqrtPriceX96 (uint160)
-            // Next 32 bytes: tick (int24)
-            let success := staticcall(gas(), pool, 0x0, 0x4, 0x0, 0x40)
-            
-            // Revert if call failed
-            if iszero(success) {
-                revert(0, 0)
-            }
-
-            // Load results
-            sqrtPriceX96 := mload(0x0)    // First 32 bytes contain sqrtPriceX96
-            tick := mload(0x20)           // Next 32 bytes contain tick
-        }
-    }
-
-    function _staticcallTickSpacing(address pool) internal view returns (int24 spacing) {
-        assembly {
-            // Store the function selector for tickSpacing()
-            mstore(0, 0xd0c93a7c00000000000000000000000000000000000000000000000000000000)
-            
-            // Make the call
-            let success := staticcall(gas(), pool, 0, 4, 0, 32)
-            if iszero(success) { revert(0, 0) }
-            
-            // Load the result
-            spacing := mload(0)
-        }
-    }
-
-    function _initializeCultPoolLogic() private returns (bool) {
-        
-        if (cultV3Position != 0 || cultPool == address(0)) {
-            return false;
-        }
-
-        // Get current tick and calculate proper range
-        int24 tickSpacing = _staticcallTickSpacing(cultPool);
-        (uint160 sqrtPriceX96,int24 currentTick) = _staticcallSlot0Values(cultPool);
-        
-        // Calculate ticks ±16 spacing units from current tick
-        int24 tickRange = tickSpacing * 16;
-
-        // Buy CULT with half the ETH
-        uint256 cultBought = _buyCultWithExactEth(0.005 ether);
-
-        // Wrap the other half for the position
-        //IWETH(weth).deposit{value: 0.005 ether}();
-        _wethDeposit(0.005 ether);
-
-        // Approve tokens for position manager
-        _erc20Approve(CULT, address(positionManager), cultBought);
-        _erc20Approve(weth, address(positionManager), 0.005 ether);
-        
-        // try positionManager.mint(INonfungiblePositionManager.MintParams({
-        //     token0: CULT,
-        //     token1: weth,
-        //     fee: POOL_FEE,
-        //     tickLower: ((currentTick - tickRange) / tickSpacing) * tickSpacing,
-        //     tickUpper: ((currentTick + tickRange) / tickSpacing) * tickSpacing,
-        //     amount0Desired: cultBought,
-        //     amount1Desired: 0.005 ether,
-        //     amount0Min: 0,
-        //     amount1Min: 0,
-        //     recipient: address(this),
-        //     deadline: block.timestamp
-        // })) returns (uint256 tokenId, uint128 v3Liquidity, uint256 amount0, uint256 amount1) {
-        //     cultV3Position = tokenId;
-           
-        //     // Refund any unused WETH
-        //     uint256 unusedWeth = 0.005 ether - amount1;
-        //     if (unusedWeth > 0) {
-                
-        //         //IWETH(weth).withdraw(unusedWeth);
-        //         _wethWithdraw(unusedWeth);
-        //     }
-        //     return true;
-        // } catch Error(string memory reason) {
-            
-        //     //IWETH(weth).withdraw(0.005 ether);
-        //     _wethWithdraw(0.005 ether);
-        //     return false;
-        // }
-        // Calculate tick ranges
-        int24 tickLower = ((currentTick - tickRange) / tickSpacing) * tickSpacing;
-        int24 tickUpper = ((currentTick + tickRange) / tickSpacing) * tickSpacing;
-        address _CULT = CULT;
-        address _posMan = address(positionManager);
-        bool isToken0 = CULT < weth;
-        bool success;
-        
-        assembly {
-            let ptr := mload(0x40)
-            mstore(ptr, 0x8831645600000000000000000000000000000000000000000000000000000000) // function selector: mint()
-
-            // Pack parameters depending on isToken0
-            switch isToken0
-            case 1 {
-                mstore(add(ptr, 0x04), _CULT)
-                mstore(add(ptr, 0x24), weth)
-                mstore(add(ptr, 0xa4), cultBought)
-                mstore(add(ptr, 0xc4), 5000000000000000)
-            }
-            default {
-                mstore(add(ptr, 0x04), weth)
-                mstore(add(ptr, 0x24), _CULT)
-                mstore(add(ptr, 0xa4), 5000000000000000)
-                mstore(add(ptr, 0xc4), cultBought)
-            }
-
-            mstore(add(ptr, 0x44), POOL_FEE)
-            mstore(add(ptr, 0x64), tickLower)
-            mstore(add(ptr, 0x84), tickUpper)
-            mstore(add(ptr, 0xe4), 0)                          // amount0Min
-            mstore(add(ptr, 0x104), 0)                         // amount1Min
-            mstore(add(ptr, 0x124), address())                // recipient
-            mstore(add(ptr, 0x144), timestamp())              // deadline
-
-            success := call(gas(), _posMan, 0, ptr, 0x164, ptr, 0xA0)
-
-            if success {
-                sstore(cultV3Position.slot, mload(ptr)) // tokenId
-
-                // Ensure the return buffer is large enough before reading amount1
-                if iszero(lt(returndatasize(), 0xA0)) {
-                    let amount1 := mload(add(ptr, 0x80)) // safely read amount1
-                    let unusedWeth := sub(5000000000000000, amount1)
-
-                    // Clamp unusedWeth to 0.005 ether max
-                    if gt(unusedWeth, 0) {
-                        if gt(unusedWeth, 5000000000000000) {
-                            unusedWeth := 0
-                        }
-
-                        mstore(0x00, 0x2e1a7d4d00000000000000000000000000000000000000000000000000000000) // withdraw selector
-                        mstore(0x04, unusedWeth)
-                        pop(call(gas(), weth, 0, 0x00, 0x24, 0x00, 0x00))
-                    }
-                }
-            }
-
-            // fallback unwrap if mint failed
-            if iszero(success) {
-                mstore(0x00, 0x2e1a7d4d00000000000000000000000000000000000000000000000000000000)
-                mstore(0x04, 5000000000000000)
-                pop(call(gas(), weth, 0, 0x00, 0x24, 0x00, 0x00))
-            }
-        }
-    }
-
-    // Keep external version for direct calls if needed
-    function initializeCultPool() external payable {
-        require(_initializeCultPoolLogic(), "Pool init failed");
-    }
-
+    /// @notice Deploys initial liquidity to Uniswap V2 and V3 pools after whitelist period ends
+    /// @dev This function:
+    /// - Can only be called once after 12 hours from launch time
+    /// - Creates a V2 pair with WETH and deploys liquidity using remaining token supply
+    /// - Sets aside 0.01 ETH to initialize CULT pool
+    /// - Stores the V2 pair address for future use
+    /// - Attempts to initialize CULT pool with remaining ETH
+    /// @return amountToken The amount of tokens added to V2 liquidity
+    /// @return amountETH The amount of ETH added to V2 liquidity  
+    /// @return liquidity The amount of V2 LP tokens received
     function deployLiquidity() external returns (uint256 amountToken, uint256 amountETH, uint256 liquidity) {
+        // For liquidity deployment to succeed:
+        // 1. Must be at least 12 hours after launch time (LAUNCH_TIME)
+        // 2. Liquidity pair must not already be deployed (liquidityPair must be address(0))
+        // 3. Contract must have more than 0.01 ETH balance to deploy
+        // 4. Must have remaining tokens available to deploy, calculated as:
+        //    MAX_SUPPLY - (totalBondingSupply + (1000000000 ether - freeSupply))
+        //    where 1000000000 ether represents total supply and freeSupply is available supply
         require(block.timestamp >= LAUNCH_TIME + 12 hours, "Too early for liq");
         require(liquidityPair == address(0), "Liq already deployed!");
         
@@ -636,36 +481,99 @@ contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
 
         // Deploy V2 liquidity first
         _approve(address(this), address(router), remainingSupply);
-        // (amountToken, amountETH, liquidity) = router.addLiquidityETH{value: ethForV2}(
-        //     address(this),
-        //     remainingSupply,
-        //     0,
-        //     0,
-        //     address(this),
-        //     block.timestamp
-        // );
+
+        // Assembly block that replaces a low-level call to the V2 router interface function:
+        // addLiquidityETH(address token, uint256 amountTokenDesired, uint256 amountTokenMin, uint256 amountETHMin, address to, uint256 deadline)
+        // Returns (uint256 amountToken, uint256 amountETH, uint256 liquidity)
         assembly {
-            // addLiquidityETH selector: 0xf305d719
+            // Get free memory pointer for our calldata
             let ptr := mload(0x40)
+            
+            // Store the function selector for addLiquidityETH(address,uint256,uint256,uint256,address,uint256)
             mstore(ptr, 0xf305d71900000000000000000000000000000000000000000000000000000000)
             
+            // Pack the 6 parameters into calldata:
+            mstore(add(ptr, 0x04), address())          // param1: token - address of this contract
+            mstore(add(ptr, 0x24), remainingSupply)    // param2: amountTokenDesired - remaining tokens for liquidity
+            mstore(add(ptr, 0x44), 0)                  // param3: amountTokenMin - accept any amount (0)
+            mstore(add(ptr, 0x64), 0)                  // param4: amountETHMin - accept any amount (0) 
+            mstore(add(ptr, 0x84), address())          // param5: to - send LP tokens to this contract
+            mstore(add(ptr, 0xa4), timestamp())        // param6: deadline - current block timestamp
+
+            // Call the router contract's addLiquidityETH function
+            let success := call(
+                gas(),          // Forward all gas
+                router,         // Address of router contract
+                ethForV2,       // Send ethForV2 amount of ETH with call
+                ptr,            // Pointer to start of input (calldata)
+                0xc4,           // Input size = 4 (selector) + 6 * 32 (params) = 196 bytes
+                ptr,            // Store output at same memory location
+                0x60            // Output size = 3 * 32 = 96 bytes (three uint256 return values)
+            )
+
+            // If call failed, copy error data and revert
+            if iszero(success) {
+                returndatacopy(0, 0, returndatasize())
+                revert(0, 0)
+            }
+
+            // Store the three return values in their respective variables:
+            amountToken := mload(ptr)          // amount of tokens actually sent
+            amountETH := mload(add(ptr, 0x20)) // amount of ETH actually sent
+            liquidity := mload(add(ptr, 0x40)) // amount of LP tokens received
+        }
+
+        // Try to initialize CULT pool with remaining ETH
+        if (!_initializeCultPoolLogic()) {
+            // If initialization fails, check if we already have a position
+            // If we do, that's fine - continue. If not, then revert
+            require(cultV3Position != 0);
+        }
+
+        return (amountToken, amountETH, liquidity);
+    }
+
+// ┌─────────────────────────┐
+// │      Operator Only      │
+// └─────────────────────────┘
+
+    /// @notice Collects fees from the V3 liquidity position
+    /// @dev Only callable by the owner of OPERATOR_TOKEN_ID
+    /// @param amount0Max The maximum amount of token0 to collect
+    /// @param amount1Max The maximum amount of token1 to collect
+    /// @return amount0 The amount of token0 collected
+    /// @return amount1 The amount of token1 collected
+    function collectV3Fees(uint128 amount0Max, uint128 amount1Max) external payable returns (uint256 amount0, uint256 amount1) {
+        // Check if caller owns the operator token
+        //require(IERC721(0xB24BaB1732D34cAD0A7C7035C3539aEC553bF3a0).ownerOf(598) == msg.sender, "Not operator token owner");
+        require(_erc721OwnerOf(OPERATOR_NFT, 1) == msg.sender, "Not oper");
+        
+        // Require at least one amount to be non-zero (matching V3 requirement)
+        require(amount0Max > 0 || amount1Max > 0, "Amount0Max and amount1Max both 0");
+    
+        // Assembly block that replaces a low-level call to the INonfungiblePositionManager interface function:
+        // collect(INonfungiblePositionManager.CollectParams memory params) external payable returns (uint256 amount0, uint256 amount1)
+        uint256 _cultPosition = cultV3Position;
+        assembly {
+            // collect function selector: 0xfc6f7865
+            let ptr := mload(0x40)
+            mstore(ptr, 0xfc6f786500000000000000000000000000000000000000000000000000000000)
+            
             // Pack parameters
-            mstore(add(ptr, 0x04), address())          // token address
-            mstore(add(ptr, 0x24), remainingSupply)    // amountTokenDesired
-            mstore(add(ptr, 0x44), 0)                  // amountTokenMin
-            mstore(add(ptr, 0x64), 0)                  // amountETHMin
-            mstore(add(ptr, 0x84), address())          // to address
-            mstore(add(ptr, 0xa4), timestamp())        // deadline
+            mstore(add(ptr, 0x04), _cultPosition)   // tokenId
+            mstore(add(ptr, 0x24), caller())        // recipient
+            mstore(add(ptr, 0x44), amount0Max)      // amount0Max
+            mstore(add(ptr, 0x64), amount1Max)      // amount1Max
 
             // Make the call
             let success := call(
                 gas(),
-                router,          // router address
-                ethForV2,       // ETH value
-                ptr,            // input
-                0xc4,          // input size (4 + 6 * 32)
-                ptr,           // output
-                0x60           // output size (3 * 32)
+                positionManager,  // target
+                callvalue(),      // forward any ETH value
+                ptr,             // input
+                0x84,           // input size (4 + 4 * 32)
+                ptr,            // output
+                0x40            // output size (2 * 32 for two uint256 returns)
             )
 
             if iszero(success) {
@@ -673,54 +581,222 @@ contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
                 revert(0, 0)
             }
 
-            // Store return values
-            amountToken := mload(ptr)
-            amountETH := mload(add(ptr, 0x20))
-            liquidity := mload(add(ptr, 0x40))
+            // Load return values
+            amount0 := mload(ptr)
+            amount1 := mload(add(ptr, 0x20))
         }
-
-        // Try to initialize CULT pool with remaining ETH
-        if (!_initializeCultPoolLogic()) {
-            
-        }
-
-        return (amountToken, amountETH, liquidity);
+        
+        emit V3FeesCollected(msg.sender, amount0, amount1);
     }
 
-    // Operation types: 0 = sell EXEC, 1 = buy CULT, 2 = add liquidity
-    function _selectOperation(uint256 ethBalance, uint256 cultBalance, uint256 execBalance) internal view returns (uint8 operation, uint256 amount) {
-        //uint256 execBalance = balanceOf(address(this));
-        //uint256 ethBalance = address(this).balance;
-        //uint256 cultBalance = _erc20BalanceOf(CULT,address(this));
-
-        // Priority 1: If we have EXEC and low ETH, sell EXEC
-        if (execBalance >= MIN_SELL_THRESHOLD && ethBalance < 0.01 ether) {
-            return (0, execBalance);
-        }
-
-        // Priority 2: If we have ETH but low CULT, buy CULT with ALL available ETH
-        if (ethBalance >= 0.01 ether && cultBalance < MIN_CULT_THRESHOLD) {
-            // Use ALL available ETH (minus gas buffer)
-            uint256 ethToUse = ethBalance - 0.005 ether; // Leave 0.005 ETH for gas
-            
-            return (1, ethToUse);
-        }
-
-        // Priority 3: If we have both ETH and CULT, add ALL liquidity
-        if (ethBalance >= 0.01 ether && cultBalance >= MIN_LP_THRESHOLD) {
-            // Get optimal ratio for our ETH
-            (uint256 optimalCult,) = _getOptimalCultRatio(ethBalance);
-            // Use the maximum amount possible while maintaining ratio
-            uint256 cultToUse = cultBalance > optimalCult ? optimalCult : cultBalance;
-            
-            return (2, cultToUse);
-        }
-
-       
-        return (0, 0);
+    /// @notice Updates the token URI configuration for revealed and unrevealed states
+    /// @dev Only callable by the owner of OPERATOR_NFT token ID 1
+    /// @param _uri The new base URI for revealed tokens
+    /// @param _unrevealedUri The new URI for unrevealed tokens
+    /// @param _revealed Whether tokens should be revealed or not
+    function configure(string memory _uri, string memory _unrevealedUri, bool _revealed) public {
+        require(_erc721OwnerOf(OPERATOR_NFT, 1) == msg.sender, "not oper");
+        uri = _uri;
+        unrevealedUri = _unrevealedUri;
+        revealed = _revealed;
     }
 
-    // Add this internal function to handle tax logic
+    /// @notice Failsafe function to initialize the CULT liquidity pool if automatic initialization fails
+    /// @dev This function can be called manually to retry pool initialization if the automatic process fails
+    /// @dev The function requires ETH to be sent with the call to provide initial liquidity
+    /// @dev Will revert if pool is already initialized or if initialization fails
+    function initializeCultPool() external payable {
+        require(_initializeCultPoolLogic(), "Pool init failed");
+    }
+
+    /// @dev Override receive to accept ETH transfers
+    receive() external payable override {
+    // Accept ETH transfers silently
+    }
+
+    /// @notice Callback function for Uniswap V3 swaps that allows buying CULT tokens
+    /// @dev This function is called by the Uniswap V3 pool during a swap operation
+    /// @dev It verifies the caller is the authorized CULT pool and handles token transfers
+    /// @dev For positive amount0Delta, transfers token0 to pool. For positive amount1Delta, transfers token1 to pool
+    /// @param amount0Delta The change in token0 balance that needs to be paid for
+    /// @param amount1Delta The change in token1 balance that needs to be paid for
+    /// data param not used
+    function uniswapV3SwapCallback(
+        int256 amount0Delta,
+        int256 amount1Delta,
+        bytes calldata /* data */
+    ) external override {
+        assembly {
+            // First, verify the caller is our expected CULT pool
+            // This is a security check to ensure only our authorized pool can trigger this callback
+            let sender := caller()
+            if iszero(eq(sender, sload(cultPool.slot))) {
+                // If not authorized, revert with "Unauthed pool" message
+                mstore(0x00, 0x20)        // String offset
+                mstore(0x20, 0x0e)        // String length (14 bytes)
+                mstore(0x40, "Unauthed pool")
+                revert(0x00, 0x4e)        // Revert with error message
+            }
+
+            // Get token0 address from the pool using token0() function
+            // Function selector for token0(): 0x0dfe1681
+            mstore(0x00, 0x0dfe168100000000000000000000000000000000000000000000000000000000)
+            if iszero(staticcall(gas(), sender, 0x00, 0x04, 0x00, 0x20)) {
+                revert(0, 0)
+            }
+            let token0 := mload(0x00)
+
+            // Get token1 address from the pool using token1() function
+            // Function selector for token1(): 0xd21220a7  
+            mstore(0x00, 0xd21220a700000000000000000000000000000000000000000000000000000000)
+            if iszero(staticcall(gas(), sender, 0x00, 0x04, 0x00, 0x20)) {
+                revert(0, 0)
+            }
+            let token1 := mload(0x00)
+
+            // Prepare ERC20 transfer call data
+            // Function selector for transfer(address,uint256): 0xa9059cbb
+            mstore(0x00, 0xa9059cbb00000000000000000000000000000000000000000000000000000000)
+            mstore(0x04, sender)          // First parameter: recipient (pool address)
+
+            // If amount0Delta is positive, we need to send token0 to the pool
+            if sgt(amount0Delta, 0) {
+                mstore(0x24, amount0Delta) // Second parameter: amount to transfer
+                // Execute transfer of token0
+                pop(call(gas(), token0, 0, 0x00, 0x44, 0x00, 0x00))
+            }
+
+            // If amount1Delta is positive, we need to send token1 to the pool
+            if sgt(amount1Delta, 0) {
+                mstore(0x24, amount1Delta) // Second parameter: amount to transfer
+                // Execute transfer of token1
+                pop(call(gas(), token1, 0, 0x00, 0x44, 0x00, 0x00))
+            }
+        }
+    }
+
+    /// @notice Handles ERC721 token transfers
+    /// @dev This function is called when an ERC721 token is transferred to this contract
+    /// @dev It returns the selector for the onERC721Received function
+    /// @dev necessary to receive v3 liquidity position NFTs
+    function onERC721Received(
+        address,
+        address,
+        uint256,
+        bytes calldata
+    ) external pure returns (bytes4) {
+        return 0x150b7a02; // IERC721Receiver.onERC721Received.selector
+    }
+
+    /// @notice Gets the details of a specific bonding message
+    /// @dev Unpacks the message data from the packed storage format
+    /// @param messageId The ID of the message to retrieve
+    /// @return sender The address that created the message
+    /// @return timestamp The timestamp when the message was created
+    /// @return amount The token amount involved in the transaction
+    /// @return isBuy Whether the message was from a buy (true) or sell (false)
+    /// @return message The text content of the message
+    function getMessageDetails(uint256 messageId) external view returns (
+        address sender,
+        uint32 timestamp,
+        uint64 amount,
+        bool isBuy,
+        string memory message
+    ) {
+        require(messageId < totalMessages, "Msg doesnt exist");
+        BondingMessage memory bondingMsg = bondingMessages[messageId];  // Changed variable name to avoid shadowing
+        (timestamp, amount, isBuy) = unpackData(bondingMsg.packedData);
+        return (bondingMsg.sender, timestamp, amount, isBuy, bondingMsg.message);
+    }
+
+    /// @notice Retrieves a batch of bonding messages between specified indices
+    /// @dev Efficiently fetches multiple messages in a single call to reduce gas costs
+    /// @param start The starting index of messages to retrieve (inclusive)
+    /// @param end The ending index of messages to retrieve (inclusive) 
+    /// @return senders Array of addresses that created the messages
+    /// @return timestamps Array of timestamps when messages were created
+    /// @return amounts Array of token amounts involved in each transaction
+    /// @return isBuys Array of booleans indicating if each message was from a buy (true) or sell (false)
+    /// @return messages Array of message text contents
+    function getMessagesBatch(uint256 start, uint256 end) external view returns (
+        address[] memory senders,
+        uint32[] memory timestamps,
+        uint64[] memory amounts,
+        bool[] memory isBuys,
+        string[] memory messages
+    ) {
+        require(end >= start, "Invalid range");
+        require(end < totalMessages, "End out of bounds");
+        
+        uint256 size = end - start + 1;
+        senders = new address[](size);
+        timestamps = new uint32[](size);
+        amounts = new uint64[](size);
+        isBuys = new bool[](size);
+        messages = new string[](size);
+        
+        for (uint256 i = 0; i < size; i++) {
+            BondingMessage memory bondingMsg = bondingMessages[start + i];  // Changed variable name to avoid shadowing
+            senders[i] = bondingMsg.sender;
+            (timestamps[i], amounts[i], isBuys[i]) = unpackData(bondingMsg.packedData);
+            messages[i] = bondingMsg.message;
+        }
+    }
+
+
+// ┌───────────────────────────────────────────────┐
+// │              PUBLIC FUNCTIONS                 │
+// └───────────────────────────────────────────────┘
+
+    /// @notice The transfer and transferFrom functions implement the Wankel Tax system
+    /// @dev When tokens are transferred to/from the liquidity pool, a tax is applied
+    /// The tax is collected by the contract and later converted to liquidity for $CULT
+    /// This creates a positive feedback loop where trading activity strengthens the liquidity
+    /// The tax rate is set via TAX_RATE constant (in basis points)
+    /// Tax is not applied to:
+    /// - Transfers before liquidity pair is set
+    /// - Transfers involving the contract itself
+    /// - Regular P2P transfers between users
+
+    function transfer(address to, uint256 amount) public virtual override returns (bool) {
+        // First calculate the tax amount
+        uint256 taxAmount = amount - _beforeTransfer(msg.sender, to, amount);
+        
+        _processTaxes(msg.sender, to);
+
+        // Finally perform the transfers
+        if (taxAmount > 0) {
+            _transfer(msg.sender, address(this), taxAmount);
+        }
+        _transfer(msg.sender, to, amount - taxAmount);
+        return true;
+    }
+
+    function transferFrom(address from, address to, uint256 amount) public virtual override returns (bool) {
+
+        // Calculate tax and perform transfers
+        uint256 taxAmount = amount - _beforeTransfer(from, to, amount);
+        
+        _processTaxes(from, to);
+
+        if (taxAmount > 0) {
+            _transfer(from, address(this), taxAmount);
+        }
+        return super.transferFrom(from, to, amount - taxAmount);
+    }
+
+
+// ┌───────────────────────────────────────────────┐
+// │              INTERNAL FUNCTIONS               │
+// └───────────────────────────────────────────────┘
+
+
+    /// @notice Internal function to handle tax logic for transfers
+    /// @dev Checks if a transfer involves the liquidity pool and applies the tax rate if so
+    /// @param from The sender address
+    /// @param to The recipient address 
+    /// @param amount The transfer amount
+    /// @return The final transfer amount after any applicable tax deduction
     function _beforeTransfer(address from, address to, uint256 amount) internal view returns (uint256) {
         // Don't tax if liquidity pair isn't set yet (initial deployment)
         address liq = liquidityPair;
@@ -741,9 +817,69 @@ contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
         }
         return amount;
     }
-    //event TaxOperation(string opType, uint256 gasUsed);
+
+    // ┌─────────────────────────┐
+    // │     DN404 Overrides     │
+    // └─────────────────────────┘
+
+    /// @notice Returns the number of tokens that correspond to one NFT
+    /// @dev Each NFT represents 1,000,000 $EXEC tokens (1M tokens = 1 NFT)
+    /// @return The number of tokens per NFT (1,000,000 * 10^18)
+    function _unit() internal pure override returns (uint256) {
+        return 1000000 * 10 ** 18;
+    }
+
+    /// @notice Returns the token URI for a given token ID
+    /// @dev If the token does not exist or is not revealed, returns the unrevealed URI
+    /// @param tokenId The ID of the token to get the URI for
+    /// @return The token URI as a string
+    function _tokenURI(uint256 tokenId) internal view override returns (string memory) {
+        // return "https://example.com/token/1";
+        if (!_exists(tokenId) || !revealed) {
+            return unrevealedUri;
+        }
+        return bytes(uri).length != 0 ? string(abi.encodePacked(uri, LibString.concat(_toString(tokenId),".json"))) : "test";
+    }
+
+    /// @dev Override to set skip NFT default to On (true)
+    /// @return SkipNFTDefault.On
+    function _skipNFTDefault() internal pure override returns (SkipNFTDefault) {
+        return SkipNFTDefault.On;
+    }
+
+    // ┌─────────────────────────┐
+    // │   Wankel Tax System ♺   │
+    // └─────────────────────────┘
+
+    /**
+     * @notice The Wankel Tax System, inspired by the rotary engine's tri-chamber design
+     * @dev A three-phase tax recycling system that:
+     *      1. Sells accumulated $EXEC tokens (compression)
+     *      2. Buys $CULT with ETH proceeds (combustion) 
+     *      3. Adds liquidity to UniswapV3 position (exhaust)
+     *
+     * Like the Wankel engine's continuous rotary motion, this system
+     * maintains constant pressure under the V2 liquidity pool by
+     * churning volume through its three distinct phases. Each phase
+     * triggers automatically based on accumulated token thresholds.
+     */
+
+     /**
+     * @notice Core tax processing function that drives the Wankel Tax System
+     * @dev Executes the three-phase tax recycling system on token sells:
+     *      1. Selling EXEC tokens when accumulated (compression phase)
+     *      2. Buying CULT with ETH proceeds (combustion phase)
+     *      3. Adding liquidity to UniswapV3 (exhaust phase)
+     *
+     * This function acts as the central coordinator, checking balances and
+     * conditions before selecting and executing the appropriate tax operation.
+     * It maintains system pressure by limiting operations to 3 per block and
+     * prevents recursive calls via the swapping flag.
+     *
+     * @param from Address tokens are being transferred from
+     * @param to Address tokens are being transferred to
+     */
     function _processTaxes(address from, address to) internal {
-        //uint256 gasStart = gasleft();
         // Skip if pair isn't initialized yet (for initial liquidity)
         address liq = liquidityPair;
         if (liq == address(0)) return;
@@ -775,73 +911,82 @@ contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
         }
     }
 
-    function transfer(address to, uint256 amount) public virtual override returns (bool) {
-        // First calculate the tax amount
-        uint256 taxAmount = amount - _beforeTransfer(msg.sender, to, amount);
-        
-        _processTaxes(msg.sender, to);
+    /**
+     * @notice Determines the next tax operation based on current token balances
+     * @dev Part of the Wankel Tax System that selects between selling EXEC, buying CULT, or adding liquidity
+     * @param ethBalance The current ETH balance of the contract
+     * @param cultBalance The current CULT token balance of the contract  
+     * @param execBalance The current EXEC token balance of the contract
+     * @return operation The selected operation (0 = sell EXEC, 1 = buy CULT, 2 = add liquidity)
+     * @return amount The amount of tokens to use in the operation
+     */
+    function _selectOperation(uint256 ethBalance, uint256 cultBalance, uint256 execBalance) internal view returns (uint8 operation, uint256 amount) {
 
-        // Finally perform the transfers
-        if (taxAmount > 0) {
-            _transfer(msg.sender, address(this), taxAmount);
+        // Priority 1: If we have EXEC and low ETH, sell EXEC
+        if (execBalance >= MIN_SELL_THRESHOLD && ethBalance < 0.01 ether) {
+            return (0, execBalance);
         }
-        _transfer(msg.sender, to, amount - taxAmount);
-        return true;
+
+        // Priority 2: If we have ETH but low CULT, buy CULT with ALL available ETH
+        if (ethBalance >= 0.01 ether && cultBalance < MIN_CULT_THRESHOLD) {
+            // Use ALL available ETH (minus gas buffer)
+            uint256 ethToUse = ethBalance - 0.005 ether; // Leave 0.005 ETH for gas
+            
+            return (1, ethToUse);
+        }
+
+        // Priority 3: If we have both ETH and CULT, add ALL liquidity
+        if (ethBalance >= 0.01 ether && cultBalance >= MIN_LP_THRESHOLD) {
+            // Get optimal ratio for our ETH
+            (uint256 optimalCult,) = _getOptimalCultRatio(ethBalance);
+            // Use the maximum amount possible while maintaining ratio
+            uint256 cultToUse = cultBalance > optimalCult ? optimalCult : cultBalance;
+            return (2, cultToUse);
+        }
+        //fallback return
+        return (0, 0);
     }
 
-    function transferFrom(address from, address to, uint256 amount) public virtual override returns (bool) {
-
-        // Calculate tax and perform transfers
-        uint256 taxAmount = amount - _beforeTransfer(from, to, amount);
-        
-        _processTaxes(from, to);
-
-        if (taxAmount > 0) {
-            _transfer(from, address(this), taxAmount);
-        }
-        return super.transferFrom(from, to, amount - taxAmount);
-    }
+    
 
     function _handleSellTax(uint256 tokenBalance) internal {
         if (tokenBalance < MIN_SELL_THRESHOLD) return;
 
-        //interface version
-        // address[] memory path = new address[](2);
-        // path[0] = address(this);
-        // path[1] = weth;
-        // _approve(address(this), address(router), tokenBalance);
-        // router.swapExactTokensForETHSupportingFeeOnTransferTokens(
-        //     tokenBalance,
-        //     0,
-        //     path,
-        //     address(this),
-        //     block.timestamp
-        // );
-
-        //equivalent assembly 
-
         _approve(address(this), address(router), tokenBalance);
+
+        //Assembly veresion of v2 UniswapRouter interface function
+        //swapExactTokensForETHSupportingFeeOnTransferTokens(uint256,uint256,address[],address,uint256)
         assembly {
             let ptr := mload(0x40)
-            //swapExactTokensForETHSupportingFeeOnTransferTokens selector
+            // Store function selector for swapExactTokensForETHSupportingFeeOnTransferTokens
             mstore(ptr, 0x791ac94700000000000000000000000000000000000000000000000000000000)
+            // Store amountIn parameter (tokenBalance)
             mstore(add(ptr, 0x04), tokenBalance)
-            mstore(add(ptr, 0x24), 0)              // amountOutMin
-            mstore(add(ptr, 0x44), 0xa0)          // path offset
-            mstore(add(ptr, 0x64), address())     // recipient
-            mstore(add(ptr, 0x84), timestamp())           // deadline at 132 bytes
-            mstore(add(ptr, 0xa4), 2)            // array length at 164 bytes (0xa0 + 0x04)
-            mstore(add(ptr, 0xc4), address())    // path[0] at 196 bytes (0xc0 + 0x04)
-            mstore(add(ptr, 0xe4), weth)  // path[1] at 228 bytes (0xe0 + 0x04)
+            // Store amountOutMin parameter (0 for no minimum)
+            mstore(add(ptr, 0x24), 0)              
+            // Store path array offset (points to 0xa0 where array data begins)
+            mstore(add(ptr, 0x44), 0xa0)          
+            // Store recipient address (this contract)
+            mstore(add(ptr, 0x64), address())     
+            // Store deadline (block.timestamp)
+            mstore(add(ptr, 0x84), timestamp())   
+            // Store path array length (2 elements)        
+            mstore(add(ptr, 0xa4), 2)            
+            // Store first path address (this contract)
+            mstore(add(ptr, 0xc4), address())    
+            // Store second path address (WETH)
+            mstore(add(ptr, 0xe4), weth)  
+            // Make external call to router contract
             let success := call(
                 gas(),
                 0xeE567Fe1712Faf6149d80dA1E6934E354124CfE3,//sepolia//0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D,//mainnet
-                0,
-                ptr,
-                0x104,
-                0,
-                0
+                0,              // No ETH sent
+                ptr,           // Input data pointer
+                0x104,         // Input data size (260 bytes)
+                0,             // Output data pointer 
+                0              // Output data size
             )
+            // Revert on failure and forward error message
             if iszero(success) {
                 returndatacopy(0, 0, returndatasize())
                 revert(0, returndatasize())
@@ -849,6 +994,10 @@ contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
         }
     }
 
+    /// @notice Swaps ETH for CULT tokens using Uniswap V3 pool
+    /// @dev Deposits ETH as WETH, approves pool, and executes swap using assembly for gas optimization (and bytecode size reduction)
+    /// @param ethAmount The amount of ETH to swap for CULT
+    /// @return cultBought The amount of CULT tokens received from the swap
     function _buyCultWithExactEth(uint256 ethAmount) internal returns (uint256 cultBought) {
         
         //IWETH(weth).deposit{value: ethAmount}();
@@ -856,67 +1005,32 @@ contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
         address pool = cultPool;
         _erc20Approve(weth, pool, ethAmount);
         
-        // 3. Swap with 1% fee tier
-        // bytes memory path;
-        // if (CULT < weth) {
-        //     // If CULT is token0
-        //     path = abi.encodePacked(
-        //         weth,
-        //         uint24(POOL_FEE),
-        //         CULT
-        //     );
-        // } else {
-        //     // If WETH is token0
-        //     path = abi.encodePacked(
-        //         weth,
-        //         uint24(POOL_FEE),
-        //         CULT
-        //     );
-        // }
-
-        // ISwapRouter.ExactInputParams memory params = ISwapRouter.ExactInputParams({
-        //     path: path,
-        //     recipient: address(this),
-        //     deadline: block.timestamp,
-        //     amountIn: ethAmount,
-        //     amountOutMinimum: 0
-        // });
-
-        // try ISwapRouter(router3).exactInput(params) returns (uint256 amountOut) {
-        //     return amountOut;
-        // } catch Error(string memory reason) {
-        //     //IWETH(weth).withdraw(ethAmount);
-        //     _wethWithdraw(ethAmount);
-        //     revert(string.concat("Swap failed: ", reason));
-        // }
         bool zeroForOne = weth < CULT; // true if WETH is token0
-        bytes memory data = ""; // No callback needed
-        
-        // Execute swap directly with pool
-        // try IUniswapV3Pool(pool).swap(
-        //     address(this),  // recipient
-        //     zeroForOne,     // WETH -> CULT
-        //     int256(ethAmount),
-        //     //MIN MAX SQRT RATIO
-        //     zeroForOne ? 4295128739 + 1 : 1461446703485210103287273052203988822378723970342 - 1, // Price limit
-        //     data
-        // ) returns (int256 amount0, int256 amount1) {
-        //     // Return absolute value of the output amount
-        //     return uint256(-(zeroForOne ? amount1 : amount0));
-        // } catch {
-        //     // Unwrap WETH on failure
-        //     _wethWithdraw(ethAmount);
-        //     return 0;
-        // }
+        //bytes memory data = ""; // No callback needed
+
+        //Assembly version of Uniswap V3 Pool swap function
+        //Interface: swap(address recipient, bool zeroForOne, int256 amountSpecified, uint160 sqrtPriceLimitX96, bytes calldata data)
         uint256 result;
         assembly {
+            // Get free memory pointer
             let ptr := mload(0x40)
 
+            // Store function selector for swap()
             mstore(ptr, 0x128acb0800000000000000000000000000000000000000000000000000000000)
+            
+            // Store recipient address (this contract)
             mstore(add(ptr, 0x04), address())
+            
+            // Store zeroForOne bool (true if WETH is token0)
+            // Double negation ensures proper boolean value
             mstore(add(ptr, 0x24), iszero(iszero(zeroForOne)))
+            
+            // Store amountSpecified (ethAmount as int256)
             mstore(add(ptr, 0x44), ethAmount)
 
+            // Store sqrtPriceLimitX96 based on direction
+            // If zeroForOne: use min price + 1 (4295128740)
+            // If oneForZero: use max price - 1 (1461446703485210103287273052203988822378723970341)
             switch zeroForOne
             case 1 {
                 mstore(add(ptr, 0x64), 4295128740)
@@ -925,35 +1039,45 @@ contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
                 mstore(add(ptr, 0x64), 1461446703485210103287273052203988822378723970341)
             }
 
+            // Store empty bytes data
+            // First word is offset (0xa0)
             mstore(add(ptr, 0x84), 0xa0)
+            // Second word is length (0)
             mstore(add(ptr, 0xa4), 0)
 
+            // Make external call to pool contract
             let callSuccess := call(
-                gas(),
-                pool,
-                0,
-                ptr,
-                0xc4,
-                ptr,
-                0x40
+                gas(),          // Forward all gas
+                pool,          // Target contract (Uniswap V3 pool)
+                0,             // No ETH sent
+                ptr,           // Input data pointer
+                0xc4,          // Input size (196 bytes)
+                ptr,           // Output data pointer
+                0x40           // Output size (64 bytes for two int256)
             )
 
+            // On successful swap
             if callSuccess {
-                let amount0 := mload(ptr)
-                let amount1 := mload(add(ptr, 0x20))
+                // Load returned amounts
+                let amount0 := mload(ptr)         // First returned int256
+                let amount1 := mload(add(ptr, 0x20)) // Second returned int256
 
+                // Calculate result based on swap direction
+                // We negate the relevant amount since V3 returns negative for tokens received
                 switch zeroForOne
                 case 1 {
-                    result := sub(0, amount1)
+                    result := sub(0, amount1)  // Use amount1 if WETH is token0
                 }
                 default {
-                    result := sub(0, amount0)
+                    result := sub(0, amount0)  // Use amount0 if WETH is token1
                 }
             }
 
+            // On failed swap
             if iszero(callSuccess) {
-                mstore(0x00, 0x2e1a7d4d)
-                mstore(0x04, ethAmount)
+                // Withdraw WETH by calling withdraw(uint256)
+                mstore(0x00, 0x2e1a7d4d)      // withdraw() selector
+                mstore(0x04, ethAmount)       // amount to withdraw
                 pop(call(gas(), weth, 0, 0x00, 0x24, 0x00, 0x00))
                 result := 0
             }
@@ -961,84 +1085,14 @@ contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
         cultBought = result;
     }
 
-    function uniswapV3SwapCallback(
-        int256 amount0Delta,
-        int256 amount1Delta,
-        bytes calldata data
-    ) external override {
-        // (address token0, address token1) = (
-        //     IUniswapV3Pool(msg.sender).token0(),
-        //     IUniswapV3Pool(msg.sender).token1()
-        // );
-        // // Validation: ensure the call came from the expected pool
-        // require(msg.sender == address(cultPool), "Unauthed pool");
-
-        // // // Determine which token we need to send in
-        // if (amount0Delta > 0) {
-        //     // We're expected to send in token0
-        //     //IERC20(token0).transfer(msg.sender, uint256(amount0Delta));
-        //     _erc20Transfer(token0, msg.sender, uint256(amount0Delta));
-        // } else if (amount1Delta > 0) {
-        //     // We're expected to send in token1
-        //     //IERC20(token1).transfer(msg.sender, uint256(amount1Delta));
-        //     _erc20Transfer(token1, msg.sender, uint256(amount1Delta));
-        // }
-        assembly {
-            // Load msg.sender and cultPool into memory for comparison
-            let sender := caller()
-            if iszero(eq(sender, sload(cultPool.slot))) {
-                // revert("Unauthed pool")
-                mstore(0x00, 0x20)
-                mstore(0x20, 0x0e) // string length
-                mstore(0x40, "Unauthed pool")
-                revert(0x00, 0x4e)
-            }
-
-            // Get token0
-            //mstore(0x00, 0x0dfe1681)
-            mstore(0x00, 0x0dfe168100000000000000000000000000000000000000000000000000000000)
-            if iszero(staticcall(gas(), sender, 0x00, 0x04, 0x00, 0x20)) {
-                revert(0, 0)
-            }
-            let token0 := mload(0x00)
-
-            // Get token1
-            //mstore(0x00, 0xd21220a7)
-            mstore(0x00, 0xd21220a700000000000000000000000000000000000000000000000000000000)
-            if iszero(staticcall(gas(), sender, 0x00, 0x04, 0x00, 0x20)) {
-                revert(0, 0)
-            }
-            let token1 := mload(0x00)
-
-            // Prepare transfer selector: transfer(address,uint256)
-            mstore(0x00, 0xa9059cbb00000000000000000000000000000000000000000000000000000000)
-            mstore(0x04, sender)
-
-            // Check if amount0Delta > 0
-            if sgt(amount0Delta, 0) {
-                mstore(0x24, amount0Delta) // int256 > 0 is safe to cast directly
-                pop(call(gas(), token0, 0, 0x00, 0x44, 0x00, 0x00))
-            }
-
-            // Else if amount1Delta > 0
-            if sgt(amount1Delta, 0) {
-                mstore(0x24, amount1Delta)
-                pop(call(gas(), token1, 0, 0x00, 0x44, 0x00, 0x00))
-            }
-        }
-    }
-
-    // Helper function to calculate optimal CULT/ETH ratio based on current pool price
+    /// @notice Calculates the optimal amount of CULT tokens needed for a given ETH amount based on current pool price
+    /// @dev Uses the Uniswap V3 pool's current sqrt price to determine the ideal ratio for liquidity provision
+    /// @dev The calculation is: optimalCult = ethAmount * price / 1e18, where price = (sqrtPriceX96^2 * 1e18) >> 192
+    /// @param ethAmount The amount of ETH to calculate the ratio for
+    /// @return optimalCult The optimal amount of CULT tokens needed
+    /// @return price The current price of CULT in terms of ETH (scaled by 1e18)
     function _getOptimalCultRatio(uint256 ethAmount) internal view returns (uint256 optimalCult, uint256 price) {
-        //(uint160 sqrtPriceX96,,,,,,) = IUniswapV3Pool(cultPool).slot0();
         (uint160 sqrtPriceX96,) = _staticcallSlot0Values(cultPool);
-        //(,bytes memory d) = cultPool.staticcall(abi.encodeWithSelector(0x3850c7bd));
-        //uint160 sqrtPriceX96 = abi.decode(d, (uint160));
-
-        //uint256 priceX96 = uint256(sqrtPriceX96) * uint256(sqrtPriceX96);
-        //price = (priceX96 * (10**18)) >> 192; // Convert to WAD
-        // Calculate how much CULT we should have for this amount of ETH
-        //optimalCult = (ethAmount * price) / 1e18;
 
         assembly {
             // Calculate price = (sqrtPriceX96 * sqrtPriceX96 * 1e18) >> 192
@@ -1050,11 +1104,12 @@ contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
         }
     }
 
+    /// @notice Handles adding liquidity to the CULT-ETH pool with available balances
+    /// @dev Adds liquidity to Uniswap V3 pool while maintaining a small ETH buffer for gas
+    /// @dev Orders token amounts based on CULT/WETH sort order and only adds if minimums are met
+    /// @param ethBalance The current ETH balance available to add as liquidity
+    /// @param cultBalance The current CULT token balance available to add as liquidity
     function _handleAddCultLiquidity(uint256 ethBalance, uint256 cultBalance) internal {
-
-        //uint256 cultBalance = _erc20BalanceOf(CULT,address(this));
-
-        //uint256 ethBalance = address(this).balance;
         
         if (cultBalance == 0 || ethBalance < 0.005 ether) {
             return;
@@ -1073,78 +1128,22 @@ contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
             amount0 = ethToUse;       // All ETH
             amount1 = cultBalance;     // All CULT
         }
-
-        // Get current price for reference
-        //(uint160 sqrtPriceX96,,,,,,) = IUniswapV3Pool(cultPool).slot0();
-        (uint160 sqrtPriceX96,) = _staticcallSlot0Values(cultPool);
-        //(,bytes memory d) = cultPool.staticcall(abi.encodeWithSelector(0x3850c7bd));
-        //uint160 sqrtPriceX96 = abi.decode(d, (uint160));
-        uint256 priceX96 = uint256(sqrtPriceX96) * uint256(sqrtPriceX96);
-        uint256 price = (priceX96 * 1e18) >> 192;
         
         if (amount0 > 0 && amount1 > 0.01 ether) {
-          
             _increaseCultLiquidity(amount0, amount1);
         }
     }
 
-    /// @dev Override receive to accept ETH transfers
-    receive() external payable override {
-    // Accept ETH transfers silently
-    }
-
-    // Add this function to the contract
-    function onERC721Received(
-        address,
-        address,
-        uint256,
-        bytes calldata
-    ) external pure returns (bytes4) {
-        return 0x150b7a02; // IERC721Receiver.onERC721Received.selector
-    }
-  
-  
     function _increaseCultLiquidity(uint256 cultAmount, uint256 ethAmount) internal returns (bool) {
         if (cultV3Position == 0) {
             return false;
         }
 
-        // Wrap ETH
-        //IWETH(weth).deposit{value: ethAmount}();
         _wethDeposit(ethAmount);
         
-        // Approve tokens
-        //IERC20(CULT).approve(address(positionManager), cultAmount);
-        //(bool s,) = (CULT).call(abi.encodeWithSelector(0x095ea7b3, address(positionManager), cultAmount)); require(s);
         _erc20Approve(CULT, address(positionManager), cultAmount);
-        //IERC20(weth).approve(address(positionManager), ethAmount);
-        //(bool s2,) = (weth).call(abi.encodeWithSelector(0x095ea7b3, address(positionManager), ethAmount)); require(s2);
         _erc20Approve(weth, address(positionManager), ethAmount);
 
-        // try positionManager.increaseLiquidity(INonfungiblePositionManager.IncreaseLiquidityParams({
-        //     tokenId: cultV3Position,
-        //     amount0Desired: CULT < weth ? cultAmount : ethAmount,
-        //     amount1Desired: CULT < weth ? ethAmount : cultAmount,
-        //     amount0Min: 0,
-        //     amount1Min: 0,
-        //     deadline: block.timestamp
-        // })) {
-        //     // Unwrap any unused WETH
-        //     //uint256 unusedWeth = IERC20(weth).balanceOf(address(this));
-        //     //(,bytes memory d) = (weth).staticcall(abi.encodeWithSelector(0x70a08231, address(this)));
-        //     //uint256 unusedWeth = abi.decode(d, (uint256));
-        //     uint256 unusedWeth = _erc20BalanceOf(weth, address(this));
-        //     if (unusedWeth > 0) {
-        //         //IWETH(weth).withdraw(unusedWeth);
-        //         _wethWithdraw(unusedWeth);
-        //     }
-        //     return true;
-        // } catch {
-        //     // Unwrap WETH on failure
-        //     //IWETH(weth).withdraw(ethAmount);
-        //     _wethWithdraw(ethAmount);
-        //     return false;
-        // }
         // Store immutable values in memory before assembly block
         address posAddr = address(positionManager);
         bool isToken0 = CULT < weth;
@@ -1153,60 +1152,73 @@ contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
             // Prepare calldata for increaseLiquidity
             let ptr := mload(0x40)
             
-            // increaseLiquidity selector: 0x219f5d17
+            // Interface: function increaseLiquidity(IncreaseLiquidityParams calldata params) external payable returns (uint128 liquidity, uint256 amount0, uint256 amount1)
+            // Where IncreaseLiquidityParams is:
+            // struct IncreaseLiquidityParams {
+            //     uint256 tokenId;           // The ID of the NFT position to increase liquidity for
+            //     uint256 amount0Desired;    // The desired amount of token0 to be spent
+            //     uint256 amount1Desired;    // The desired amount of token1 to be spent
+            //     uint256 amount0Min;        // The minimum amount of token0 to spend
+            //     uint256 amount1Min;        // The minimum amount of token1 to spend
+            //     uint256 deadline;          // The time by which the transaction must be included
+            // }
+            
+            // Function selector for increaseLiquidity
             mstore(ptr, 0x219f5d1700000000000000000000000000000000000000000000000000000000)
             
-            // tokenId
+            // Store tokenId parameter
             mstore(add(ptr, 0x04), sload(cultV3Position.slot))
             
-            // amount0Desired and amount1Desired based on token ordering
+            // Store amount0Desired and amount1Desired based on token ordering
+            // If CULT < WETH, CULT is token0, otherwise WETH is token0
             switch isToken0
             case 1 {
-                mstore(add(ptr, 0x24), cultAmount)  // amount0Desired
-                mstore(add(ptr, 0x44), ethAmount)   // amount1Desired
+                mstore(add(ptr, 0x24), cultAmount)  // amount0Desired = cultAmount
+                mstore(add(ptr, 0x44), ethAmount)   // amount1Desired = ethAmount
             }
             default {
-                mstore(add(ptr, 0x24), ethAmount)   // amount0Desired
-                mstore(add(ptr, 0x44), cultAmount)  // amount1Desired
+                mstore(add(ptr, 0x24), ethAmount)   // amount0Desired = ethAmount
+                mstore(add(ptr, 0x44), cultAmount)  // amount1Desired = cultAmount
             }
             
-            // amount0Min and amount1Min (both 0)
-            mstore(add(ptr, 0x64), 0)
-            mstore(add(ptr, 0x84), 0)
+            // Store amount0Min and amount1Min as 0 (no minimum amounts required)
+            mstore(add(ptr, 0x64), 0)  // amount0Min = 0
+            mstore(add(ptr, 0x84), 0)  // amount1Min = 0
             
-            // deadline (block.timestamp)
+            // Store deadline as current block timestamp
             mstore(add(ptr, 0xa4), timestamp())
 
-            // Make the call
+            // Make the call to increaseLiquidity
             let success := call(
                 gas(),
-                posAddr,  // use local variable instead of immutable
-                0,      // value
-                ptr,    // input
-                0xc4,   // input size (4 + 5 * 32)
-                0,      // output offset
-                0       // output size
+                posAddr,  // position manager address
+                0,      // no ETH sent
+                ptr,    // calldata pointer
+                0xc4,   // calldata size (4 + 6 * 32)
+                0,      // output offset (ignore return values)
+                0       // output size (ignore return values)
             )
 
-            // Handle unused WETH on success
+            // On success, handle any unused WETH
             if success {
-                // Check remaining WETH balance
+                // Interface: function balanceOf(address account) external view returns (uint256)
                 let wethPtr := mload(0x40)
                 mstore(wethPtr, 0x70a0823100000000000000000000000000000000000000000000000000000000)
                 mstore(add(wethPtr, 0x04), address())
                 
+                // Check remaining WETH balance
                 pop(staticcall(
                     gas(),
                     weth,
                     wethPtr,
-                    0x24,
-                    0,
-                    0x20
+                    0x24,  // input size (4 + 32)
+                    0,     // output offset
+                    0x20   // output size (32 bytes)
                 ))
                 
                 let unusedWeth := mload(0)
                 if gt(unusedWeth, 0) {
-                    // Withdraw unused WETH
+                    // Interface: function withdraw(uint256 wad) external
                     mstore(wethPtr, 0x2e1a7d4d00000000000000000000000000000000000000000000000000000000)
                     mstore(add(wethPtr, 0x04), unusedWeth)
                     pop(call(gas(), weth, 0, wethPtr, 0x24, 0, 0))
@@ -1216,6 +1228,7 @@ contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
             }
             
             // On failure, withdraw all WETH
+            // Interface: function withdraw(uint256 wad) external
             let wethPtr := mload(0x40)
             mstore(wethPtr, 0x2e1a7d4d00000000000000000000000000000000000000000000000000000000)
             mstore(add(wethPtr, 0x04), ethAmount)
@@ -1225,109 +1238,22 @@ contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
         }
     }
 
-    /// @notice Collects fees from the V3 liquidity position
-    /// @dev Only callable by the owner of OPERATOR_TOKEN_ID
-    /// @param amount0Max The maximum amount of token0 to collect
-    /// @param amount1Max The maximum amount of token1 to collect
-    /// @return amount0 The amount of token0 collected
-    /// @return amount1 The amount of token1 collected
-    function collectV3Fees(uint128 amount0Max, uint128 amount1Max) external payable returns (uint256 amount0, uint256 amount1) {
-        // Check if caller owns the operator token
-        //require(IERC721(0xB24BaB1732D34cAD0A7C7035C3539aEC553bF3a0).ownerOf(598) == msg.sender, "Not operator token owner");
-        require(_erc721OwnerOf(OPERATOR_NFT, 1) == msg.sender, "Not oper");
-        
-        // Require at least one amount to be non-zero (matching V3 requirement)
-        require(amount0Max > 0 || amount1Max > 0, "Amount0Max and amount1Max both 0");
-        
-        // INonfungiblePositionManager.CollectParams memory params = INonfungiblePositionManager
-        //     .CollectParams({
-        //         tokenId: cultV3Position,
-        //         recipient: msg.sender,
-        //         amount0Max: amount0Max,
-        //         amount1Max: amount1Max
-        //     });
-            
-        // // Assuming V3_POSITION_MANAGER is defined somewhere in the contract
-        // (amount0, amount1) = INonfungiblePositionManager(positionManager).collect{value: msg.value}(params);
-        uint256 _cultPosition = cultV3Position;
-        assembly {
-            // collect function selector: 0xfc6f7865
-            let ptr := mload(0x40)
-            mstore(ptr, 0xfc6f786500000000000000000000000000000000000000000000000000000000)
-            
-            // Pack parameters
-            mstore(add(ptr, 0x04), _cultPosition)  // tokenId
-            mstore(add(ptr, 0x24), caller())        // recipient
-            mstore(add(ptr, 0x44), amount0Max)      // amount0Max
-            mstore(add(ptr, 0x64), amount1Max)      // amount1Max
+    // ┌─────────────────────────┐
+    // │    Low Level Calls      │
+    // └─────────────────────────┘
 
-            // Make the call
-            let success := call(
-                gas(),
-                positionManager,  // target
-                callvalue(),      // forward any ETH value
-                ptr,             // input
-                0x84,           // input size (4 + 4 * 32)
-                ptr,            // output
-                0x40            // output size (2 * 32 for two uint256 returns)
-            )
+    // ┌───────────┐
+    // │   erc20   │
+    // └───────────┘
 
-            if iszero(success) {
-                returndatacopy(0, 0, returndatasize())
-                revert(0, 0)
-            }
-
-            // Load return values
-            amount0 := mload(ptr)
-            amount1 := mload(add(ptr, 0x20))
-        }
-        
-        emit V3FeesCollected(msg.sender, amount0, amount1);
-    }
-
-    /// @notice Emitted when V3 fees are collected
-    event V3FeesCollected(address indexed collector, uint256 amount0, uint256 amount1);
-
-    // Helper function to get message details
-    function getMessageDetails(uint256 messageId) external view returns (
-        address sender,
-        uint32 timestamp,
-        uint64 amount,
-        bool isBuy,
-        string memory message
-    ) {
-        require(messageId < totalMessages, "Msg doesnt exist");
-        BondingMessage memory bondingMsg = bondingMessages[messageId];  // Changed variable name to avoid shadowing
-        (timestamp, amount, isBuy) = unpackData(bondingMsg.packedData);
-        return (bondingMsg.sender, timestamp, amount, isBuy, bondingMsg.message);
-    }
-
-    // Optimized batch retrieval
-    function getMessagesBatch(uint256 start, uint256 end) external view returns (
-        address[] memory senders,
-        uint32[] memory timestamps,
-        uint64[] memory amounts,
-        bool[] memory isBuys,
-        string[] memory messages
-    ) {
-        require(end >= start, "Invalid range");
-        require(end < totalMessages, "End out of bounds");
-        
-        uint256 size = end - start + 1;
-        senders = new address[](size);
-        timestamps = new uint32[](size);
-        amounts = new uint64[](size);
-        isBuys = new bool[](size);
-        messages = new string[](size);
-        
-        for (uint256 i = 0; i < size; i++) {
-            BondingMessage memory bondingMsg = bondingMessages[start + i];  // Changed variable name to avoid shadowing
-            senders[i] = bondingMsg.sender;
-            (timestamps[i], amounts[i], isBuys[i]) = unpackData(bondingMsg.packedData);
-            messages[i] = bondingMsg.message;
-        }
-    }
-
+    /**
+     * @notice Low level call to ERC20 approve function
+     * @dev Uses assembly to make a direct call to the token's approve function
+     *      Reverts if the call fails, bubbling up any error message
+     * @param token The address of the ERC20 token contract
+     * @param spender The address being approved to spend tokens
+     * @param amount The amount of tokens being approved
+     */
     function _erc20Approve(address token, address spender, uint256 amount) internal {
         assembly {
             let ptr := mload(0x40) // get free memory pointer
@@ -1354,6 +1280,15 @@ contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
         }
     }
 
+    /**
+     * @notice Low level call to ERC20 balanceOf function
+     * @dev Uses assembly to make a direct staticcall to the token's balanceOf function
+     *      This optimizes bytecode size by avoiding ABI encoding/decoding
+     *      Reverts if the call fails
+     * @param token The address of the ERC20 token contract to query
+     * @param account The address to check the balance of
+     * @return result The token balance of the account
+     */
     function _erc20BalanceOf(address token, address account) internal view returns (uint256 result) {
         assembly {
             // Store the function selector and argument in memory
@@ -1380,6 +1315,14 @@ contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
         }
     }
 
+    /**
+     * @notice Low level call to ERC20 transfer function
+     * @dev Uses assembly to make a direct call to the token's transfer function
+     *      Reverts if the call fails, bubbling up any error message
+     * @param token The address of the ERC20 token contract
+     * @param to The address to transfer the tokens to
+     * @param amount The amount of tokens to transfer
+     */
     function _erc20Transfer(address token, address to, uint256 amount) internal {
         assembly {
             let ptr := mload(0x40)
@@ -1413,7 +1356,19 @@ contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
         }
     }
 
+    // ┌───────────┐
+    // │  erc721   │
+    // └───────────┘
 
+    /**
+     * @notice Low level call to ERC721 ownerOf function
+     * @dev Uses assembly to make a direct staticcall to the token's ownerOf function
+     *      This optimizes bytecode size by avoiding ABI encoding/decoding
+     *      Reverts if the call fails
+     * @param collection The address of the ERC721 token contract
+     * @param tokenId The ID of the token to check ownership of
+     * @return owner The address of the token owner
+     */
     function _erc721OwnerOf(address collection, uint256 tokenId) internal view returns (address owner) {
         assembly {
             // Store the function selector and argument in memory
@@ -1442,6 +1397,18 @@ contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
         }
     }
 
+    // ┌───────────┐
+    // │  weth     │
+    // └───────────┘
+
+    /**
+     * @notice Low level call to WETH deposit function
+     * @dev Uses assembly to make a direct call to the WETH contract's deposit function
+     *      Reverts if the call fails, bubbling up any error message
+     * @param amount The amount of ETH to wrap in WETH
+     * return not used
+     */
+    
     function _wethDeposit(uint256 amount) internal {
         assembly {
             // deposit() selector = 0xd0e30db0
@@ -1464,6 +1431,14 @@ contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
         }
     }
 
+    /**
+     * @notice Low level call to WETH withdraw function
+     * @dev Uses assembly to make a direct call to the WETH contract's withdraw function
+     *      Reverts if the call fails, bubbling up any error message
+     * @param amount The amount of WETH to withdraw
+     * return not used
+     */
+    
     function _wethWithdraw(uint256 amount) internal {
         assembly {
             // withdraw(uint256) selector = 0x2e1a7d4d
@@ -1487,17 +1462,59 @@ contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
         }
     }
 
-    //event Debug(string label, bytes data);
+    // ┌───────────┐
+    // │  V3 Pool  │
+    // └───────────┘
 
-    function getOwnerTokens(address owner) public view returns (uint256[] memory) {
-        uint256 ownerBalanceLength = _balanceOfNFT(owner);
-        return _ownedIds(owner, 0, ownerBalanceLength);
+    /// @notice Reads sqrtPriceX96 and tick from a Uniswap V3 pool using a static call
+    /// @param pool The address of the V3 pool
+    /// @return sqrtPriceX96 The current price as a Q64.96
+    /// @return tick The current tick function _staticcallSlot0Values(ad
+    function _staticcallSlot0Values(address pool) internal view returns (uint160 sqrtPriceX96, int24 tick) {
+        // slot0() function selector: 3850c7bd
+        assembly {
+            // Prepare calldata for staticcall (4 bytes for function selector)
+            mstore(0x0, 0x3850c7bd00000000000000000000000000000000000000000000000000000000)
+            
+            // Perform staticcall
+            // First 32 bytes: sqrtPriceX96 (uint160)
+            // Next 32 bytes: tick (int24)
+            let success := staticcall(gas(), pool, 0x0, 0x4, 0x0, 0x40)
+            
+            // Revert if call failed
+            if iszero(success) {
+                revert(0, 0)
+            }
+
+            // Load results
+            sqrtPriceX96 := mload(0x0)    // First 32 bytes contain sqrtPriceX96
+            tick := mload(0x20)           // Next 32 bytes contain tick
+        }
     }
 
-    function tokenURI(uint256 tokenId) public view returns (string memory) {
-        return _tokenURI(tokenId);
+    /// @notice Reads the tick spacing from a Uniswap V3 pool using a static call
+    /// @dev Makes a low-level staticcall to get the tick spacing value which determines valid tick intervals
+    /// @dev Uses the tickSpacing() function selector (0xd0c93a7c) to make the call
+    /// @param pool The address of the V3 pool to query
+    /// @return spacing The tick spacing value for the pool (e.g. 60 for 0.6% fee tier)
+    function _staticcallTickSpacing(address pool) internal view returns (int24 spacing) {
+        assembly {
+            // Store the function selector for tickSpacing()
+            mstore(0, 0xd0c93a7c00000000000000000000000000000000000000000000000000000000)
+            
+            // Make the call
+            let success := staticcall(gas(), pool, 0, 4, 0, 32)
+            if iszero(success) { revert(0, 0) }
+            
+            // Load the result
+            spacing := mload(0)
+        }
     }
 
+    
+    // ┌─────────────────────────┐
+    // │        Strings          │
+    // └─────────────────────────┘
     /**
      * @dev Converts a uint256 to its ASCII string decimal representation.
      */
@@ -1539,21 +1556,342 @@ contract SEPEXEC404 is DN404, IUniswapV3SwapCallback {
             mstore(str, length)
         }
     }
+    
+    // ┌─────────────────────────┐
+    // │        Messages         │
+    // └─────────────────────────┘
+    /// @notice Packs timestamp, amount and buy flag into a single uint96 value
+    /// @dev Packs data in the following format:
+    ///      - timestamp: highest 32 bits
+    ///      - amount: middle 63 bits  
+    ///      - isBuy flag: lowest bit
+    /// @param timestamp The timestamp to pack (32 bits)
+    /// @param amount The amount to pack (63 bits)
+    /// @param isBuy The buy flag to pack (1 bit)
+    /// @return packed The packed uint96 containing all data
+    function packData(uint32 timestamp, uint64 amount, bool isBuy) internal pure returns (uint96) {
+        return uint96(
+            (uint96(timestamp) << 64) |  // timestamp in highest 32 bits
+            (uint96(amount) << 1) |      // amount in middle 63 bits
+            (isBuy ? 1 : 0)             // isBuy flag in lowest bit
+        );
+    }
 
-    /*
-    This contract needs
+    /// @notice Unpacks a uint96 value into timestamp, amount and buy flag components
+    /// @dev Unpacks data from the following format:
+    ///      - timestamp: highest 32 bits
+    ///      - amount: middle 63 bits
+    ///      - isBuy flag: lowest bit
+    /// @param packed The packed uint96 to unpack
+    /// @return timestamp The unpacked timestamp (32 bits)
+    /// @return amount The unpacked amount (63 bits)  
+    /// @return isBuy The unpacked buy flag (1 bit)
+    function unpackData(uint96 packed) internal pure returns (uint32 timestamp, uint64 amount, bool isBuy) {
+        timestamp = uint32(packed >> 64);
+        amount = uint64(packed >> 1);
+        isBuy = packed & 1 == 1;
+    }
 
-    X1. sequential merkle tree by day, 12 days
-    X2. Automatic liquidity deployment after 12 days of presale bonding curve
-    X3. buy/sell tax to pool that are converted to liqudiity for $CULT
-    X4. setSkipNFT default true 
-    X5. balanceMint 
-    X6. ability for the owner of a specified NFT to collect the fees from the liquidity position
-    x7. in deploying liquidity, a fraction must go to the owner of that same NFT
-    x8. message system
-    x9. fit bytecode limit
-    10. gas optimized
-    x11. a way to get user nft ids
-    */
+    // ┌─────────────────────────┐
+    // │   Bonding Curve Math    │
+    // └─────────────────────────┘
+
+    /// **************************************************
+    /// @dev The bonding curve formula is: P(s) = 12e-9 * S^3 + 4e-9 * S^2 + 4e-9 + 0.025 ether
+    /// where:
+    /// - S is the normalized supply (current supply / 10M tokens)
+    /// - The polynomial terms create an accelerating price curve
+    /// - Base price starts at 0.025 ETH per 10M tokens
+    /// **************************************************
+
+    /// @notice Calculates the integral of the bonding curve price function
+    /// @dev Uses numerical integration to find the area under the price curve
+    /// @param lowerBound The lower bound of the supply range to integrate
+    /// @param upperBound The upper bound of the supply range to integrate
+    /// @return integral The calculated integral value in ETH
+    function calculateIntegral(uint256 lowerBound, uint256 upperBound) internal pure returns (uint256) {
+        require(upperBound >= lowerBound, "Invalid bounds");
+        return _calculateIntegralFromZero(upperBound) - _calculateIntegralFromZero(lowerBound);
+    }
+
+    /// @notice Calculates the integral of the bonding curve price function from zero to a given supply
+    /// @dev Uses numerical integration to find the area under the price curve
+    /// @param supply The upper bound of the supply range to integrate
+    /// @return integral The calculated integral value in ETH
+    function _calculateIntegralFromZero(uint256 supply) internal pure returns (uint256) {
+        // Scale down to hundreds since price curve is per 10M tokens
+        // uint256 scaledSupply = supply / 1e26;
+        // uint256 scaledSupplyWad = scaledSupply * 1e18;
+        uint256 scaledSupplyWad = supply / 1e7;
+        
+        // Base price integral dewadded by 1e18
+        uint256 basePart = INITIAL_PRICE * scaledSupplyWad / 1e18;
+        
+        // Calculate integral terms with scaled numbers
+        uint256 quarticTerm = FixedPointMathLib.mulWad(
+            //12 / 4 
+            3 gwei,
+            FixedPointMathLib.mulWad(
+                FixedPointMathLib.mulWad(
+                    FixedPointMathLib.mulWad(scaledSupplyWad, scaledSupplyWad),
+                    scaledSupplyWad
+                ),
+                scaledSupplyWad
+            )
+        );
+        
+        uint256 cubicTerm = FixedPointMathLib.mulWad(
+            1333333333, //4/3 * 1gwei
+            FixedPointMathLib.mulWad(
+                FixedPointMathLib.mulWad(scaledSupplyWad, scaledSupplyWad),
+                scaledSupplyWad
+            )
+        );
+        
+        uint256 quadraticTerm = FixedPointMathLib.mulWad(
+            2 gwei,
+            FixedPointMathLib.mulWad(scaledSupplyWad, scaledSupplyWad)
+        );
+        
+        // Scale the result back up by 1e8
+        return basePart + quarticTerm + cubicTerm + quadraticTerm;
+    }
+
+
+    // ┌───────────────────────────────────────────────┐
+    // │             Private Functions                 │
+    // └───────────────────────────────────────────────┘
+
+    /// @notice Initializes the CULT pool logic
+    /// @dev Initializes the CULT pool by buying CULT with half of the ETH
+    /// @dev Wraps the other half for the position
+    /// @dev Approves tokens for the position manager
+    /// @dev Calculates the tick ranges for the position
+    /// @dev Creates a new position in the V3 pool
+    function _initializeCultPoolLogic() private returns (bool success) {
+        
+        if (cultV3Position != 0 || cultPool == address(0)) {
+            return false;
+        }
+
+        // Get current tick and calculate proper range
+        int24 tickSpacing = _staticcallTickSpacing(cultPool);
+        (,int24 currentTick) = _staticcallSlot0Values(cultPool);
+        
+        // Calculate ticks ±16 spacing units from current tick
+        int24 tickRange = tickSpacing * 16;
+
+        // Buy CULT with half the ETH
+        uint256 cultBought = _buyCultWithExactEth(0.005 ether);
+
+        // Wrap the other half for the position
+        //IWETH(weth).deposit{value: 0.005 ether}();
+        _wethDeposit(0.005 ether);
+
+        // Approve tokens for position manager
+        _erc20Approve(CULT, address(positionManager), cultBought);
+        _erc20Approve(weth, address(positionManager), 0.005 ether);
+        
+        // Calculate tick ranges
+        int24 tickLower = ((currentTick - tickRange) / tickSpacing) * tickSpacing;
+        int24 tickUpper = ((currentTick + tickRange) / tickSpacing) * tickSpacing;
+        address _CULT = CULT;
+        address _posMan = address(positionManager);
+        bool isToken0 = CULT < weth;
+        
+        assembly {
+            // Setup call to positionManager.mint()
+            let ptr := mload(0x40)
+            // Function selector for mint(MintParams)
+            mstore(ptr, 0x8831645600000000000000000000000000000000000000000000000000000000)
+
+            // Pack parameters based on token order
+            // MintParams struct:
+            // token0: address
+            // token1: address  
+            // fee: uint24
+            // tickLower: int24
+            // tickUpper: int24
+            // amount0Desired: uint256
+            // amount1Desired: uint256
+            // amount0Min: uint256
+            // amount1Min: uint256
+            // recipient: address
+            // deadline: uint256
+            switch isToken0
+            case 1 {
+                // If CULT is token0
+                mstore(add(ptr, 0x04), _CULT)           // token0 = CULT
+                mstore(add(ptr, 0x24), weth)            // token1 = WETH
+                mstore(add(ptr, 0xa4), cultBought)      // amount0Desired = cultBought
+                mstore(add(ptr, 0xc4), 5000000000000000) // amount1Desired = 0.005 ETH
+            }
+            default {
+                // If WETH is token0
+                mstore(add(ptr, 0x04), weth)            // token0 = WETH
+                mstore(add(ptr, 0x24), _CULT)           // token1 = CULT
+                mstore(add(ptr, 0xa4), 5000000000000000) // amount0Desired = 0.005 ETH
+                mstore(add(ptr, 0xc4), cultBought)      // amount1Desired = cultBought
+            }
+
+            // Common parameters
+            mstore(add(ptr, 0x44), POOL_FEE)           // fee
+            mstore(add(ptr, 0x64), tickLower)          // tickLower
+            mstore(add(ptr, 0x84), tickUpper)          // tickUpper
+            mstore(add(ptr, 0xe4), 0)                  // amount0Min
+            mstore(add(ptr, 0x104), 0)                 // amount1Min
+            mstore(add(ptr, 0x124), address())         // recipient = this contract
+            mstore(add(ptr, 0x144), timestamp())       // deadline = current block timestamp
+
+            // Make external call to position manager
+            // Input size is 0x164 (356 bytes) - full MintParams struct
+            // Output size is 0xA0 (160 bytes) - returns (tokenId, liquidity, amount0, amount1)
+            success := call(gas(), _posMan, 0, ptr, 0x164, ptr, 0xA0)
+
+            if success {
+                // Store returned tokenId as cultV3Position
+                sstore(cultV3Position.slot, mload(ptr))
+
+                // Handle unused WETH refund if mint succeeded
+                if iszero(lt(returndatasize(), 0xA0)) {
+                    // Get actual amount1 used from return data
+                    let amount1 := mload(add(ptr, 0x80))
+                    let unusedWeth := sub(5000000000000000, amount1)
+
+                    // Safety check on unusedWeth amount
+                    if gt(unusedWeth, 0) {
+                        if gt(unusedWeth, 5000000000000000) {
+                            unusedWeth := 0
+                        }
+
+                        // Call WETH.withdraw() with unused amount
+                        mstore(0x00, 0x2e1a7d4d00000000000000000000000000000000000000000000000000000000)
+                        mstore(0x04, unusedWeth)
+                        pop(call(gas(), weth, 0, 0x00, 0x24, 0x00, 0x00))
+                    }
+                }
+            }
+
+            // If mint failed, withdraw all WETH
+            if iszero(success) {
+                mstore(0x00, 0x2e1a7d4d00000000000000000000000000000000000000000000000000000000)
+                mstore(0x04, 5000000000000000)
+                pop(call(gas(), weth, 0, 0x00, 0x24, 0x00, 0x00))
+            }
+        }
+    }
+
+    // ┌───────────────────────────────────────────────┐
+    // │               VIEW AND PURE                   │
+    // └───────────────────────────────────────────────┘
+
+    function name() public pure override returns (string memory) {
+        return "TEST404";
+    }
+
+    function symbol() public pure override returns (string memory) {
+        return "TEST404";
+    }
+
+    /// @notice Calculates the cost of a given amount of EXEC tokens
+    /// @dev Uses the bonding curve formula to calculate the cost
+    /// @param amount The amount of EXEC tokens to calculate cost for
+    /// @return cost The calculated cost in ETH
+    function calculateCost(uint256 amount) public view returns (uint256) {
+        return calculateIntegral(totalBondingSupply, totalBondingSupply + amount);
+    }
+
+    /// @notice Calculates the refund amount for a given amount of EXEC tokens
+    /// @dev Uses the bonding curve formula to calculate the refund
+    /// @param amount The amount of EXEC tokens to calculate refund for
+    /// @return refund The calculated refund amount in ETH
+    function calculateRefund(uint256 amount) public view returns (uint256) {
+        return calculateIntegral(totalBondingSupply - amount, totalBondingSupply);
+    }
+
+    /// @notice Returns the token IDs owned by a specific address
+    /// @dev Retrieves all token IDs owned by the address
+    /// @param owner The address to check for owned tokens
+    /// @return tokenIds The array of token IDs owned by the address
+    function getOwnerTokens(address owner) public view returns (uint256[] memory) {
+        uint256 ownerBalanceLength = _balanceOfNFT(owner);
+        return _ownedIds(owner, 0, ownerBalanceLength);
+    }
+    
+    /// @notice Returns the token URI for a given token ID
+    /// @dev Retrieves the token URI for the specified token ID
+    /// @param tokenId The ID of the token to get the URI for
+    /// @return uri The token URI for the specified token ID
+    function tokenURI(uint256 tokenId) public view returns (string memory) {
+        return _tokenURI(tokenId);
+    }
+
+    /// @notice Verifies if an address is whitelisted using a Merkle proof
+    /// @dev Uses the Merkle proof to verify if the address is whitelisted
+    /// @param proof The Merkle proof for the address
+    /// @param account The address to verify
+    /// @return isWhitelisted True if the address is whitelisted, false otherwise
+    function isWhitelisted(bytes32[] calldata proof, address account) public view returns (bool) {
+        return MerkleProofLib.verify(
+            proof,
+            currentRoot(),
+            // keccak256(abi.encodePacked(account))
+            keccak256(abi.encodePacked(bytes20(account)))
+        );
+    }
+
+    /// @notice Returns the current tier based on the timestamp
+    /// @dev Calculates the current tier based on the timestamp
+    /// @return currentTier The current tier
+    function getCurrentTier() public view returns (uint256) {
+        if (block.timestamp < LAUNCH_TIME) return 0;
+        uint256 hoursSinceLaunch = (block.timestamp - LAUNCH_TIME) / 1 hours;
+        return hoursSinceLaunch >= tierRoots.length ? tierRoots.length - 1 : hoursSinceLaunch;
+    }
+
+    /// @notice Returns the current tier's Merkle root
+    /// @dev Retrieves the Merkle root for the current tier
+    /// @return root The Merkle root for the current tier
+    function currentRoot() public view returns (bytes32) {
+        return tierRoots[getCurrentTier()];
+    }
+
+    /// @notice Calculates the amount of ETH required to purchase a given amount of EXEC tokens
+    /// @dev Uses the bonding curve formula to calculate the cost
+    /// @param execAmount The amount of EXEC tokens to calculate cost for
+    /// @return ethAmount The calculated cost in ETH
+    function getEthForExec(uint256 execAmount) public view returns (uint256 ethAmount) {
+        require(execAmount <= totalBondingSupply, "Exceeds bonding");
+        return calculateRefund(execAmount);
+    }
+
+    /// @notice Calculates the amount of EXEC tokens that can be purchased for a given amount of ETH
+    /// @dev Uses binary search to find the amount of EXEC that costs closest to the given ETH amount
+    /// @param ethAmount The amount of ETH to calculate the amount of EXEC for
+    /// @return execAmount The calculated amount of EXEC tokens
+    function getExecForEth(uint256 ethAmount) public view returns (uint256 execAmount) {
+        // If price is too low, return max possible
+        uint256 remainingSupply = MAX_SUPPLY - LIQUIDITY_RESERVE - totalBondingSupply;
+        if (calculateCost(remainingSupply) <= ethAmount) {
+            return remainingSupply;
+        }
+
+        // Binary search for the amount of EXEC that costs closest to ethAmount
+        uint256 low = 0;
+        uint256 high = remainingSupply;
+        
+        while (low < high) {
+            uint256 mid = (low + high + 1) / 2;
+            uint256 cost = calculateCost(mid);
+            
+            if (cost <= ethAmount) {
+                low = mid;
+            } else {
+                high = mid - 1;
+            }
+        }
+        
+        return low;
+    }
 
 }

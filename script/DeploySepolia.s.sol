@@ -43,8 +43,6 @@ contract DeploySepoliaScript is Script {
     address constant factory = 0x0227628f3F023bb0B980b67D528571c95c6DaC1c;
     address constant posManager = 0x1238536071E1c677A632429e3655c799b22cDA52;
 
-    
-
     function encodePriceSqrt(uint256 reserve1, uint256 reserve0) internal pure returns (uint160) {
         return uint160(sqrt((reserve1 << 192) / reserve0));
     }
@@ -73,18 +71,32 @@ contract DeploySepoliaScript is Script {
         // roots[9] = 0xcb57758264ef8eeb7a060f9b7c8ffdcefcf5f791a686ed8fe17671c84cfdc3f8;
         // roots[10] = 0x6e664b458778d4896e32882a564617964120e8c4f30e0d9d2f1b07a1894d5d0b;
         // roots[11] = 0xc8a4a04d5cb05d354b3279b8092ad0320912674e7c4fe0f92af5accbf606d384;
+        //v2 roots no delegation
+        // roots[0] = 0x383d484216d93fbbe5a6b58dc16fcda0abb4b5dc25ebbe822686016bda173de8;
+        // roots[1] = 0xba4c7683fe9a03ebb8b98aa2f5672f2bbb13f08938df935f5ead42d0641cedec;
+        // roots[2] = 0x56273724a5fe98e289169d65d26ab0b41d5086070ab3680f223395fa2e88e0ac;
+        // roots[3] = 0xc8407bfa46ff866d4de05f1a8cfb52adadfb145f0b32b6cb46bc3855f388e209;
+        // roots[4] = 0x3318b27514a6cfc186d0b5c187eb328b12603d37ded3c69d214b555294714598;
+        // roots[5] = 0xe07ab75c7f20829e490bef5971962417d8e118fb690d27afe641422c25976d95;
+        // roots[6] = 0xef4cc785c4cb2c95da781f39848239fdf47f762d3a450a0611386b0a49f3c59c;
+        // roots[7] = 0x4e34169c0ae4e58c595fc244e9b4dcbb130cd85358c57bfefa875237f0833db2;
+        // roots[8] = 0x26df5fc69123c0c8c899d776332602d792c717606be4fb5798a3d337eda1cc39;
+        // roots[9] = 0xe8746cad9f4dba5feac1c8ce05f6a9f4eaf0014d252e2eaf872aa1338fe0e17d;
+        // roots[10] = 0x088bfbc026984de05dc754bc59278e143c10f6d0316c08dd1494fc7112e961e1;
+        // roots[11] = 0x4989e05b0243e27ad49e29ba0858edfdd8eaa5bff24d08468ff99af05d3ba05d;
+        //v2 roots with delegation
         roots[0] = 0x383d484216d93fbbe5a6b58dc16fcda0abb4b5dc25ebbe822686016bda173de8;
-        roots[1] = 0xba4c7683fe9a03ebb8b98aa2f5672f2bbb13f08938df935f5ead42d0641cedec;
-        roots[2] = 0x56273724a5fe98e289169d65d26ab0b41d5086070ab3680f223395fa2e88e0ac;
-        roots[3] = 0xc8407bfa46ff866d4de05f1a8cfb52adadfb145f0b32b6cb46bc3855f388e209;
-        roots[4] = 0x3318b27514a6cfc186d0b5c187eb328b12603d37ded3c69d214b555294714598;
-        roots[5] = 0xe07ab75c7f20829e490bef5971962417d8e118fb690d27afe641422c25976d95;
-        roots[6] = 0xef4cc785c4cb2c95da781f39848239fdf47f762d3a450a0611386b0a49f3c59c;
-        roots[7] = 0x4e34169c0ae4e58c595fc244e9b4dcbb130cd85358c57bfefa875237f0833db2;
-        roots[8] = 0x26df5fc69123c0c8c899d776332602d792c717606be4fb5798a3d337eda1cc39;
-        roots[9] = 0xe8746cad9f4dba5feac1c8ce05f6a9f4eaf0014d252e2eaf872aa1338fe0e17d;
-        roots[10] = 0x088bfbc026984de05dc754bc59278e143c10f6d0316c08dd1494fc7112e961e1;
-        roots[11] = 0x4989e05b0243e27ad49e29ba0858edfdd8eaa5bff24d08468ff99af05d3ba05d;
+        roots[1] = 0x3e755dd64a20ad8829a7f6e1a1df65199a80edc6a500ad0539a4363d623d8429;
+        roots[2] = 0xe80a9245200ccbb7e5b8db4a18e354b19574011806e9aac4b3f048c7aa5e281b;
+        roots[3] = 0x1dd1fb00acb2042a46ad691a058ec2cdf6e11cb401bb907f10c49071daec8e3d;
+        roots[4] = 0x3721ea94d93df2cc9785ffbb0bde71c3495747976119135bcb808b9fd2b148a9;
+        roots[5] = 0xc219477ca23adcb4650364be87505596afec465e1320d1fbc534ce6837764349;
+        roots[6] = 0xff275b7b05a174b48b33d14bfeb6ac1a63bf44474054887d2fb40ad3110f4e56;
+        roots[7] = 0xf7e95a2d1b84642fbc76572eb7e7be51acc71ffb467c04a82d9363b1d3a5f4ae;
+        roots[8] = 0xcd962b225230f743505494ce5befdc43bb95039d9cf9cd85e31ab7998c7752bd;
+        roots[9] = 0xea0bd929aa9d311b2eb540ad17f8de71cfd8e517a3b561828c8003834ea712d6;
+        roots[10] = 0x67125b79075bb36b2be9c1731becda51087a8010418b21af3183e1cbd50880e0;
+        roots[11] = 0xa248a94675ab4dbeed416e131c3cb0f1d7be803c5e914dfbe20fe2216fde7034;
         return roots;
     }
 
@@ -172,13 +184,13 @@ contract DeploySepoliaScript is Script {
         SEPEXEC404 token = new SEPEXEC404(
             roots,
             address(mockCult),
-            address(0x99C5765d7F3B181e8177448A77db6fD637B61F7C)
+            address(0x99C5765d7F3B181e8177448A77db6fD637B61F7C) //cola bottles
         );
         console.log("SEPEXEC404 deployed at:", address(token));
 
         // Configure token
         token.configure(
-            "https://monygroupmint.nyc3.digitaloceanspaces.com/cultexec/public/metadata/",
+            "https://monygroupmint.nyc3.digitaloceanspaces.com/exectest/public/metadata/",
             "https://ms2.fun/EXEC404/unrevealed.json",
             true
         );

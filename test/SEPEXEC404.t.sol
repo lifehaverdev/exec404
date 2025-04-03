@@ -231,12 +231,13 @@ contract SEPEXEC404Test is Test {
     function testConstructorAndImmutables() public {
         // Verify immutable values are set correctly
         assertEq(address(token.CULT()), address(mockCult));
-        assertEq(address(token.OPERATOR_NFT()), colaBottles);
-        assertEq(address(token.router()), ROUTER);
+        // private variables now
+        //assertEq(address(token.OPERATOR_NFT()), colaBottles);
+        //assertEq(address(token.router()), ROUTER);
         //assertEq(address(token.router3()), V3ROUTER);
-        assertEq(address(token.positionManager()), POSITIONMANAGER);
-        assertEq(token.weth(), WETH);
-        assertEq(token.factory3(), FACTORY3);
+        //assertEq(address(token.positionManager()), POSITIONMANAGER);
+        //assertEq(token.weth(), WETH);
+        //assertEq(token.factory3(), FACTORY3);
     }
 
     function testAssemblyFunctions() public {
@@ -597,7 +598,7 @@ contract SEPEXEC404Test is Test {
             // Get V3 position details
         uint256 positionId = token.cultV3Position();
         if (positionId > 0) {
-            (,,,,,,,uint128 liquidity,,,,) = IPositionManager(address(token.positionManager())).positions(positionId);
+            (,,,,,,,uint128 liquidity,,,,) = IPositionManager(address(POSITIONMANAGER)).positions(positionId);
             console.log("CULT-ETH V3 Position Liquidity:", liquidity);
         } else {
             console.log("No V3 Position found");
@@ -610,7 +611,7 @@ contract SEPEXEC404Test is Test {
 
         // Get the position ID and manager
         uint256 positionId = token.cultV3Position();
-        IPositionManager posManager = IPositionManager(address(token.positionManager()));
+        IPositionManager posManager = IPositionManager(address(POSITIONMANAGER));
         
         // Get initial position state
         (,,,,,,,,,, uint128 initialTokensOwed0, uint128 initialTokensOwed1) = 
