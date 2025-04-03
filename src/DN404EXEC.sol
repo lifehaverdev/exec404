@@ -267,6 +267,7 @@ contract EXEC404 is DN404 {
     }
 
     modifier whitelistGated(bytes32[] calldata proof) {
+        require(liquidityPair == address(0), "Presale ended");
         uint256 currentTier = getCurrentTier();
         if (currentTier < tierRoots.length - 1) {
             require(isWhitelisted(proof, msg.sender), "Not whitelisted");

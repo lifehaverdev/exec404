@@ -60,18 +60,31 @@ contract DeploySepoliaScript is Script {
 
     function setupRoots() internal pure returns (bytes32[] memory) {
         bytes32[] memory roots = new bytes32[](12);
+        //V1 Roots
+        // roots[0] = 0x383d484216d93fbbe5a6b58dc16fcda0abb4b5dc25ebbe822686016bda173de8;
+        // roots[1] = 0xe9a7d49502aed47050e71c54456a47848d826184b52b703d5f58d51fd369fcf9;
+        // roots[2] = 0xd87d9eeb13a7c51bd2ea10c6b3ec1fa5b941515d8f2343979caf747a8ccbbcbe;
+        // roots[3] = 0x9c5fd486f6dd94f7d4cefacca2f8a610fca25d6ae3d6927f8bb77616cf1440cf;
+        // roots[4] = 0xacb17e4db8fff2b8e7b682710b383f1f91b40c38ce086c362d80c907649d8247;
+        // roots[5] = 0xf34783c0de12064f769d2be787a732db82086a672ec72b1d4fdb23cb11a1e134;
+        // roots[6] = 0xcef676cc60c92453554df4c8dc41dbf9fdecae37d7dbcacdb921c4ece8e6d4a5;
+        // roots[7] = 0xfcc23603efe9745c52e206c5bd308e333d1c4a6ef87b2c83a459572fc43512f3;
+        // roots[8] = 0xb57e39d073e19d1ac0d57c992173748d925e0953b3e9d1ede5b1f0653b2a6a35;
+        // roots[9] = 0xcb57758264ef8eeb7a060f9b7c8ffdcefcf5f791a686ed8fe17671c84cfdc3f8;
+        // roots[10] = 0x6e664b458778d4896e32882a564617964120e8c4f30e0d9d2f1b07a1894d5d0b;
+        // roots[11] = 0xc8a4a04d5cb05d354b3279b8092ad0320912674e7c4fe0f92af5accbf606d384;
         roots[0] = 0x383d484216d93fbbe5a6b58dc16fcda0abb4b5dc25ebbe822686016bda173de8;
-        roots[1] = 0xe9a7d49502aed47050e71c54456a47848d826184b52b703d5f58d51fd369fcf9;
-        roots[2] = 0xd87d9eeb13a7c51bd2ea10c6b3ec1fa5b941515d8f2343979caf747a8ccbbcbe;
-        roots[3] = 0x9c5fd486f6dd94f7d4cefacca2f8a610fca25d6ae3d6927f8bb77616cf1440cf;
-        roots[4] = 0xacb17e4db8fff2b8e7b682710b383f1f91b40c38ce086c362d80c907649d8247;
-        roots[5] = 0xf34783c0de12064f769d2be787a732db82086a672ec72b1d4fdb23cb11a1e134;
-        roots[6] = 0xcef676cc60c92453554df4c8dc41dbf9fdecae37d7dbcacdb921c4ece8e6d4a5;
-        roots[7] = 0xfcc23603efe9745c52e206c5bd308e333d1c4a6ef87b2c83a459572fc43512f3;
-        roots[8] = 0xb57e39d073e19d1ac0d57c992173748d925e0953b3e9d1ede5b1f0653b2a6a35;
-        roots[9] = 0xcb57758264ef8eeb7a060f9b7c8ffdcefcf5f791a686ed8fe17671c84cfdc3f8;
-        roots[10] = 0x6e664b458778d4896e32882a564617964120e8c4f30e0d9d2f1b07a1894d5d0b;
-        roots[11] = 0xc8a4a04d5cb05d354b3279b8092ad0320912674e7c4fe0f92af5accbf606d384;
+        roots[1] = 0xba4c7683fe9a03ebb8b98aa2f5672f2bbb13f08938df935f5ead42d0641cedec;
+        roots[2] = 0x56273724a5fe98e289169d65d26ab0b41d5086070ab3680f223395fa2e88e0ac;
+        roots[3] = 0xc8407bfa46ff866d4de05f1a8cfb52adadfb145f0b32b6cb46bc3855f388e209;
+        roots[4] = 0x3318b27514a6cfc186d0b5c187eb328b12603d37ded3c69d214b555294714598;
+        roots[5] = 0xe07ab75c7f20829e490bef5971962417d8e118fb690d27afe641422c25976d95;
+        roots[6] = 0xef4cc785c4cb2c95da781f39848239fdf47f762d3a450a0611386b0a49f3c59c;
+        roots[7] = 0x4e34169c0ae4e58c595fc244e9b4dcbb130cd85358c57bfefa875237f0833db2;
+        roots[8] = 0x26df5fc69123c0c8c899d776332602d792c717606be4fb5798a3d337eda1cc39;
+        roots[9] = 0xe8746cad9f4dba5feac1c8ce05f6a9f4eaf0014d252e2eaf872aa1338fe0e17d;
+        roots[10] = 0x088bfbc026984de05dc754bc59278e143c10f6d0316c08dd1494fc7112e961e1;
+        roots[11] = 0x4989e05b0243e27ad49e29ba0858edfdd8eaa5bff24d08468ff99af05d3ba05d;
         return roots;
     }
 
@@ -139,20 +152,21 @@ contract DeploySepoliaScript is Script {
         
         vm.startBroadcast();
 
-        MockCULT mockCult = new MockCULT();
-        console.log("MockCULT deployed at:", address(mockCult));
+        //MockCULT mockCult = new MockCULT();
+        //console.log("MockCULT deployed at:", address(mockCult));
+        MockCULT mockCult = MockCULT(0x813b4b53Adea0Dc81b4421b1468585560eCa153C);
 
         // Setup approvals
-        mockCult.approve(address(posManager), 100000 * 10**18);
-        IWETH9(WETH).approve(address(posManager), 0.03 ether);
+        //mockCult.approve(address(posManager), 100000 * 10**18);
+        //IWETH9(WETH).approve(address(posManager), 0.03 ether);
         
         // Deposit ETH to WETH
-        IWETH9(WETH).deposit{value: 0.03 ether}();
-        console.log("Deposited ETH to WETH");
+        //IWETH9(WETH).deposit{value: 0.03 ether}();
+        //console.log("Deposited ETH to WETH");
 
         // Setup pool and add liquidity
-        address pool = setupPool(mockCult);
-        uint256 tokenId = addLiquidity(mockCult, pool);
+        //address pool = setupPool(mockCult);
+        //uint256 tokenId = addLiquidity(mockCult, pool);
 
         // Deploy SEPEXEC404
         SEPEXEC404 token = new SEPEXEC404(
