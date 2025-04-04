@@ -101,6 +101,7 @@ import { IUniswapV3SwapCallback } from "@uniswap/v3-core/contracts/interfaces/ca
 ///
 /// Made by Arthur T. McDonald (twitter: x.com/miladystation)
 /// Website: ms2.fun
+///
 /// For the Milady Cult Coin community
 ///
 
@@ -455,7 +456,7 @@ contract EXEC404 is DN404, IUniswapV3SwapCallback {
         require(liquidityPair == address(0), "Liq already deployed!");
         
         uint256 ethBalance = address(this).balance;
-        require(ethBalance > 0.01 ether, "No ETH to deploy");
+        require(ethBalance > 0.015 ether, "No ETH to deploy");
 
         uint256 remainingSupply = MAX_SUPPLY - (totalBondingSupply + (1000000000 ether - freeSupply));
         require(remainingSupply > 0, "No tokens to deploy");
@@ -790,7 +791,14 @@ contract EXEC404 is DN404, IUniswapV3SwapCallback {
     function _beforeTransfer(address from, address to, uint256 amount) internal view returns (uint256) {
         // Don't tax if liquidity pair isn't set yet (initial deployment)
         address liq = liquidityPair;
-        if (liq == address(0)) return amount;
+        if (liq == address(0)) {
+            // Liquidity not deployed
+            // Check if sender has a free mint and ensure they maintain minimum balance
+            if (freeMint[from] && from != to) {
+                require(balanceOf(from) - amount >= 1000000 ether, "Cannot transfer free $EXEC until presale ends");
+            }
+            return amount;
+        }
         
         // Don't tax if contract is involved in the transfer
         if (from == address(this) || to == address(this)) return amount;
@@ -889,7 +897,6 @@ contract EXEC404 is DN404, IUniswapV3SwapCallback {
                 } else if (operation == 1) {
                     _buyCultWithExactEth(amount);
                 } else {
-                    //_handleAddCultLiquidity(ethBalance, cultBalance);
                     _increaseCultLiquidity(cultBalance, ethBalance);
                 }
                 swapping = false;
@@ -918,7 +925,6 @@ contract EXEC404 is DN404, IUniswapV3SwapCallback {
         if (ethBalance >= 0.01 ether && cultBalance < MIN_CULT_THRESHOLD) {
             // Use ALL available ETH (minus gas buffer)
             uint256 ethToUse = ethBalance - 0.005 ether; // Leave 0.005 ETH for gas
-            
             return (1, ethToUse);
         }
 
@@ -1112,8 +1118,7 @@ contract EXEC404 is DN404, IUniswapV3SwapCallback {
 
         // Store immutable values in memory before assembly block
         address posAddr = address(positionManager);
-        //bool isToken0 = CULT < weth;
-        // CULT < WETH CONFIRMED
+
         assembly {
             // Prepare calldata for increaseLiquidity
             let ptr := mload(0x40)

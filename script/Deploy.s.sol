@@ -102,7 +102,7 @@ contract DeployScript is Script {
         return generateMerkleRoot(layer);
     }
     function setupRoots() internal returns (bytes32[] memory) {
-       //bytes32[] memory roots = new bytes32[](12);
+       bytes32[] memory roots = new bytes32[](12);
         //V1 Roots
         // roots[0] = 0x383d484216d93fbbe5a6b58dc16fcda0abb4b5dc25ebbe822686016bda173de8;
         // roots[1] = 0xe9a7d49502aed47050e71c54456a47848d826184b52b703d5f58d51fd369fcf9;
