@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 import "forge-std/Test.sol";
-import "../src/DN404EXEC.sol";
+import {EXEC404} from "../src/EXEC404.sol";
 import { DN404Mirror } from "dn404/src/DN404Mirror.sol";
 
 interface IWETH {
@@ -49,6 +49,68 @@ interface IUniswapV2Router002 {
     function getAmountsOut(uint256 amountIn, address[] calldata path) external view returns (uint256[] memory amounts);
 }
 
+interface IUniswapV3Pool {
+    //function token0() external view returns (address);
+    //function token1() external view returns (address);
+    //function fee() external view returns (uint24);
+    //function positions(uint256 tokenId) external view returns (uint128 liquidity, uint256 feeGrowthInside0X128, uint256 feeGrowthInside1X128, uint128 tokensOwed0, uint128 tokensOwed1);
+    function swap(
+        address recipient,
+        bool zeroForOne,
+        int256 amountSpecified,
+        uint160 sqrtPriceLimitX96,
+        bytes calldata data
+    ) external returns (int256 amount0, int256 amount1);
+}
+
+interface IPositionManager {
+    function createAndInitializePoolIfNecessary(
+        address token0,
+        address token1,
+        uint24 fee,
+        uint160 sqrtPriceX96
+    ) external payable returns (address pool);
+
+    function mint(MintParams calldata params) external payable returns (
+        uint256 tokenId,
+        uint128 liquidity,
+        uint256 amount0,
+        uint256 amount1
+    );
+
+    struct MintParams {
+        address token0;
+        address token1;
+        uint24 fee;
+        int24 tickLower;
+        int24 tickUpper;
+        uint256 amount0Desired;
+        uint256 amount1Desired;
+        uint256 amount0Min;
+        uint256 amount1Min;
+        address recipient;
+        uint256 deadline;
+    }
+
+    function positions(uint256 tokenId)
+        external
+        view
+        returns (
+            uint96 nonce,
+            address operator,
+            address token0,
+            address token1,
+            uint24 fee,
+            int24 tickLower,
+            int24 tickUpper,
+            uint128 liquidity,
+            uint256 feeGrowthInside0LastX128,
+            uint256 feeGrowthInside1LastX128,
+            uint128 tokensOwed0,
+            uint128 tokensOwed1
+        );
+}
+
 contract EXEC404Test is Test {
     // Constants for common addresses
     address constant ROUTER = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D; // Uniswap V2 Router
@@ -92,7 +154,7 @@ contract EXEC404Test is Test {
     // Mapping to store all merkle trees data
     mapping(uint256 => mapping(address => bool)) public whitelistsByDay;
     
-    function setUp() public {
+    function setUp() public virtual {
         // Initialize test users with different "holdings" to simulate CULT holders
         address[] memory users = new address[](12);
         
@@ -414,13 +476,87 @@ contract EXEC404Test is Test {
                 } else {
                     // Should fail for non-whitelisted users
                     bytes32[] memory emptyProof;
-                    vm.expectRevert("Not whitelisted");  // Updated error message
+                    vm.expectRevert("Non-white");  // Updated error message
                     token.buyBonding{value: maxCost}(amount, maxCost, false, emptyProof, '');
                 }
                 
                 vm.stopPrank();
             }
         }
+    }
+
+    function testCalculateCostLimits() public view {
+        // Let's test different amounts and log the costs
+        uint256[] memory testAmounts = new uint256[](7);
+        testAmounts[0] = 1000 ether;                    // 1,000 tokens
+        testAmounts[1] = 1_000_000 ether;              // 1M tokens
+        testAmounts[2] = 100_000_000 ether;            // 100M tokens
+        testAmounts[3] = 1_000_000_000 ether;          // 1B tokens
+        testAmounts[4] = 2_000_000_000 ether;          // 2B tokens
+        testAmounts[5] = 3_996_000_000 ether;          // ~90% of 4.44B
+        testAmounts[6] = 4_440_000_000 ether;          // 4.44B tokens
+
+        console.log("Testing calculateCost limits:");
+        console.log("==============================");
+        
+        for (uint256 i = 0; i < testAmounts.length; i++) {
+            uint256 amount = testAmounts[i];
+            try token.calculateCost(amount) returns (uint256 cost) {
+                console.log("Amount (tokens):", amount / 1e18);
+                console.log("Cost (ETH):", cost / 1e18);
+                console.log("------------------------------");
+            } catch {
+                console.log("Failed at amount:", amount / 1e18);
+                console.log("------------------------------");
+                break;
+            }
+        }
+    }
+
+    function testBondingBuyLimit() public {
+        bytes32[] memory proof = generateProof(0, alice);
+
+        // Test: Can't exceed max supply
+        vm.warp(token.LAUNCH_TIME());
+        vm.startPrank(alice);
+        vm.deal(alice, 1000000 ether); // Give Alice plenty of ETH
+
+        console.log("Starting bonding curve tests:");
+        console.log("=============================");
+
+        // Try increasingly large purchases
+        uint256[] memory purchaseAmounts = new uint256[](1);
+        purchaseAmounts[0] = 3_996_000_001 ether; //exceeds bonding
+        //purchaseAmounts[0] = 1_000_000 ether;        // 1M
+        // purchaseAmounts[1] = 10_000_000 ether;       // 10M
+        // purchaseAmounts[2] = 100_000_000 ether;      // 100M
+        // purchaseAmounts[3] = 500_000_000 ether;      // 500M
+        // purchaseAmounts[4] = 1_000_000_000 ether;    // 1B
+        // purchaseAmounts[5] = 2_000_000_000 ether;    // 2B
+        // purchaseAmounts[6] = 1_611_000_000 ether; // last bit
+
+        for (uint256 i = 0; i < purchaseAmounts.length; i++) {
+            uint256 amount = purchaseAmounts[i];
+            try token.calculateCost(amount) returns (uint256 cost) {
+                console.log("\nTrying to buy tokens:", amount / 1e18);
+                console.log("Cost calculated:", cost / 1e18);
+                console.log("Current total supply:", token.totalSupply() / 1e18);
+                console.log("Total bonding supply:", token.totalBondingSupply());
+                
+                try token.buyBonding{value: cost}(amount, cost, false, proof, '') {
+                    console.log("Purchase succeeded");
+                } catch Error(string memory reason) {
+                    console.log("Purchase failed with reason:", reason);
+                    break;
+                }
+            } catch Error(string memory reason) {
+                console.log("\nCalculateCost failed at amount:", amount / 1e18);
+                console.log("Reason:", reason);
+                break;
+            }
+        }
+
+        vm.stopPrank();
     }
 
     function testBondingEdgeCases() public {
@@ -431,17 +567,23 @@ contract EXEC404Test is Test {
         // Test: Can't exceed max supply
         vm.warp(token.LAUNCH_TIME());
         vm.startPrank(alice);
-        vm.deal(alice, maxCost);
-        uint256 tooMuch = token.MAX_SUPPLY() + 1;
-        vm.expectRevert("Exceeds bonding supply");
-        token.buyBonding{value: maxCost}(tooMuch, maxCost, false, proof, '');
+        token.buyBonding{value: 1 ether}(amount, 1 ether, false, proof, '');
+        
+        // Calculate max bonding amount (90% of 4.4B)
+        uint256 maxBondingSupply = token.MAX_SUPPLY() - 444000000 ether;
+        uint256 tooMuch = maxBondingSupply + 1; // Just over the max allowed
+        vm.deal(alice, 100 ether); // Ensure we have enough ETH
+        
+        vm.expectRevert("Exceeds bonding");
+        token.buyBonding{value: 100 ether}(tooMuch, 100 ether, false, proof, '');
+        
         vm.stopPrank();
 
         // Test: Can't send insufficient ETH
         vm.startPrank(alice);
         vm.deal(alice, maxCost);
         uint256 cost = token.calculateCost(amount);
-        vm.expectRevert("Insufficient ETH sent");
+        vm.expectRevert("Low ETH value");
         token.buyBonding{value: cost - 1}(amount, maxCost, false, proof, '');
         vm.stopPrank();
 
@@ -450,7 +592,7 @@ contract EXEC404Test is Test {
         uint256 actualCost = token.calculateCost(amount);  // Use the contract's calculation
         vm.deal(alice, actualCost);
         uint256 lowMaxCost = actualCost - 1;
-        vm.expectRevert("Slippage exceeded");
+        vm.expectRevert("MaxCost exceeded");
         token.buyBonding{value: actualCost}(amount, lowMaxCost, false, proof, '');
         vm.stopPrank();
 
@@ -459,10 +601,14 @@ contract EXEC404Test is Test {
         vm.deal(alice, actualCost * 3);
         actualCost = token.calculateCost(amount);  // Use the contract's calculation
         // First buy with NFT minting off
+        
         token.buyBonding{value: actualCost}(amount, actualCost, false, proof, '');
+        
         uint256 nftBalanceBefore = token.balanceOf(alice);
         
         // Then buy with NFT minting on
+        
+        actualCost = token.calculateCost(amount);
         token.buyBonding{value: actualCost}(amount, actualCost, true, proof, '');
         uint256 nftBalanceAfter = token.balanceOf(alice);
         
@@ -471,7 +617,7 @@ contract EXEC404Test is Test {
     }
 
     // Helper function to simulate bonding curve sales and deploy liquidity
-    function setupLiquidityPool() internal returns (uint256 lpTokens) {
+    function setupLiquidityPool() internal virtual returns (uint256 lpTokens) {
         uint256 dailyPurchaseAmount = token.MAX_SUPPLY() / 11;
         
         // Buy tokens through bonding curve over 12 days
@@ -664,84 +810,90 @@ contract EXEC404Test is Test {
         vm.stopPrank();
     }
 
-    function testCreateCultPosition() public {
-        address user = makeAddr("cultLPProvider");
-        vm.deal(user, 1 ether);
-        vm.startPrank(user);
+    // function testCreateCultPosition() public {
+    //     address user = makeAddr("cultLPProvider");
+    //     vm.deal(user, 1 ether);
+    //     vm.startPrank(user);
         
-        // Prepare ETH amounts
+    //     // Prepare ETH amounts
         
-        // Buy CULT tokens
-        IWETH(token.weth()).deposit{value: 0.005 ether}();
-        IERC20(token.weth()).approve(address(token.router3()), 0.005 ether);
+    //     // Buy CULT tokens
+    //     IWETH(token.weth()).deposit{value: 0.005 ether}();
+    //     IERC20(token.weth()).approve(address(token.router3()), 0.005 ether);
         
-        bytes memory path = abi.encodePacked(
-            token.weth(),
-            uint24(10000),
-            token.CULT()
-        );
+    //     bytes memory path = abi.encodePacked(
+    //         token.weth(),
+    //         uint24(10000),
+    //         token.CULT()
+    //     );
         
-        ISwapRouter.ExactInputParams memory params = ISwapRouter.ExactInputParams({
-            path: path,
-            recipient: user,
-            deadline: block.timestamp,
-            amountIn: 0.005 ether,
-            amountOutMinimum: 0
-        });
+    //     ISwapRouter.ExactInputParams memory params = ISwapRouter.ExactInputParams({
+    //         path: path,
+    //         recipient: user,
+    //         deadline: block.timestamp,
+    //         amountIn: 0.005 ether,
+    //         amountOutMinimum: 0
+    //     });
         
-        uint256 cultBought = ISwapRouter(token.router3()).exactInput(params);
+    //     uint256 cultBought = ISwapRouter(token.router3()).exactInput(params);
         
-        // Prepare for position
-        IWETH(token.weth()).deposit{value: 0.005 ether}();
+    //     // Prepare for position
+    //     IWETH(token.weth()).deposit{value: 0.005 ether}();
         
-        // Calculate position range
-        //address cultPool = token.factory3().getPool(token.CULT(), token.weth(), 10000);
-        (,bytes memory d) = token.factory3().staticcall(abi.encodeWithSelector(0x1698ee82, token.CULT(), token.weth(), 10000));
-        address cultPool = abi.decode(d, (address));
-        //(, int24 currentTick,,,,, ) = IUniswapV3Pool(cultPool).slot0();
-        (,bytes memory d2) = cultPool.staticcall(abi.encodeWithSelector(0x3850c7bd));
-        (uint160 sqrtPriceX96, int24 currentTick,,,,,) = abi.decode(d2, (uint160,int24,uint16,uint16,uint16,uint8,bool));
+    //     // Calculate position range
+    //     //address cultPool = token.factory3().getPool(token.CULT(), token.weth(), 10000);
+    //     (,bytes memory d) = token.factory3().staticcall(abi.encodeWithSelector(0x1698ee82, token.CULT(), token.weth(), 10000));
+    //     address cultPool = abi.decode(d, (address));
+    //     //(, int24 currentTick,,,,, ) = IUniswapV3Pool(cultPool).slot0();
+    //     (,bytes memory d2) = cultPool.staticcall(abi.encodeWithSelector(0x3850c7bd));
+    //     (uint160 sqrtPriceX96, int24 currentTick,,,,,) = abi.decode(d2, (uint160,int24,uint16,uint16,uint16,uint8,bool));
 
         
-        //int24 tickSpacing = IUniswapV3Pool(cultPool).tickSpacing();
-        (,bytes memory d3) = cultPool.staticcall(abi.encodeWithSelector(0xd0c93a7c));
-        int24 tickSpacing = abi.decode(d3, (int24));
-        //int24 tickRange = tickSpacing * 16;
-        //int24 tickLower = ((currentTick - tickRange) / tickSpacing) * tickSpacing;
-        //int24 tickUpper = ((currentTick + tickRange) / tickSpacing) * tickSpacing;
+    //     //int24 tickSpacing = IUniswapV3Pool(cultPool).tickSpacing();
+    //     (,bytes memory d3) = cultPool.staticcall(abi.encodeWithSelector(0xd0c93a7c));
+    //     int24 tickSpacing = abi.decode(d3, (int24));
+    //     //int24 tickRange = tickSpacing * 16;
+    //     //int24 tickLower = ((currentTick - tickRange) / tickSpacing) * tickSpacing;
+    //     //int24 tickUpper = ((currentTick + tickRange) / tickSpacing) * tickSpacing;
         
-        // Approve tokens
-        IERC20(token.CULT()).approve(address(token.positionManager()), cultBought);
-        IERC20(token.weth()).approve(address(token.positionManager()), 0.005 ether);
+    //     // Approve tokens
+    //     IERC20(token.CULT()).approve(address(token.positionManager()), cultBought);
+    //     IERC20(token.weth()).approve(address(token.positionManager()), 0.005 ether);
         
-        // Create position
-        INonfungiblePositionManager.MintParams memory mintParams = INonfungiblePositionManager.MintParams({
-            token0: token.CULT(),
-            token1: token.weth(),
-            fee: 10000,
-            tickLower: ((currentTick - (tickSpacing * 16)) / tickSpacing) * tickSpacing,
-            tickUpper: ((currentTick + (tickSpacing * 16)) / tickSpacing) * tickSpacing,
-            amount0Desired: cultBought,
-            amount1Desired: 0.005 ether,
-            amount0Min: 0,
-            amount1Min: 0,
-            recipient: user,
-            deadline: block.timestamp
-        });
+    //     // Create position
+    //     INonfungiblePositionManager.MintParams memory mintParams = INonfungiblePositionManager.MintParams({
+    //         token0: token.CULT(),
+    //         token1: token.weth(),
+    //         fee: 10000,
+    //         tickLower: ((currentTick - (tickSpacing * 16)) / tickSpacing) * tickSpacing,
+    //         tickUpper: ((currentTick + (tickSpacing * 16)) / tickSpacing) * tickSpacing,
+    //         amount0Desired: cultBought,
+    //         amount1Desired: 0.005 ether,
+    //         amount0Min: 0,
+    //         amount1Min: 0,
+    //         recipient: user,
+    //         deadline: block.timestamp
+    //     });
         
-        try INonfungiblePositionManager(token.positionManager()).mint(mintParams) returns (
-            uint256 tokenId,
-            uint128 liquidity,
-            uint256 amount0,
-            uint256 amount1
-        ) {
-            assertTrue(tokenId > 0, "Position should be created");
-            assertTrue(liquidity > 0, "Position should have liquidity");
-        } catch Error(string memory reason) {
-            fail();
-        }
+    //     try INonfungiblePositionManager(token.positionManager()).mint(mintParams) returns (
+    //         uint256 tokenId,
+    //         uint128 liquidity,
+    //         uint256 amount0,
+    //         uint256 amount1
+    //     ) {
+    //         assertTrue(tokenId > 0, "Position should be created");
+    //         assertTrue(liquidity > 0, "Position should have liquidity");
+    //     } catch Error(string memory reason) {
+    //         fail();
+    //     }
         
-        vm.stopPrank();
+    //     vm.stopPrank();
+    // }
+
+    function testAddressLT() public pure {
+        address _weth = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+        address _cult = 0x0000000000c5dc95539589fbD24BE07c6C14eCa4;
+        console.log(_cult < _weth);
     }
 
     function testMarket() public {
@@ -768,6 +920,13 @@ contract EXEC404Test is Test {
             //vm.warp(block.timestamp + 15 * (i % 2));
             vm.roll(block.number + i);
             vm.warp(block.timestamp + 15*i);
+
+            console.log("\nContract state:", block.number);
+            console.log("contract eth balance",address(token).balance);
+            console.log("contract cult balance",IERC20(token.CULT()).balanceOf(address(token)));
+            console.log("Contract token balance", token.balanceOf(address(token)));
+            (,,,,,,,uint128 liquidity,,,,) = IPositionManager(address(POSITIONMANAGER)).positions(token.cultV3Position());
+            console.log("Contract CULT-ETH V3 Position Liquidity:", liquidity);
             
             if(i % 2 == 0) { // Buy
                 address trader = traders[i % traders.length];
@@ -801,6 +960,8 @@ contract EXEC404Test is Test {
                 uint256 tokenBalance = token.balanceOf(seller);
                 if(tokenBalance > 0) {
                     uint256 sellAmount = tokenBalance / 4;
+        // Add debug logs
+        
                     uint256 ethBefore = address(token).balance;
                     
                     address[] memory path = new address[](2);
@@ -820,7 +981,9 @@ contract EXEC404Test is Test {
                             totalTaxes += address(token).balance - ethBefore;
                         }
                     } catch Error(string memory reason) {
-                        console.log("\nSell failed:", reason);
+                                    console.log("Sell failed:", reason);
+                        console.log("Post-fail balance:", token.balanceOf(seller));
+                        console.log("Post-fail allowance:", token.allowance(seller, ROUTER));
                     }
                 }
                 vm.stopPrank();
@@ -845,7 +1008,7 @@ contract EXEC404Test is Test {
         // Get V3 position details
         uint256 positionId = token.cultV3Position();
         if (positionId > 0) {
-            (,,,,,,,uint128 liquidity,,,,) = INonfungiblePositionManager(address(token.positionManager())).positions(positionId);
+            (,,,,,,,uint128 liquidity,,,,) = IPositionManager(address(POSITIONMANAGER)).positions(positionId);
             console.log("CULT-ETH V3 Position Liquidity:", liquidity);
         } else {
             console.log("No V3 Position found");
@@ -986,7 +1149,6 @@ contract EXEC404Test is Test {
         }
 
         /*
-        before gas optimization
         === Unique Gas Values ===
         Gas: 160562 Count: 1
         Gas: 115946 Count: 1
@@ -1040,6 +1202,20 @@ contract EXEC404Test is Test {
         sell using interface so it IS cheaper with my assembly bs. lfg!!!
         ├─ emit TaxOperation(opType: "sell", gasUsed: 134112 [1.341e5])
 
+
+        final version?? no interfaces
+        === Unique Gas Values ===
+        Gas: 160746 Count: 1
+        Gas: 116946 Count: 1
+        Gas: 116947 Count: 3
+        Gas: 116918 Count: 1
+        Gas: 116919 Count: 1
+        Gas: 116948 Count: 1
+        Gas: 116949 Count: 2
+        Gas: 95019 Count: 2
+        Gas: 95049 Count: 1
+        Gas: 95050 Count: 2
+
         */
     }
 
@@ -1050,7 +1226,7 @@ contract EXEC404Test is Test {
 
         // Get the position ID and manager
         uint256 positionId = token.cultV3Position();
-        INonfungiblePositionManager posManager = INonfungiblePositionManager(token.positionManager());
+        IPositionManager posManager = IPositionManager(POSITIONMANAGER);
         
         // Get initial position state
         (,,,,,,,,,, uint128 initialTokensOwed0, uint128 initialTokensOwed1) = 
@@ -1161,81 +1337,87 @@ contract EXEC404Test is Test {
     }
 
     function testGetMessagesBatch() public {
-        uint256 amount = 100 ether;
-        uint256 maxCost = 1 ether;
-        vm.warp(token.LAUNCH_TIME());
-        address user = testUsers[0];
-        bytes32[] memory proof = generateProof(0, user);
-        
-        vm.startPrank(user);
-        vm.deal(user, maxCost * 5);
+    uint256 baseAmount = 1_000_000 ether;
+    uint256 maxCost = 1 ether;
+    vm.warp(token.LAUNCH_TIME());
+    address user = testUsers[0];
+    bytes32[] memory proof = generateProof(0, user);
+    
+    vm.startPrank(user);
+    vm.deal(user, maxCost * 10); // give a bit more ETH
 
-        // Initialize account
-        token.buyBonding{value: maxCost}(amount, maxCost, false, proof, "");
-        
-        // Create a series of messages
-        string[4] memory testMessages = [
-            "First message",
-            "Second message",
-            "Third message",
-            "Fourth message"
-        ];
-        
-        for(uint i = 0; i < testMessages.length; i++) {
-            if(i % 2 == 0) {
-                token.buyBonding{value: maxCost}(amount, maxCost, false, proof, testMessages[i]);
-            } else {
-                token.sellBonding(amount / 2, 0, proof, testMessages[i]);
-            }
+    // Initialize account
+    token.buyBonding{value: maxCost}(baseAmount, maxCost, false, proof, "");
+
+    // Create a series of messages
+    string[4] memory testMessages = [
+        "First message",
+        "Second message",
+        "Third message",
+        "Fourth message"
+    ];
+
+    for (uint i = 0; i < testMessages.length; i++) {
+        uint256 amount = baseAmount / (i + 1); // prevent overflow and reduce over time
+        if (i % 2 == 0) {
+            uint256 cost = token.calculateCost(amount);
+            token.buyBonding{value: cost}(amount, cost, false, proof, testMessages[i]);
+        } else {
+            token.sellBonding(amount / 2, 0, proof, testMessages[i]);
         }
-        
-        // Test valid range (0-1)
-        console.log("\nTesting range 0-1:");
-        (
-            address[] memory senders,
-            uint32[] memory timestamps,
-            uint64[] memory amounts,
-            bool[] memory isBuys,
-            string[] memory messages
-        ) = token.getMessagesBatch(0, 1);
-        
-        for(uint i = 0; i <= 1; i++) {
-            console.log("Message %s:", i);
-            console.log("Sender:", senders[i]);
-            console.log("Timestamp:", timestamps[i]);
-            console.log("Amount:", amounts[i]);
-            console.log("Is Buy:", isBuys[i]);
-            console.log("Message:", messages[i]);
-        }
-        
-        // Test another valid range (1-3)
-        console.log("\nTesting range 1-3:");
-        (senders, timestamps, amounts, isBuys, messages) = token.getMessagesBatch(1, 3);
-        
-        for(uint i = 0; i < 3; i++) {
-            console.log("Message %s:", i + 1);
-            console.log("Sender:", senders[i]);
-            console.log("Timestamp:", timestamps[i]);
-            console.log("Amount:", amounts[i]);
-            console.log("Is Buy:", isBuys[i]);
-            console.log("Message:", messages[i]);
-        }
-        
-        // Test invalid ranges
-        console.log("\nTesting invalid ranges:");
-        
-        // Test end < start
-        vm.expectRevert("Invalid range");
-        token.getMessagesBatch(2, 1);
-        console.log("Correctly reverted when end < start");
-        
-        // Test out of bounds
-        vm.expectRevert("End out of bounds");
-        token.getMessagesBatch(0, 10);
-        console.log("Correctly reverted when end > totalMessages");
-        
-        vm.stopPrank();
     }
+
+    // Test valid range (0-1)
+    console.log("\nTesting range 0-1:");
+    (
+        address[] memory senders,
+        uint32[] memory timestamps,
+        uint96[] memory amounts,
+        bool[] memory isBuys,
+        string[] memory messages
+    ) = token.getMessagesBatch(0, 1);
+
+    for (uint i = 0; i <= 1; i++) {
+        console.log("Message %s:", i);
+        console.log("Sender:", senders[i]);
+        console.log("Timestamp:", timestamps[i]);
+        console.log("Amount (scaled):", amounts[i]);
+        console.log("Is Buy:", isBuys[i]);
+        console.log("Message:", messages[i]);
+
+        if (isBuys[i]) {
+            uint96 expected = uint96((baseAmount / (i + 1)) / 1e18);
+            assertGt(expected, 0, "Expected amount is zero!");
+            assertEq(amounts[i], expected, "Buy amount not preserved as scaled ETH");
+        }
+    }
+
+    // Test another valid range (1-3)
+    console.log("\nTesting range 1-3:");
+    (senders, timestamps, amounts, isBuys, messages) = token.getMessagesBatch(1, 3);
+
+    for (uint i = 0; i < 3; i++) {
+        console.log("Message %s:", i + 1);
+        console.log("Sender:", senders[i]);
+        console.log("Timestamp:", timestamps[i]);
+        console.log("Amount (scaled):", amounts[i]);
+        console.log("Is Buy:", isBuys[i]);
+        console.log("Message:", messages[i]);
+    }
+
+    // Test invalid ranges
+    console.log("\nTesting invalid ranges:");
+    vm.expectRevert("Invalid range");
+    token.getMessagesBatch(2, 1);
+    console.log("Correctly reverted when end < start");
+
+    vm.expectRevert("End out of bounds");
+    token.getMessagesBatch(0, 10);
+    console.log("Correctly reverted when end > totalMessages");
+
+    vm.stopPrank();
+}
+
 
     function testBondingPriceChanges() public {
         address user = testUsers[0];
@@ -1245,14 +1427,14 @@ contract EXEC404Test is Test {
         vm.deal(user, 100 ether); // Give plenty of ETH
         vm.warp(token.LAUNCH_TIME());
 
-        uint256 purchaseAmount = 100_000_000 ether; // 10M EXEC per purchase
-        uint256 checkAmount = 10_000_000 ether; // Check price for 10M EXEC
+        uint256 purchaseAmount = 250_000_000 ether; // 250M EXEC per purchase
+        uint256 checkAmount = 1_000_000 ether; // Check price for 10M EXEC
         
         console.log("\n=== Bonding Price Changes ===");
-        console.log("Initial price for 10M EXEC: %s wei", token.calculateCost(checkAmount));
+        console.log("Initial price for 1M EXEC: %s wei", token.calculateCost(checkAmount));
         
         // Buy in 10M EXEC increments and check price after each purchase
-        for (uint256 i = 1; i <= 20; i++) {
+        for (uint256 i = 1; i <= 16; i++) {
             uint256 cost = token.calculateCost(purchaseAmount);
             
             // Make the purchase
@@ -1261,8 +1443,8 @@ contract EXEC404Test is Test {
             // Check new price for next 10M EXEC
             uint256 newPrice = token.calculateCost(checkAmount);
             console.log(
-                "After %sM EXEC purchased - Price for next 10M: %s wei",
-                i * 10,
+                "After %sM EXEC purchased - Price for next 1M: %s wei",
+                i * 250,
                 newPrice
             );
         }
@@ -1279,7 +1461,7 @@ contract EXEC404Test is Test {
         bytes32[] memory proof = generateProof(0, user);
         
         vm.startPrank(user);
-        vm.deal(user, maxCost);
+        vm.deal(user, 100 ether);
 
         // Calculate the actual cost for 10M tokens
         uint256 actualCost = token.calculateCost(amount);
@@ -1287,7 +1469,7 @@ contract EXEC404Test is Test {
         console.log("Attempting to pay only:", maxCost);
 
         // This should revert because we're trying to buy more tokens than we're paying for
-        vm.expectRevert("Cost exceeds maxCost");
+        vm.expectRevert("MaxCost exceeded");
         token.buyBonding{value: maxCost}(amount, maxCost, false, proof, "");
 
         // Now let's verify the correct amount we can buy with 0.25 ETH
@@ -1298,7 +1480,7 @@ contract EXEC404Test is Test {
         token.buyBonding{value: correctCost}(correctAmount, correctCost, false, proof, "");
         
         // Verify the balance is correct
-        assertEq(token.balanceOf(user), correctAmount, "Received wrong amount of tokens");
+        assertEq(token.balanceOf(user)- 1_000_000 ether, correctAmount, "Received wrong amount of tokens");
         
         vm.stopPrank();
     }

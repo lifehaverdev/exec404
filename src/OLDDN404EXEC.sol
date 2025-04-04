@@ -131,7 +131,7 @@ interface INonfungiblePositionManager {
         returns (uint256 amount0, uint256 amount1);
 }
 
-contract EXEC404 is DN404 {
+contract OLDEXEC404 is DN404 {
     using FixedPointMathLib for uint256;
 
     address public constant CULT = 0x0000000000c5dc95539589fbD24BE07c6C14eCa4;

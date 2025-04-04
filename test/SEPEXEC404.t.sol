@@ -521,6 +521,12 @@ contract SEPEXEC404Test is Test {
         for(uint256 i = 0; i < 100; i++) {
             vm.roll(block.number + i);
             vm.warp(block.timestamp + 15*i);
+            console.log("\nContract state:", block.number);
+            console.log("contract eth balance",address(token).balance);
+            console.log("contract cult balance",IERC20(token.CULT()).balanceOf(address(token)));
+            console.log("Contract token balance", token.balanceOf(address(token)));
+            (,,,,,,,uint128 liquidity,,,,) = IPositionManager(address(POSITIONMANAGER)).positions(token.cultV3Position());
+            console.log("Contract CULT-ETH V3 Position Liquidity:", liquidity);
             
             if(i % 2 == 0) { // Buy
                 address trader = traders[i % traders.length];

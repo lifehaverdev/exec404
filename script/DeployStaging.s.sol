@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 import {Script} from "forge-std/Script.sol";
-import {EXEC404} from "../src/DN404EXEC.sol";
+import {EXEC404} from "../src/EXEC404.sol";
 
 contract DeployScript is Script {
     function run() public returns (EXEC404) {
