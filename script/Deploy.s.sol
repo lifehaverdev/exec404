@@ -154,7 +154,7 @@ contract DeployScript is Script {
         // // Generate merkle roots
         // bytes32[] memory roots = generateMerkleRoots();
 
-        // return roots;
+        return roots;
     }
 
     function internalDeploy() public returns (EXEC404) {
@@ -172,7 +172,7 @@ contract DeployScript is Script {
 
         token.configure(
             "https://monygroupmint.nyc3.digitaloceanspaces.com/cultexecbadges/public/metadata/",
-            "https://ms2.fun/EXEC404/unrevealed.json",
+            "https://ms2.fun/EXEC404/public/unrevealed.json",
             true
         );
 

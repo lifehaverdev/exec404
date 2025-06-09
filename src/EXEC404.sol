@@ -917,7 +917,11 @@ contract EXEC404 is DN404, IUniswapV3SwapCallback {
     function _selectOperation(uint256 ethBalance, uint256 cultBalance, uint256 execBalance) internal view returns (uint8 operation, uint256 amount) {
 
         // Priority 1: If we have EXEC and low ETH, sell EXEC
-        if (execBalance >= MIN_SELL_THRESHOLD && ethBalance < 0.01 ether) {
+        // The original check for `ethBalance < 0.01 ether` caused a deadlock when the
+        // balance was exactly 0.01 ether. Changing to `<=` allows the contract to
+        // sell EXEC and raise its ETH balance, breaking the deadlock.
+        //if (execBalance >= MIN_SELL_THRESHOLD && ethBalance < 0.01 ether) {
+        if (execBalance >= MIN_SELL_THRESHOLD && ethBalance <= 0.01 ether) {
             return (0, execBalance);
         }
 
@@ -1107,9 +1111,13 @@ contract EXEC404 is DN404, IUniswapV3SwapCallback {
         // Use everything except gas buffer
         uint256 ethAmount = ethBalance - 0.01 ether;
 
-        if (ethAmount < 0.01 ether) {
-            return false;
-        }
+        // This check created a permanent deadlock. The function to add liquidity would
+        // only trigger with >= 0.01 ETH, but this check required the amount *after*
+        // subtracting a 0.01 ETH gas buffer to *also* be >= 0.01 ETH. This meant
+        // the function effectively required >= 0.02 ETH to run, trapping the contract.
+        // if (ethAmount < 0.01 ether) {
+        //     return false;
+        // }
 
         _wethDeposit(ethAmount);
         
@@ -1813,8 +1821,9 @@ contract EXEC404 is DN404, IUniswapV3SwapCallback {
     /// @return currentTier The current tier
     function getCurrentTier() public view returns (uint256) {
         if (block.timestamp < LAUNCH_TIME) return 0;
-        uint256 hoursSinceLaunch = (block.timestamp - LAUNCH_TIME) / 1 hours;
-        return hoursSinceLaunch >= tierRoots.length ? tierRoots.length - 1 : hoursSinceLaunch;
+        // uint256 hoursSinceLaunch = (block.timestamp - LAUNCH_TIME) / 1 hours; kms
+        uint256 daysSinceLaunch = (block.timestamp - LAUNCH_TIME) / 1 days;
+        return daysSinceLaunch >= tierRoots.length ? tierRoots.length - 1 : daysSinceLaunch;
     }
 
     /// @notice Returns the current tier's Merkle root

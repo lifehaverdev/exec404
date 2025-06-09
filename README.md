@@ -65,6 +65,15 @@ forge script script/Deploy.s.sol:DeployScript --rpc-url <your_rpc_url> --private
 - Automated liquidity deployment safeguards
 - [Audit information pending]
 
+## Live Deployment & V1 Issues
+
+The V1 contract is deployed on mainnet at `0x185485bF2e26e0Da48149aee0A8032c8c2060Db2`.
+
+This initial version had two known issues that have been addressed in the latest source code:
+
+1.  **Incorrect Whitelist Duration:** The presale whitelist tiers were configured to rotate every 12 hours instead of the intended 12 days.
+2.  **Stuck Wankel Tax System:** A logical flaw in the tax processing system would cause it to become "clogged" when its ETH balance was between 0.01 and 0.02 ETH. This prevented the system from converting collected tax tokens into CULT liquidity as designed.
+
 ## License
 
 VPL
